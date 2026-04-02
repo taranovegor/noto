@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     libpq-dev \
     libicu-dev \
+    libzip-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-configure intl \
@@ -19,7 +20,8 @@ RUN docker-php-ext-configure intl \
     pdo_pgsql \
     opcache \
     intl \
-    sockets
+    sockets \
+    zip
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
