@@ -1,0 +1,23 @@
+services:
+    app:
+        build:
+            target: development
+        volumes:
+            - ./:/app
+        environment:
+            APP_ENV: dev
+            PHP_IDE_CONFIG: ${PHP_IDE_CONFIG:-serverName=localhost}
+
+    db:
+        image: postgres:18
+        container_name: noto_db
+        environment:
+            POSTGRES_DB: noto
+            POSTGRES_USER: app
+            POSTGRES_PASSWORD: ${DB_PASSWORD:-ChangeMe}
+        volumes:
+            - db_data:/var/lib/postgresql
+        restart: unless-stopped
+
+volumes:
+    db_data:

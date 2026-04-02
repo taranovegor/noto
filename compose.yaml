@@ -1,0 +1,11 @@
+services:
+    app:
+        image: ghcr.io/taranovegor/noto:latest
+        container_name: noto_app
+        ports:
+            - "8080:8080"
+        environment:
+            APP_ENV: prod
+        depends_on:
+            - db
+        restart: unless-stopped
