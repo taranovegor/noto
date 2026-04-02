@@ -61,7 +61,7 @@ ARG GID=1000
 
 COPY --chown=${UID}:${GID} . .
 
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 USER ${USERNAME}
 
