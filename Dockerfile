@@ -58,6 +58,8 @@ FROM base AS production
 
 ARG UID=1000
 ARG GID=1000
+ARG VERSION=unknown
+ENV VERSION=${VERSION}
 
 COPY --chown=${UID}:${GID} . .
 

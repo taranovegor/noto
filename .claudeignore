@@ -1,0 +1,6 @@
+.phpunit.cache/
+var/cache/
+var/share/
+vendor/
+.env.local
+.php-cs-fixer.cache

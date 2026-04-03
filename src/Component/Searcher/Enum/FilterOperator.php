@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Component\Searcher\Enum;
+
+enum FilterOperator: string implements OperatorInterface
+{
+    case Eq = 'eq';
+    case Neq = 'neq';
+    case Gt = 'gt';
+    case Gte = 'gte';
+    case Lt = 'lt';
+    case Lte = 'lte';
+    case In = 'in';
+    case NotIn = 'not_in';
+
+    public function getName(): string
+    {
+        return $this->value;
+    }
+}

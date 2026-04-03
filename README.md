@@ -99,7 +99,40 @@ Run Doctrine migrations to initialize the database schema:
 docker-compose exec app php bin/console doctrine:migrations:migrate
 ```
 
-## 📊 Monitoring
+### Test Database
+
+Before running integration tests for the first time, create the test database (one-time setup):
+
+```bash
+make db-init-test
+```
+
+## Testing
+
+```bash
+make test             # Run all tests
+make test-unit        # Unit tests only
+make test-integration # Integration tests only
+make test-coverage    # Generate HTML coverage report (./coverage/index.html)
+```
+
+## Code Style & Static Analysis
+
+```bash
+make cs       # Check code style (dry-run)
+make cs-fix   # Auto-fix code style
+make phpstan  # Static analysis (level 6)
+```
+
+## API Documentation
+
+Interactive API documentation (Swagger UI) is available at:
+
+```
+http://localhost:8080/api/doc
+```
+
+## Monitoring
 
 ### View Application Logs
 

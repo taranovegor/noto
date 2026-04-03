@@ -35,6 +35,9 @@ up: ## Start containers
 down: ## Stop and remove containers
 	$(DOCKER_COMPOSE) down
 
+db-init-test: ## Create test database
+	$(DOCKER_COMPOSE) exec db psql -U app -d noto -c "CREATE DATABASE noto_test"
+
 logs: ## Show containers logs
 	$(DOCKER_COMPOSE) logs -f
 
@@ -44,3 +47,25 @@ dotenv-dump: ## Merge envs. Arguments: src=<source file> dest=<destination file>
 	@[ -f "$(src)" ] || (echo "File '$(src)' not found"; exit 1)
 	printenv | awk '/^[^#].+$$/ {sub(/=/," ");c[$$1]++;if(2==c[$$1]){print $$1"="$$2}}' \
 		$(src) - $(src) > $(dest)
+
+test: ## Run all tests
+	$(DOCKER_COMPOSE) exec app bin/phpunit --display-phpunit-notices
+
+test-unit: ## Run unit tests only
+	$(DOCKER_COMPOSE) exec app bin/phpunit tests/Unit
+
+test-integration: ## Run integration tests only
+	$(DOCKER_COMPOSE) exec app bin/phpunit tests/Integration
+
+test-coverage: ## Run tests with coverage report
+	$(DOCKER_COMPOSE) exec app bin/phpunit --coverage-html ./coverage
+	@echo "Coverage report generated in ./coverage/index.html"
+
+cs: ## Check code style
+	$(DOCKER_COMPOSE) exec app bin/php-cs-fixer fix --dry-run --diff
+
+cs-fix: ## Fix code style
+	$(DOCKER_COMPOSE) exec app bin/php-cs-fixer fix
+
+phpstan: ## Run static analysis
+	$(DOCKER_COMPOSE) exec app bin/phpstan analyse --memory-limit=512M
