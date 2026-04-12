@@ -13,7 +13,3 @@ services:
         class: Symfony\Component\ErrorHandler\ErrorRenderer\SerializerErrorRenderer
         arguments:
             $format: 'json'
-
-    App\Component\Searcher\OpenApi\SearchCriteriaDescriber:
-        tags:
-            - nelmio_api_doc.route_describer
