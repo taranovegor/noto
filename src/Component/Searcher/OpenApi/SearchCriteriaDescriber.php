@@ -2,12 +2,12 @@
 
 namespace App\Component\Searcher\OpenApi;
 
+use App\Component\OpenApi\RouteDescriber\RouteDescriberTrait;
 use App\Component\Searcher\Attribute\Searchable;
 use App\Component\Searcher\Configurator\SearchConfigurator;
 use App\Component\Searcher\Definition\SearchableDefinitionInterface;
 use Nelmio\ApiDocBundle\OpenApiPhp\Util;
 use Nelmio\ApiDocBundle\RouteDescriber\RouteDescriberInterface;
-use Nelmio\ApiDocBundle\RouteDescriber\RouteDescriberTrait;
 use OpenApi\Annotations as OA;
 use OpenApi\Annotations\OpenApi;
 use Symfony\Component\Routing\Route;
