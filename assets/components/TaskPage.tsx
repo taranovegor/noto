@@ -65,6 +65,7 @@ function InlineSelect<T extends string>({
             key={opt.value}
             type="button"
             onClick={() => onChange(active ? undefined : opt.value)}
+            className="inline-select-option"
             style={{
               padding: '4px 12px', borderRadius: '9999px',
               fontSize: '0.75rem', fontWeight: 600,
@@ -200,8 +201,34 @@ export function TaskPage({ taskId, onBack, onCreated }: TaskPageProps) {
 
   if (loading) {
     return (
-      <div className="empty-state">
-        <p>Loading...</p>
+      <div style={{ maxWidth: '720px', animation: 'viewEnter 200ms var(--ease-out) forwards' }}>
+        {/* Back button skeleton */}
+        <div className="skeleton skeleton-text" style={{ width: '60px', height: '1rem', marginBottom: '32px' }} />
+
+        {/* Title skeleton */}
+        <div style={{ marginBottom: '32px' }}>
+          <div className="skeleton skeleton-text" style={{ height: '2rem', marginBottom: '12px' }} />
+          <div className="skeleton skeleton-text tiny" />
+        </div>
+
+        {/* Meta fields skeleton */}
+        <div style={{ borderTop: '1px solid var(--color-border)' }}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="skeleton-form-row">
+              <div className="skeleton skeleton-form-label" />
+              <div style={{ flex: 1, display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <div className="skeleton skeleton-text" style={{ width: '100px', height: '1.5rem' }} />
+                <div className="skeleton skeleton-text" style={{ width: '100px', height: '1.5rem' }} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Note section skeleton */}
+        <div style={{ marginTop: '40px' }}>
+          <div className="skeleton skeleton-text" style={{ width: '80px', height: '0.8rem', marginBottom: '16px' }} />
+          <div className="skeleton skeleton-text" style={{ height: '160px' }} />
+        </div>
       </div>
     );
   }
@@ -215,8 +242,8 @@ export function TaskPage({ taskId, onBack, onCreated }: TaskPageProps) {
   }
 
   return (
-    <form onSubmit={handleSave} style={{ maxWidth: '720px' }}>
-      <button type="button" onClick={onBack} className="btn-ghost" style={{ marginBottom: '32px' }}>
+    <form onSubmit={handleSave} style={{ maxWidth: '720px', animation: 'viewEnter 200ms var(--ease-out) forwards' }}>
+      <button type="button" onClick={onBack} className="btn-ghost" style={{ marginBottom: '32px', display: 'inline-flex', alignItems: 'center' }}>
         ← Back
       </button>
 

@@ -95,8 +95,26 @@ export function TasksList({ onTaskClick, onNewTask }: TasksListProps) {
       )}
 
       {loading ? (
-        <div className="empty-state">
-          <p>Loading...</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', alignItems: 'start' }}>
+          {COLUMNS.map((col) => (
+            <div key={col.status}>
+              <div style={{
+                marginBottom: '16px', paddingBottom: '8px',
+              }}>
+                <div className="skeleton skeleton-text" style={{ width: '80px', height: '0.9rem' }} />
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: 'calc(100vh - 320px)', overflowY: 'auto' }}>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="skeleton-card">
+                    <div className="skeleton skeleton-text" style={{ height: '1rem', marginBottom: '8px' }} />
+                    <div className="skeleton skeleton-text tiny" />
+                    <div className="skeleton skeleton-text tiny" style={{ marginBottom: 0 }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', alignItems: 'start' }}>
@@ -110,13 +128,18 @@ export function TasksList({ onTaskClick, onNewTask }: TasksListProps) {
                   <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{col.label}</span>
                 </div>
 
-                <div className="hide-scrollbar" style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: 'calc(100vh - 320px)', overflowY: 'auto' }}>
-                  {colTasks.map((task) => (
+                <div className="hide-scrollbar scrollable-column" style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: 'calc(100vh - 320px)', overflowY: 'auto' }}>
+                  {colTasks.map((task, index) => (
                     <div
                       key={task.id}
                       className="card"
                       onClick={() => onTaskClick(task.id)}
-                      style={{ padding: '16px', cursor: 'pointer' }}
+                      data-stagger-index={index}
+                      style={{
+                        padding: '16px',
+                        cursor: 'pointer',
+                        animationDelay: `${index * 30}ms`
+                      }}
                     >
                       <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--color-text)', lineHeight: 1.4 }}>
                         {task.priority && (
@@ -133,9 +156,9 @@ export function TasksList({ onTaskClick, onNewTask }: TasksListProps) {
                         {task.name}
                       </div>
                       {(task.code || task.deadline) && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '6px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '8px' }}>
                           {task.code && (
-                            <p style={{ fontFamily: 'var(--font-mono)', margin: 0 }}>
+                            <p style={{ fontFamily: 'var(--font-mono)', margin: 0, fontWeight: 500 }}>
                               {task.code}
                             </p>
                           )}

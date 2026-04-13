@@ -12,6 +12,10 @@
   --font-sans:  'Geist Sans', 'Helvetica Neue', 'SF Pro Display', sans-serif;
   --font-serif: 'Newsreader', 'Playfair Display', serif;
   --font-mono:  'Geist Mono', 'SF Mono', monospace;
+
+  /* Animation curves */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
 /* =============================================================================
@@ -101,7 +105,7 @@ code {
   font-weight: 600;
   color: var(--color-text);
   cursor: pointer;
-  transition: color 200ms ease-out;
+  transition: color 200ms var(--ease-out);
 }
 
 .sidebar-title:hover {
@@ -118,24 +122,32 @@ code {
 .sidebar-nav-item {
   background: none;
   border: none;
-  padding: 12px 24px;
+  border-left: 3px solid transparent;
+  padding: 12px 24px 12px 21px;
   font-size: 0.95rem;
   color: var(--color-text-secondary);
   cursor: pointer;
   text-align: left;
-  transition: all 150ms ease-out;
+  transition: all 150ms var(--ease-out);
   position: relative;
 }
 
 .sidebar-nav-item:hover {
   color: var(--color-text);
   background-color: var(--color-hover);
+  border-left-color: var(--color-text-secondary);
+}
+
+.sidebar-nav-item:active {
+  transform: scale(0.99);
+  transition: transform 100ms ease-out;
 }
 
 .sidebar-nav-item.active {
   color: var(--color-text);
   font-weight: 500;
   background-color: var(--color-surface);
+  border-left-color: var(--color-text);
 }
 
 .main-content {
@@ -152,12 +164,19 @@ code {
   border-radius: 8px;
   padding: 24px;
   background-color: var(--color-bg);
-  transition: all 200ms ease-out;
+  transition: all 150ms var(--ease-out);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .card:hover {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  border-color: var(--color-text-secondary);
+  background-color: var(--color-hover);
+}
+
+.card:active {
+  transform: scale(0.98);
+  transition: transform 120ms ease-out;
 }
 
 /* =============================================================================
@@ -168,7 +187,7 @@ code {
   border-radius: 6px;
   font-size: 0.9rem;
   font-weight: 500;
-  transition: all 150ms ease-out;
+  transition: all 120ms var(--ease-out);
   border: none;
   line-height: 1;
 }
@@ -183,12 +202,14 @@ code {
 }
 
 .btn-primary:active {
-  transform: translateY(1px);
+  transform: scale(0.97);
+  transition: transform 100ms ease-out;
 }
 
 .btn-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  animation: pulse 1.5s ease-in-out infinite;
 }
 
 .btn-ghost {
@@ -197,7 +218,7 @@ code {
   padding: 0;
   font-size: 0.9rem;
   color: var(--color-text-secondary);
-  transition: all 150ms ease-out;
+  transition: all 150ms var(--ease-out);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -205,6 +226,16 @@ code {
 
 .btn-ghost:hover {
   color: var(--color-text);
+}
+
+.btn-ghost:active {
+  transform: scale(0.96);
+  transition: transform 100ms ease-out;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7 }
+  50% { opacity: 0.9 }
 }
 
 /* =============================================================================
@@ -220,12 +251,26 @@ code {
   text-transform: uppercase;
 }
 
+.inline-select-option {
+  transition: all 150ms var(--ease-out);
+}
+
+.inline-select-option:active {
+  transform: scale(0.96);
+  transition: transform 100ms ease-out;
+}
+
 .project-badge {
-  transition: all 150ms ease-out;
+  transition: all 150ms var(--ease-out);
 }
 
 .project-badge:hover {
   border-color: var(--color-text);
+}
+
+.project-badge:active {
+  transform: scale(0.96);
+  transition: transform 100ms ease-out;
 }
 
 /* =============================================================================
@@ -245,7 +290,7 @@ code {
   padding: 10px 12px;
   border: 1px solid var(--color-border);
   border-radius: 6px;
-  transition: all 150ms ease-out;
+  transition: all 150ms var(--ease-out);
 }
 
 .input-bordered:hover {
@@ -254,7 +299,7 @@ code {
 
 .input-bordered:focus {
   border-color: var(--color-text);
-  box-shadow: 0 0 0 3px rgba(47, 52, 55, 0.05);
+  box-shadow: 0 0 0 3px rgba(47, 52, 55, 0.1);
   outline: none;
 }
 
@@ -263,11 +308,12 @@ code {
   outline: none;
   background: transparent;
   padding: 0;
-  transition: color 150ms ease-out;
+  transition: background-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out);
 }
 
 .input-ghost:focus {
   outline: none;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 
@@ -366,17 +412,44 @@ code {
   color: #7f1d1d;
   font-size: 0.9rem;
   margin-bottom: 24px;
+  animation: slideInError 200ms var(--ease-out) forwards;
+}
+
+@keyframes slideInError {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .empty-state {
   text-align: center;
-  padding: 48px 24px;
+  padding: 60px 24px;
   color: var(--color-text-secondary);
+  background: linear-gradient(135deg, rgba(249, 249, 248, 0.5) 0%, rgba(234, 234, 234, 0.1) 100%);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  animation: fadeIn 300ms var(--ease-out) forwards;
 }
 
 .empty-state p {
   font-size: 0.95rem;
   margin-bottom: 0;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hide-scrollbar {
@@ -385,4 +458,105 @@ code {
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+
+/* =============================================================================
+   VIEW TRANSITIONS & ANIMATIONS
+   ============================================================================= */
+.container {
+  animation: viewEnter 200ms var(--ease-out) forwards;
+}
+
+@keyframes viewEnter {
+  from {
+    opacity: 0.9;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Task card stagger animation */
+.card[data-stagger-index] {
+  animation: taskEnter 300ms var(--ease-out) forwards;
+  opacity: 0;
+}
+
+@keyframes taskEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =============================================================================
+   SKELETON SCREENS
+   ============================================================================= */
+@keyframes shimmer {
+  0% {
+    background-position: -250px 0;
+  }
+  100% {
+    background-position: 250px 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    var(--color-surface) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1s linear infinite;
+  border-radius: 6px;
+}
+
+.skeleton-text {
+  height: 1em;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.skeleton-text.short {
+  width: 60%;
+}
+
+.skeleton-text.tiny {
+  width: 40%;
+  height: 0.75em;
+}
+
+.skeleton-card {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 16px;
+  background-color: var(--color-bg);
+  margin-bottom: 10px;
+}
+
+.skeleton-card .skeleton-text:last-child {
+  margin-bottom: 0;
+}
+
+.skeleton-form-row {
+  display: flex;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-border);
+  align-items: center;
+}
+
+.skeleton-form-label {
+  width: 120px;
+  flex-shrink: 0;
+  height: 1em;
 }
