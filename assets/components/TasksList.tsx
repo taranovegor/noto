@@ -1,0 +1,157 @@
+import React, { useState, useEffect } from 'react';
+import { TaskResponseDto, ProjectResponseDto, TaskStatus } from '../types/api';
+import { api } from '../api';
+import { PRIORITY_OPTIONS } from '../constants';
+import { formatDateShort } from '../utils/date';
+
+interface TasksListProps {
+  onTaskClick: (taskId: string) => void;
+  onNewTask: () => void;
+}
+
+const COLUMNS: { status: TaskStatus; label: string }[] = [
+  { status: 'backlog',     label: 'Backlog' },
+  { status: 'in_progress', label: 'In Progress' },
+  { status: 'done',        label: 'Done' },
+];
+
+const priorityColor = (priority: string) =>
+  PRIORITY_OPTIONS.find((o) => o.value === priority) ?? { bg: '#f9f9f8', text: '#787774' };
+
+export function TasksList({ onTaskClick, onNewTask }: TasksListProps) {
+  const [tasks, setTasks] = useState<TaskResponseDto[]>([]);
+  const [projects, setProjects] = useState<ProjectResponseDto[]>([]);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    Promise.all([api.tasks.list(), api.projects.list()])
+      .then(([tasksData, projectsData]) => {
+        setTasks(tasksData.data);
+        setProjects(projectsData.data);
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof Error ? err.message : 'Failed to load data');
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleProjectClick = (id: string) =>
+    setSelectedProjectId((prev) => (prev === id ? null : id));
+
+  const visibleTasks = selectedProjectId
+    ? tasks.filter((t) => t.project_id === selectedProjectId)
+    : tasks;
+
+  const tasksByStatus = (status: TaskStatus) =>
+    visibleTasks.filter((t) => t.status === status);
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h2 style={{ marginBottom: 0 }}>Tasks</h2>
+        <button className="btn btn-primary" onClick={onNewTask}>New task</button>
+      </div>
+
+      {projects.length > 0 && (
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '32px' }}>
+          {projects.map((project) => {
+            const active = selectedProjectId === project.id;
+            return (
+              <button
+                key={project.id}
+                onClick={() => handleProjectClick(project.id)}
+                className="project-badge"
+                data-active={active}
+                style={{
+                  padding: '4px 12px',
+                  borderRadius: '9999px',
+                  fontSize: '0.8rem',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  border: '1px solid',
+                  borderColor: active ? 'var(--color-text)' : 'var(--color-border)',
+                  backgroundColor: active ? 'var(--color-text)' : 'var(--color-bg)',
+                  color: active ? '#ffffff' : 'var(--color-text-secondary)',
+                  transition: 'all 150ms ease-out',
+                  fontFamily: 'var(--font-mono)',
+                }}
+              >
+                {project.prefix}
+                <span style={{ marginLeft: '6px', opacity: 0.7, fontFamily: 'var(--font-sans)', fontWeight: 400 }}>
+                  {project.name}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="empty-state">
+          <p>Loading...</p>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', alignItems: 'start' }}>
+          {COLUMNS.map((col) => {
+            const colTasks = tasksByStatus(col.status);
+            return (
+              <div key={col.status}>
+                <div style={{
+                  marginBottom: '16px', paddingBottom: '8px',
+                }}>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{col.label}</span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {colTasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className="card"
+                      onClick={() => onTaskClick(task.id)}
+                      style={{ padding: '16px', cursor: 'pointer' }}
+                    >
+                      <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--color-text)', lineHeight: 1.4 }}>
+                        {task.priority && (
+                          <div style={{
+                            width: '12px', height: '12px', borderRadius: '9999px',
+                            backgroundColor: priorityColor(task.priority).bg,
+                            border: `1px solid ${priorityColor(task.priority).text}`,
+                            display: 'inline-block',
+                            marginRight: '8px',
+                            verticalAlign: 'middle',
+                            marginTop: '-2px',
+                          }} title={task.priority} />
+                        )}
+                        {task.name}
+                      </div>
+                      {(task.code || task.deadline) && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '6px' }}>
+                          {task.code && (
+                            <p style={{ fontFamily: 'var(--font-mono)', margin: 0 }}>
+                              {task.code}
+                            </p>
+                          )}
+                          {task.deadline && (
+                            <span>{formatDateShort(task.deadline)}</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

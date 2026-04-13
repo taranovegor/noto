@@ -1,3 +1,14 @@
+FROM node:22-alpine AS frontend
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY webpack.config.js tsconfig.json ./
+COPY assets ./assets
+RUN npm run build
+
 FROM php:8.4-cli-trixie AS base
 
 ARG UID=1000
@@ -41,6 +52,8 @@ FROM base AS development
 
 RUN apt-get update && apt-get install -y \
     gdb \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pecl install xdebug && docker-php-ext-enable xdebug
@@ -60,6 +73,8 @@ ARG UID=1000
 ARG GID=1000
 ARG VERSION=unknown
 ENV VERSION=${VERSION}
+
+COPY --from=frontend --chown=${UID}:${GID} /app/public/build ./public/build
 
 COPY --chown=${UID}:${GID} . .
 

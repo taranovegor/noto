@@ -69,3 +69,15 @@ cs-fix: ## Fix code style
 
 phpstan: ## Run static analysis
 	$(DOCKER_COMPOSE) exec app bin/phpstan analyse --memory-limit=512M
+
+assets-install: ## Install frontend dependencies in container
+	$(DOCKER_COMPOSE) exec app npm ci
+
+assets-dev: ## Build assets for development in container
+	$(DOCKER_COMPOSE) exec app npm run dev
+
+assets-watch: ## Watch and rebuild assets on changes in container
+	$(DOCKER_COMPOSE) exec app npm run watch
+
+assets-build: ## Build production assets
+	npm run build

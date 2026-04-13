@@ -1,0 +1,380 @@
+/* =============================================================================
+   DESIGN TOKENS
+   ============================================================================= */
+:root {
+  --color-bg:              #ffffff;
+  --color-surface:         #f9f9f8;
+  --color-border:          #eaeaea;
+  --color-text:            #2f3437;
+  --color-text-secondary:  #787774;
+  --color-hover:           #f5f5f4;
+
+  --font-sans:  'Geist Sans', 'Helvetica Neue', 'SF Pro Display', sans-serif;
+  --font-serif: 'Newsreader', 'Playfair Display', serif;
+  --font-mono:  'Geist Mono', 'SF Mono', monospace;
+}
+
+/* =============================================================================
+   RESET & BASE
+   ============================================================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font-family: var(--font-sans); cursor: pointer; border: none; }
+
+input, textarea, select {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+input:focus, textarea:focus, select:focus { outline: none; }
+
+/* =============================================================================
+   TYPOGRAPHY
+   ============================================================================= */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  color: var(--color-text);
+}
+
+h1 { font-size: 2.5rem;  font-weight: 600; }
+h2 { font-size: 1.875rem; font-weight: 600; }
+h3 { font-size: 1.25rem;  font-weight: 600; }
+
+p { color: var(--color-text-secondary); margin-bottom: 16px; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background-color: var(--color-surface);
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.text-secondary { color: var(--color-text-secondary); font-size: 0.9rem; }
+.text-mono      { font-family: var(--font-mono); font-size: 0.85em; }
+
+/* =============================================================================
+   LAYOUT
+   ============================================================================= */
+.container {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* =============================================================================
+   SIDEBAR
+   ============================================================================= */
+.sidebar {
+  width: 200px;
+  background-color: var(--color-bg);
+  border-right: 1px solid var(--color-border);
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 0 24px 32px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sidebar-title {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: color 200ms ease-out;
+}
+
+.sidebar-title:hover {
+  color: var(--color-text-secondary);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+}
+
+.sidebar-nav-item {
+  background: none;
+  border: none;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  text-align: left;
+  transition: all 150ms ease-out;
+  position: relative;
+}
+
+.sidebar-nav-item:hover {
+  color: var(--color-text);
+  background-color: var(--color-hover);
+}
+
+.sidebar-nav-item.active {
+  color: var(--color-text);
+  font-weight: 500;
+  background-color: var(--color-surface);
+}
+
+.main-content {
+  flex: 1;
+  padding: 40px 0;
+  overflow-y: auto;
+}
+
+/* =============================================================================
+   CARDS
+   ============================================================================= */
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 24px;
+  background-color: var(--color-bg);
+  transition: all 200ms ease-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.card:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+/* =============================================================================
+   BUTTONS
+   ============================================================================= */
+.btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 150ms ease-out;
+  border: none;
+  line-height: 1;
+}
+
+.btn-primary {
+  background-color: #111111;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #2a2a2a;
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  transition: all 150ms ease-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-ghost:hover {
+  color: var(--color-text);
+}
+
+/* =============================================================================
+   TAGS & BADGES
+   ============================================================================= */
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.project-badge {
+  transition: all 150ms ease-out;
+}
+
+.project-badge:hover {
+  border-color: var(--color-text);
+}
+
+/* =============================================================================
+   FORMS & INPUTS
+   ============================================================================= */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.input-bordered {
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  transition: all 150ms ease-out;
+}
+
+.input-bordered:hover {
+  border-color: var(--color-text-secondary);
+}
+
+.input-bordered:focus {
+  border-color: var(--color-text);
+  box-shadow: 0 0 0 3px rgba(47, 52, 55, 0.05);
+  outline: none;
+}
+
+.input-ghost {
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+  transition: color 150ms ease-out;
+}
+
+.input-ghost:focus {
+  outline: none;
+}
+
+
+/* =============================================================================
+   TIPTAP EDITOR
+   ============================================================================= */
+.tiptap-editor {
+  min-height: 160px;
+  outline: none;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  line-height: 1.7;
+  caret-color: var(--color-text);
+}
+
+.tiptap-editor.is-editor-empty::before {
+  content: attr(data-placeholder);
+  color: var(--color-text-secondary);
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+.tiptap-editor h1,
+.tiptap-editor h2,
+.tiptap-editor h3,
+.tiptap-editor h4 {
+  font-family: var(--font-serif);
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
+}
+
+.tiptap-editor h1 { font-size: 1.6rem; }
+.tiptap-editor h2 { font-size: 1.3rem; }
+.tiptap-editor h3 { font-size: 1.1rem; }
+
+.tiptap-editor p             { margin-bottom: 0.6em; color: var(--color-text); }
+.tiptap-editor ul,
+.tiptap-editor ol            { padding-left: 1.5em; margin-bottom: 0.8em; color: var(--color-text); }
+.tiptap-editor li            { margin-bottom: 0.2em; }
+.tiptap-editor blockquote    { border-left: 3px solid var(--color-border); padding-left: 1em; margin: 0.8em 0; color: var(--color-text-secondary); font-style: italic; }
+.tiptap-editor code          { font-family: var(--font-mono); font-size: 0.875em; background-color: var(--color-surface); padding: 2px 6px; border-radius: 3px; border: 1px solid var(--color-border); }
+.tiptap-editor pre           { background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: 6px; padding: 16px; overflow-x: auto; margin-bottom: 0.8em; }
+.tiptap-editor pre code      { background: none; border: none; padding: 0; }
+.tiptap-editor hr            { border: none; border-top: 1px solid var(--color-border); margin: 1.2em 0; }
+
+/* =============================================================================
+   MARKDOWN BODY (read-only display)
+   ============================================================================= */
+.markdown-body {
+  font-size: 0.95rem;
+  color: var(--color-text);
+  line-height: 1.7;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+  font-family: var(--font-serif);
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-body h1 { font-size: 1.6rem; }
+.markdown-body h2 { font-size: 1.3rem; }
+.markdown-body h3 { font-size: 1.1rem; }
+
+.markdown-body p             { color: var(--color-text); margin-bottom: 1em; }
+.markdown-body ul,
+.markdown-body ol            { padding-left: 1.5em; margin-bottom: 1em; color: var(--color-text); }
+.markdown-body li            { margin-bottom: 0.25em; }
+.markdown-body a             { color: #1f6c9f; text-decoration: underline; text-underline-offset: 2px; }
+.markdown-body blockquote    { border-left: 3px solid var(--color-border); padding-left: 1em; margin: 1em 0; color: var(--color-text-secondary); font-style: italic; }
+.markdown-body code          { font-family: var(--font-mono); font-size: 0.875em; background-color: var(--color-surface); padding: 2px 6px; border-radius: 3px; border: 1px solid var(--color-border); }
+.markdown-body pre           { background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: 6px; padding: 16px; overflow-x: auto; margin-bottom: 1em; }
+.markdown-body pre code      { background: none; border: none; padding: 0; font-size: 0.875rem; }
+.markdown-body hr            { border: none; border-top: 1px solid var(--color-border); margin: 1.5em 0; }
+.markdown-body table         { width: 100%; border-collapse: collapse; margin-bottom: 1em; font-size: 0.9rem; }
+.markdown-body th,
+.markdown-body td            { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--color-border); }
+.markdown-body th            { font-weight: 600; color: var(--color-text-secondary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* =============================================================================
+   ERROR & EMPTY STATES
+   ============================================================================= */
+.error-message {
+  padding: 12px 16px;
+  background-color: #fef2f2;
+  border-left: 3px solid #dc2626;
+  border-radius: 4px;
+  color: #7f1d1d;
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--color-text-secondary);
+}
+
+.empty-state p {
+  font-size: 0.95rem;
+  margin-bottom: 0;
+}

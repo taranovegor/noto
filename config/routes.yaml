@@ -1,4 +1,11 @@
 api_controllers:
-    resource: routing.controllers
+    resource: '../src/Controller/Api/'
+    type: attribute
     prefix: /api
     name_prefix: api_
+
+app_controllers:
+    resource: '../src/Controller/App/'
+    type: attribute
+    prefix: /
+    name_prefix: app_

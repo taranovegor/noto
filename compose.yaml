@@ -5,8 +5,8 @@ services:
         ports:
             - "8080:8080"
         restart: unless-stopped
-        environment:
-            - APP_ENV
-            - APP_SECRET
-            - DEFAULT_URI
-            - DATABASE_URL
+#        environment:
+#            - APP_ENV
+#            - APP_SECRET
+#            - DEFAULT_URI
+#            - DATABASE_URL
