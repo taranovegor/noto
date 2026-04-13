@@ -378,3 +378,11 @@ code {
   font-size: 0.95rem;
   margin-bottom: 0;
 }
+
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

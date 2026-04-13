@@ -110,7 +110,7 @@ export function TasksList({ onTaskClick, onNewTask }: TasksListProps) {
                   <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{col.label}</span>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div className="hide-scrollbar" style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: 'calc(100vh - 320px)', overflowY: 'auto' }}>
                   {colTasks.map((task) => (
                     <div
                       key={task.id}
