@@ -75,6 +75,12 @@ Encore
 
     // uncomment if you're having problems with a jQuery plugin
     //.autoProvidejQuery()
+
+    // Copy app icons
+    .copyFiles({
+        from: './assets/icons',
+        to: '[name].[ext]'
+    })
 ;
 
 module.exports = Encore.getWebpackConfig();
