@@ -19,6 +19,9 @@ use Symfony\Component\Routing\Attribute\Route;
 #[OA\Tag(name: 'Projects')]
 final class ProjectController extends AbstractController
 {
+    /**
+     * @param SearcherInterface<Project> $searcher
+     */
     public function __construct(
         private readonly SearcherInterface $searcher,
         private readonly ProjectResponseDtoFactory $responseDtoFactory,

@@ -7,11 +7,11 @@ use Symfony\Component\Validator\Constraint;
 
 final class FilterDefinition extends AbstractDefinition
 {
-    /** @var Constraint[] */
+    /** @var array<Constraint> */
     private array $constraints = [];
 
     /**
-     * @param OperatorInterface[] $operators
+     * @param array<OperatorInterface> $operators
      */
     public function __construct(
         string $name,
@@ -20,7 +20,9 @@ final class FilterDefinition extends AbstractDefinition
         parent::__construct($name);
     }
 
-    /** @return OperatorInterface[] */
+    /**
+     * @return array<OperatorInterface>
+     */
     public function getOperators(): array
     {
         return $this->operators;
@@ -36,9 +38,18 @@ final class FilterDefinition extends AbstractDefinition
         return $this;
     }
 
-    /** @return Constraint[] */
+    /**
+     * @return array<Constraint>
+     */
     public function getConstraints(): array
     {
         return $this->constraints;
+    }
+
+    public function setProperty(string $property): self
+    {
+        parent::setProperty($property);
+
+        return $this;
     }
 }

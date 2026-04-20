@@ -8,6 +8,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class CreateProjectDto
 {
+    /**
+     * @param array<string> $aliases
+     */
     public function __construct(
         #[Assert\NotBlank]
         public string $name,

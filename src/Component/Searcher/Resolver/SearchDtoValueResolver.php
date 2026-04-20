@@ -6,6 +6,7 @@ use App\Component\Searcher\Configurator\SearchConfigurator;
 use App\Component\Searcher\Definition\FilterDefinition;
 use App\Component\Searcher\Dto\AbstractSearchDto;
 use App\Component\Searcher\Enum\FilterOperator;
+use App\Component\Searcher\Enum\OperatorInterface;
 use App\Component\Searcher\Enum\SortDirection;
 use App\Component\Searcher\Loader\SearchDefinitionLoader;
 use App\Component\Searcher\Model\FilterCondition;
@@ -155,8 +156,10 @@ final class SearchDtoValueResolver implements ValueResolverInterface
 
     /**
      * Build a constraint for a filter based on operator type.
+     *
+     * @return array<Constraint>|All|Constraint
      */
-    private function buildFilterConstraint(FilterOperator $operator, object $filterDefinition): array|All|Constraint
+    private function buildFilterConstraint(OperatorInterface $operator, FilterDefinition $filterDefinition): array|All|Constraint
     {
         $constraints = $filterDefinition->getConstraints();
 
@@ -210,7 +213,7 @@ final class SearchDtoValueResolver implements ValueResolverInterface
      *
      * @param array<string, FilterDefinition> $filterDefinitions
      *
-     * @return FilterCondition[]
+     * @return array<FilterCondition>
      *
      * @throws ValidationFailedException if any filter value fails validation
      */
@@ -294,6 +297,8 @@ final class SearchDtoValueResolver implements ValueResolverInterface
      * Parse filter value based on operator type.
      * - in/not_in operators produce arrays (comma-separated)
      * - other operators produce scalars.
+     *
+     * @return string|array<string>
      */
     private function parseFilterValue(FilterOperator $operator, string $value): string|array
     {
@@ -313,7 +318,7 @@ final class SearchDtoValueResolver implements ValueResolverInterface
      * - sort=-field (DESC)
      * - sort=field1;field2;-field3 (multiple fields)
      *
-     * @return SortInstruction[]
+     * @return array<SortInstruction>
      */
     private function parseSorting(Request $request): array
     {
@@ -359,8 +364,8 @@ final class SearchDtoValueResolver implements ValueResolverInterface
      */
     private function parsePagination(Request $request): PaginationDetails
     {
-        $limit = $request->query->getDigits('limit', self::DEFAULT_LIMIT);
-        $offset = $request->query->getDigits('offset', self::DEFAULT_OFFSET);
+        $limit = $request->query->getDigits('limit', (string) self::DEFAULT_LIMIT);
+        $offset = $request->query->getDigits('offset', (string) self::DEFAULT_OFFSET);
 
         if ($limit < 0) {
             $limit = self::DEFAULT_LIMIT;

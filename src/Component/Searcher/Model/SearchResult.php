@@ -32,6 +32,13 @@ final class SearchResult
         return $this->pagination;
     }
 
+    /**
+     * @template U
+     *
+     * @param callable(T): U $mapper
+     *
+     * @return SearchResult<U>
+     */
     public function map(callable $mapper): SearchResult
     {
         return new SearchResult(array_map($mapper, $this->data), $this->pagination);

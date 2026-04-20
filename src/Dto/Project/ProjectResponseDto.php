@@ -6,6 +6,9 @@ use Symfony\Component\Uid\Uuid;
 
 readonly class ProjectResponseDto
 {
+    /**
+     * @param array<string> $aliases
+     */
     public function __construct(
         public Uuid $id,
         public string $name,

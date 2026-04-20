@@ -35,8 +35,8 @@ class SearchConfigurator
     /**
      * Register a filterable field with allowed operators.
      *
-     * @param string              $name      The API field name (what clients send)
-     * @param OperatorInterface[] $operators List of allowed operators
+     * @param string                   $name      The API field name (what clients send)
+     * @param array<OperatorInterface> $operators List of allowed operators
      *
      * @return FilterDefinition The filter definition (for further configuration if needed)
      */
