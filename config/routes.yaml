@@ -9,3 +9,7 @@ app_controllers:
     type: attribute
     prefix: /
     name_prefix: app_
+
+mcp:
+    resource: '../src/Mcp/'
+    type: mcp

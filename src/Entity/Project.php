@@ -25,10 +25,10 @@ class Project implements HasUpdatedAtInterface
     public private(set) Ref $ref;
 
     #[ORM\Column(length: 255)]
-    public private(set) string $name;
+    public string $name;
 
     #[ORM\Column(type: 'ascii_string', length: 3)]
-    public private(set) string $prefix;
+    public string $prefix;
 
     #[ORM\Column(type: 'integer', options: ['unsigned' => true, 'default' => 0])]
     public private(set) int $taskCounter = 0;
@@ -37,7 +37,7 @@ class Project implements HasUpdatedAtInterface
      * @var string[]
      */
     #[ORM\Column(type: 'json')]
-    public private(set) array $aliases = [];
+    public array $aliases = [];
 
     #[ORM\Column]
     public private(set) \DateTimeImmutable $createdAt;

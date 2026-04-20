@@ -67,7 +67,7 @@ class EntityExistsValidatorTest extends TestCase
         $violationBuilder = $this->createMock(\Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface::class);
         $violationBuilder->expects($this->once())
             ->method('setParameter')
-            ->with('{{ entity }}', Project::class)
+            ->with('{{ entity }}', 'Project')
             ->willReturnSelf();
         $violationBuilder->expects($this->once())
             ->method('addViolation');

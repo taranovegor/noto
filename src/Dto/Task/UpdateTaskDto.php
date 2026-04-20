@@ -12,7 +12,7 @@ final readonly class UpdateTaskDto
 {
     public function __construct(
         #[EntityExists(entityClass: Project::class, field: 'id')]
-        public ?Uuid $projectId,
+        public ?Uuid $projectId = null,
         public ?string $name = null,
         public ?TaskPriority $priority = null,
         public ?TaskStatus $status = null,

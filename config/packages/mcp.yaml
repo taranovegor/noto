@@ -1,0 +1,22 @@
+mcp:
+    app: 'noto'
+    version: '0.1.1'
+    description: 'MCP server for structured task/project management via REST API'
+    instructions: |
+        This server provides task and project management capabilities.
+
+        Use for creating, updating, and retrieving projects and tasks.
+        All operations are performed through the Noto task management system.
+
+        Example contexts: task organization, project planning, deadline tracking.
+
+    client_transports:
+        stdio: true
+        http: true
+
+    http:
+        path: /_mcp
+        session:
+            store: file
+            directory: '%kernel.cache_dir%/mcp-sessions'
+            ttl: 3600
