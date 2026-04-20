@@ -5,6 +5,7 @@ namespace App\Tests\Unit\Service\Project;
 use App\Entity\Project;
 use App\Exception\EntityNotFoundException;
 use App\Repository\ProjectRepository;
+use App\Service\Flusher;
 use App\Service\Project\ProjectManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -18,7 +19,8 @@ class ProjectManagerTest extends TestCase
     protected function setUp(): void
     {
         $this->projectRepository = $this->createMock(ProjectRepository::class);
-        $this->projectManager = new ProjectManager($this->projectRepository);
+        $flusher = $this->createStub(Flusher::class);
+        $this->projectManager = new ProjectManager($this->projectRepository, $flusher);
     }
 
     public function testGetProjectReturnsProject(): void

@@ -3,19 +3,19 @@ export type TaskPriority = 'low' | 'medium' | 'high';
 
 export interface TaskResponseDto {
   id: string;
-  project_id?: string | null;
+  projectId?: string | null;
   code?: string | null;
   name: string;
   status: TaskStatus;
   priority?: TaskPriority | null;
   deadline?: string | null;
   note?: string | null;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateTaskDto {
-  project_id?: string | null;
+  projectId?: string | null;
   name: string;
   status: TaskStatus;
   priority?: TaskPriority | null;
@@ -24,7 +24,7 @@ export interface CreateTaskDto {
 }
 
 export interface UpdateTaskDto {
-  project_id?: string | null;
+  projectId?: string | null;
   name?: string | null;
   status?: TaskStatus | null;
   priority?: TaskPriority | null;
@@ -37,7 +37,7 @@ export interface ProjectResponseDto {
   name: string;
   prefix: string;
   aliases: Record<string, unknown> | unknown[];
-  created_at: string;
+  createdAt: string;
 }
 
 export interface Pagination {

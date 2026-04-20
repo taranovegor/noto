@@ -117,7 +117,7 @@ class DoctrineSearcherTest extends KernelTestCase
         $this->em->flush();
 
         $sorting = [
-            new SortInstruction('created_at', SortDirection::ASC),
+            new SortInstruction('createdAt', SortDirection::ASC),
         ];
         $dto = new SearchTaskDto([], $sorting, new PaginationDetails(20, 0));
         $result = $this->searcher->search($dto);

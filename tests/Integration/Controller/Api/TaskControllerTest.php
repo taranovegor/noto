@@ -76,7 +76,7 @@ class TaskControllerTest extends WebTestCase
         $client = self::createClient();
 
         $data = [
-            'project_id' => Uuid::v7()->toRfc4122(),  // Non-existent project
+            'projectId' => Uuid::v7()->toRfc4122(),  // Non-existent project
             'name' => 'Task with invalid project',
             'status' => 'backlog',
             'priority' => 'high',
@@ -91,8 +91,8 @@ class TaskControllerTest extends WebTestCase
 
         $this->assertEquals('Validation Failed', $response['title']);
         $this->assertIsArray($response['violations']);
-        $violations = array_filter($response['violations'], fn ($v) => false !== strpos($v['propertyPath'], 'project_id'));
-        $this->assertNotEmpty($violations, 'Expected EntityExists violation for project_id field');
+        $violations = array_filter($response['violations'], fn ($v) => false !== strpos($v['propertyPath'], 'projectId'));
+        $this->assertNotEmpty($violations, 'Expected EntityExists violation for projectId field');
     }
 
     // --- Get Tests ---
@@ -214,7 +214,7 @@ class TaskControllerTest extends WebTestCase
         $em->flush();
 
         $data = [
-            'project_id' => Uuid::v7()->toRfc4122(),  // Non-existent project
+            'projectId' => Uuid::v7()->toRfc4122(),  // Non-existent project
             'name' => null,
             'status' => null,
             'priority' => null,
@@ -229,8 +229,8 @@ class TaskControllerTest extends WebTestCase
 
         $this->assertEquals('Validation Failed', $response['title']);
         $this->assertIsArray($response['violations']);
-        $violations = array_filter($response['violations'], fn ($v) => false !== strpos($v['propertyPath'], 'project_id'));
-        $this->assertNotEmpty($violations, 'Expected EntityExists violation for project_id field');
+        $violations = array_filter($response['violations'], fn ($v) => false !== strpos($v['propertyPath'], 'projectId'));
+        $this->assertNotEmpty($violations, 'Expected EntityExists violation for projectId field');
     }
 
     // --- List Tests ---

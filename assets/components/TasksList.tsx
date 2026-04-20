@@ -41,7 +41,7 @@ export function TasksList({ onTaskClick, onNewTask }: TasksListProps) {
     setSelectedProjectId((prev) => (prev === id ? null : id));
 
   const visibleTasks = selectedProjectId
-    ? tasks.filter((t) => t.project_id === selectedProjectId)
+    ? tasks.filter((t) => t.projectId === selectedProjectId)
     : tasks;
 
   const tasksByStatus = (status: TaskStatus) =>

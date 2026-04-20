@@ -167,7 +167,7 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveWithValidProjectIdFilter(): void
     {
         $projectId = '550e8400-e29b-41d4-a716-446655440000';
-        $request = Request::create('/?filter[project_id]='.$projectId);
+        $request = Request::create('/?filter[projectId]='.$projectId);
         $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
@@ -176,7 +176,7 @@ class SearchDtoValueResolverTest extends TestCase
         $filters = $dto->getFilters();
 
         $this->assertCount(1, $filters);
-        $this->assertEquals('project_id', $filters[0]->name);
+        $this->assertEquals('projectId', $filters[0]->name);
         $this->assertEquals($projectId, $filters[0]->value);
     }
 

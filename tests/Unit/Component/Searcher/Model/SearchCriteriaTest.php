@@ -13,7 +13,7 @@ class SearchCriteriaTest extends TestCase
     {
         $entityClass = Task::class;
         $filters = ['status' => 'active'];
-        $sorting = ['created_at' => SortDirection::DESC];
+        $sorting = ['createdAt' => SortDirection::DESC];
         $limit = 50;
         $offset = 100;
 
@@ -70,7 +70,7 @@ class SearchCriteriaTest extends TestCase
         $criteria = new SearchCriteria(
             Task::class,
             [],
-            ['created_at' => SortDirection::ASC],
+            ['createdAt' => SortDirection::ASC],
             20,
             0
         );
@@ -120,7 +120,7 @@ class SearchCriteriaTest extends TestCase
     public function testGettersReturnImmutableData(): void
     {
         $filters = ['status' => 'active'];
-        $sorting = ['created_at' => SortDirection::ASC];
+        $sorting = ['createdAt' => SortDirection::ASC];
 
         $criteria = new SearchCriteria(
             Task::class,
@@ -146,7 +146,7 @@ class SearchCriteriaTest extends TestCase
             'deadline' => '2025-12-31',
         ];
         $sorting = [
-            'created_at' => SortDirection::DESC,
+            'createdAt' => SortDirection::DESC,
             'deadline' => SortDirection::ASC,
         ];
 

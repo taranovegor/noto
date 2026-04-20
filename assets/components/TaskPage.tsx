@@ -27,7 +27,7 @@ function fromTask(task: TaskResponseDto): FormState {
     priority: task.priority ?? undefined,
     deadline: task.deadline ? toDateInputValue(task.deadline) : '',
     note: task.note ?? '',
-    projectId: task.project_id ?? undefined,
+    projectId: task.projectId ?? undefined,
   };
 }
 
@@ -172,7 +172,7 @@ export function TaskPage({ taskId, onBack, onCreated }: TaskPageProps) {
           priority: form.priority || undefined,
           deadline: form.deadline || undefined,
           note: form.note || undefined,
-          project_id: form.projectId || undefined,
+          projectId: form.projectId || undefined,
         });
         localStorage.removeItem('taskDraft');
         onCreated?.(created.id);
@@ -183,7 +183,7 @@ export function TaskPage({ taskId, onBack, onCreated }: TaskPageProps) {
           priority: form.priority ?? null,
           deadline: form.deadline || null,
           note: form.note || null,
-          project_id: form.projectId ?? null,
+          projectId: form.projectId ?? null,
         });
         setTask(updated);
         const state = fromTask(updated);

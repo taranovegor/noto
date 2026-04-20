@@ -31,7 +31,8 @@ class TaskManagerTest extends TestCase
     {
         $this->taskRepository = $this->createMock(TaskRepository::class);
         $projectRepository = $this->createStub(ProjectRepository::class);
-        $this->projectManager = new ProjectManager($projectRepository);
+        $projectFlusher = $this->createStub(Flusher::class);
+        $this->projectManager = new ProjectManager($projectRepository, $projectFlusher);
         $this->codeGenerator = $this->createMock(TaskCodeGenerator::class);
         $this->flusher = $this->createMock(Flusher::class);
 
@@ -89,7 +90,8 @@ class TaskManagerTest extends TestCase
             ->with($projectId)
             ->willReturn($project);
 
-        $projectManager = new ProjectManager($projectRepositoryMock);
+        $flusher = $this->createStub(Flusher::class);
+        $projectManager = new ProjectManager($projectRepositoryMock, $flusher);
 
         $taskManager = new TaskManager(
             $this->taskRepository,

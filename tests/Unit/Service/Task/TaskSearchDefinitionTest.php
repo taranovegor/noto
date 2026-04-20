@@ -50,18 +50,9 @@ class TaskSearchDefinitionTest extends TestCase
         $configurator = new SearchConfigurator();
         $this->definition->configure($configurator);
 
-        $this->assertTrue($configurator->isSortAllowed('created_at'));
-        $definition = $configurator->getSortDefinition('created_at');
+        $this->assertTrue($configurator->isSortAllowed('createdAt'));
+        $definition = $configurator->getSortDefinition('createdAt');
         $this->assertNotNull($definition);
-    }
-
-    public function testConfigureMapsSortCreatedAtToPropertyName(): void
-    {
-        $configurator = new SearchConfigurator();
-        $this->definition->configure($configurator);
-
-        $sortDef = $configurator->getSortDefinition('created_at');
-        $this->assertEquals('createdAt', $sortDef->getProperty());
     }
 
     public function testConfigureAddsSortableId(): void

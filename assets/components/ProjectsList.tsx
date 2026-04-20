@@ -56,7 +56,7 @@ export function ProjectsList() {
                 <p className="text-mono" style={{ marginBottom: '8px' }}>{project.prefix}</p>
                 <h3 style={{ marginBottom: '8px', fontSize: '1.1rem' }}>{project.name}</h3>
                 <p className="text-secondary" style={{ marginBottom: 0 }}>
-                  Created {formatDate(project.created_at)}
+                  Created {formatDate(project.createdAt)}
                 </p>
               </div>
             ))}

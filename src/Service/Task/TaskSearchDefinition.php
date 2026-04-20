@@ -18,7 +18,7 @@ final class TaskSearchDefinition implements SearchableDefinitionInterface
 
     public function configure(SearchConfigurator $config): void
     {
-        $config->addFilter('project_id', [FilterOperator::Eq])
+        $config->addFilter('projectId', [FilterOperator::Eq])
            ->setProperty('project')
            ->addConstraint(new Assert\Uuid());
 
@@ -28,7 +28,7 @@ final class TaskSearchDefinition implements SearchableDefinitionInterface
                TaskStatus::cases(),
            )));
 
-        $config->addSortable('created_at')->setProperty('createdAt');
+        $config->addSortable('createdAt');
         $config->addSortable('id');
     }
 }

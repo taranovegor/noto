@@ -15,7 +15,7 @@ final class ProjectSearchDefinition implements SearchableDefinitionInterface
 
     public function configure(SearchConfigurator $config): void
     {
-        $config->addSortable('created_at')->setProperty('createdAt');
+        $config->addSortable('createdAt');
         $config->addSortable('id');
     }
 }

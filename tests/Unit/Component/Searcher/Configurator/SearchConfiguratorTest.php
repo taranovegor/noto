@@ -41,9 +41,9 @@ class SearchConfiguratorTest extends TestCase
 
     public function testAddSortableMakesFieldSortable(): void
     {
-        $this->configurator->addSortable('created_at');
+        $this->configurator->addSortable('createdAt');
 
-        $this->assertTrue($this->configurator->isSortAllowed('created_at'));
+        $this->assertTrue($this->configurator->isSortAllowed('createdAt'));
         $this->assertFalse($this->configurator->isSortAllowed('unknown'));
     }
 
@@ -116,13 +116,13 @@ class SearchConfiguratorTest extends TestCase
 
     public function testGetSortDefinitionsReturnsAll(): void
     {
-        $this->configurator->addSortable('created_at');
+        $this->configurator->addSortable('createdAt');
         $this->configurator->addSortable('name');
 
         $definitions = $this->configurator->getSortDefinitions();
 
         $this->assertCount(2, $definitions);
-        $this->assertArrayHasKey('created_at', $definitions);
+        $this->assertArrayHasKey('createdAt', $definitions);
         $this->assertArrayHasKey('name', $definitions);
     }
 
@@ -130,12 +130,12 @@ class SearchConfiguratorTest extends TestCase
     {
         $this->configurator->addFilter('status', [FilterOperator::Eq, FilterOperator::In]);
         $this->configurator->addFilter('priority', [FilterOperator::Gte]);
-        $this->configurator->addSortable('created_at');
+        $this->configurator->addSortable('createdAt');
         $this->configurator->addSortable('deadline');
 
         $this->assertTrue($this->configurator->isFilterAllowed('status'));
         $this->assertTrue($this->configurator->isFilterAllowed('priority'));
-        $this->assertTrue($this->configurator->isSortAllowed('created_at'));
+        $this->assertTrue($this->configurator->isSortAllowed('createdAt'));
         $this->assertTrue($this->configurator->isSortAllowed('deadline'));
     }
 }
