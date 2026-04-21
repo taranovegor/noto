@@ -10,6 +10,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -89,5 +90,13 @@ abstract class AbstractMcpComponent implements ServiceSubscriberInterface
         }
 
         return $denormalizer->denormalize($request->arguments, $class, context: $context);
+    }
+
+    protected function json(mixed $content): string
+    {
+        /** @var SerializerInterface $serializer */
+        static $serializer = $this->container->get('serializer');
+
+        return $serializer->serialize($content, 'json');
     }
 }

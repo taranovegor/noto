@@ -9,4 +9,9 @@ final readonly class PaginationDetails
         public int $offset = 0,
     ) {
     }
+
+    public static function unlimited(): self
+    {
+        return new self(0, 0);
+    }
 }

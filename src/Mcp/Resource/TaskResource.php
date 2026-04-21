@@ -7,9 +7,7 @@ use App\Factory\Task\TaskResponseDtoFactory;
 use App\Service\Task\TaskManager;
 use Mcp\Capability\Attribute\McpResourceTemplate;
 use Mcp\Exception\ResourceNotFoundException;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
+use Mcp\Schema\Content\TextResourceContents;
 use Symfony\Component\Uid\Uuid;
 
 class TaskResource extends AbstractResource
@@ -25,11 +23,7 @@ class TaskResource extends AbstractResource
      *
      * @param string $taskId UUID of the task to retrieve
      *
-     * @return array<string, mixed>
-     *
-     * @throws ContainerExceptionInterface
-     * @throws ExceptionInterface
-     * @throws NotFoundExceptionInterface
+     * @return TextResourceContents
      */
     #[McpResourceTemplate(
         uriTemplate: 'task://{taskId}',
@@ -37,7 +31,7 @@ class TaskResource extends AbstractResource
         description: 'Task details: id, name, status, priority, deadline, code, project, notes, timestamps.',
         mimeType: 'application/json',
     )]
-    public function get(string $taskId): array
+    public function get(string $taskId): TextResourceContents
     {
         try {
             $task = $this->taskManager->get(Uuid::fromString($taskId));
@@ -47,6 +41,6 @@ class TaskResource extends AbstractResource
 
         $dto = $this->factory->create($task);
 
-        return $this->normalize($dto);
+        return $this->textResource("task://{$dto->id}", $dto);
     }
 }
