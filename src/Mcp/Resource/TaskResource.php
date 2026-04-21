@@ -22,8 +22,6 @@ class TaskResource extends AbstractResource
      * Retrieve a task by its UUID.
      *
      * @param string $taskId UUID of the task to retrieve
-     *
-     * @return TextResourceContents
      */
     #[McpResourceTemplate(
         uriTemplate: 'task://{taskId}',

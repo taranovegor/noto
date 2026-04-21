@@ -69,12 +69,12 @@ class AbstractMcpComponentTest extends TestCase
         $this->assertTrue($method->isProtected());
     }
 
-    public function testComponentHasJsonMethod(): void
+    public function testComponentHasYamlMethod(): void
     {
         $reflection = new \ReflectionClass($this->component);
-        $this->assertTrue($reflection->hasMethod('json'));
+        $this->assertTrue($reflection->hasMethod('yaml'));
 
-        $method = $reflection->getMethod('json');
+        $method = $reflection->getMethod('yaml');
         $this->assertTrue($method->isProtected());
     }
 
@@ -96,12 +96,12 @@ class AbstractMcpComponentTest extends TestCase
         $this->assertTrue($method->isProtected());
     }
 
-    public function testJsonMethodExists(): void
+    public function testYamlMethodExists(): void
     {
         $reflection = new \ReflectionClass($this->component);
-        $this->assertTrue($reflection->hasMethod('json'));
+        $this->assertTrue($reflection->hasMethod('yaml'));
 
-        $method = $reflection->getMethod('json');
+        $method = $reflection->getMethod('yaml');
         $this->assertTrue($method->isProtected());
     }
 }

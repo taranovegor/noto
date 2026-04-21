@@ -6,7 +6,7 @@ use Nelmio\ApiDocBundle;
 use OpenApi\Annotations\OpenApi;
 use Symfony\Component\Routing\Route;
 
-if (class_exists(ApiDocBundle\RouteDescriber\RouteDescriberTrait::class)) {
+if (trait_exists(ApiDocBundle\RouteDescriber\RouteDescriberTrait::class)) {
     trait RouteDescriberTrait
     {
         use ApiDocBundle\RouteDescriber\RouteDescriberTrait;

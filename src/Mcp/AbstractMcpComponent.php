@@ -77,9 +77,9 @@ abstract class AbstractMcpComponent implements ServiceSubscriberInterface
      * @param RequestContext       $requestContext The request context containing data to process
      * @param array<string, mixed> $context
      *
-     * @return T The denormalized object instance
+     * @return T
      */
-    protected function denormalize(string $class, RequestContext $requestContext, array $context = []): object
+    protected function denormalize(string $class, RequestContext $requestContext, array $context = []): mixed
     {
         /** @var DenormalizerInterface $denormalizer */
         static $denormalizer = $this->container->get('serializer');
@@ -92,11 +92,14 @@ abstract class AbstractMcpComponent implements ServiceSubscriberInterface
         return $denormalizer->denormalize($request->arguments, $class, context: $context);
     }
 
-    protected function json(mixed $content): string
+    /**
+     * @param array<string, mixed> $context
+     */
+    protected function yaml(mixed $content, array $context = []): string
     {
         /** @var SerializerInterface $serializer */
         static $serializer = $this->container->get('serializer');
 
-        return $serializer->serialize($content, 'json');
+        return $serializer->serialize($content, 'yaml', $context);
     }
 }

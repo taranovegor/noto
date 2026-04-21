@@ -5,6 +5,10 @@ services:
         autowire: true
         autoconfigure: true
 
+    _instanceof:
+        App\Component\Searcher\OpenApi\SearchCriteriaDescriber:
+            tags: ['nelmio_api_doc.route_describer']
+
     App\:
         resource: '../src/'
         exclude: '../src/{Dto,Entity,Exception,Kernel.php}'

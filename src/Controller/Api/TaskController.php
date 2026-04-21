@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Uid\Uuid;
 
 #[Route('/tasks', name: 'task_')]
@@ -45,7 +46,7 @@ final class TaskController extends AbstractController
                         new OA\Property(
                             property: 'data',
                             type: 'array',
-                            items: new OA\Items(ref: new Model(type: TaskResponseDto::class))
+                            items: new OA\Items(ref: new Model(type: TaskResponseDto::class, groups: ['pagination', 'task:list']))
                         ),
                         new OA\Property(
                             property: 'pagination',
@@ -73,7 +74,9 @@ final class TaskController extends AbstractController
 
         $searchResult = $searchResult->map(fn (Task $task) => $this->responseDtoFactory->create($task));
 
-        return $this->json($searchResult);
+        return $this->json($searchResult, context: [
+            AbstractNormalizer::GROUPS => ['pagination', 'task:list'],
+        ]);
     }
 
     #[Route('', 'create', methods: ['POST'])]
@@ -89,7 +92,7 @@ final class TaskController extends AbstractController
             new OA\Response(
                 response: Response::HTTP_CREATED,
                 description: 'Task successfully created',
-                content: new OA\JsonContent(ref: new Model(type: TaskResponseDto::class))
+                content: new OA\JsonContent(ref: new Model(type: TaskResponseDto::class, groups: ['task:read']))
             ),
             new OA\Response(
                 response: Response::HTTP_BAD_REQUEST,
@@ -113,7 +116,9 @@ final class TaskController extends AbstractController
         $task = $this->taskManager->create($dto);
         $responseDto = $this->responseDtoFactory->create($task);
 
-        return $this->json($responseDto, Response::HTTP_CREATED);
+        return $this->json($responseDto, Response::HTTP_CREATED, context: [
+            AbstractNormalizer::GROUPS => ['task:read'],
+        ]);
     }
 
     #[Route('/{id}', 'read', methods: ['GET'])]
@@ -133,7 +138,7 @@ final class TaskController extends AbstractController
             new OA\Response(
                 response: Response::HTTP_OK,
                 description: 'Task retrieved successfully',
-                content: new OA\JsonContent(ref: new Model(type: TaskResponseDto::class))
+                content: new OA\JsonContent(ref: new Model(type: TaskResponseDto::class, groups: ['task:read']))
             ),
             new OA\Response(
                 response: Response::HTTP_BAD_REQUEST,
@@ -157,7 +162,9 @@ final class TaskController extends AbstractController
         $task = $this->taskManager->get($id);
         $responseDto = $this->responseDtoFactory->create($task);
 
-        return $this->json($responseDto, Response::HTTP_OK);
+        return $this->json($responseDto, Response::HTTP_OK, context: [
+            AbstractNormalizer::GROUPS => ['task:read'],
+        ]);
     }
 
     #[Route('/{id}', 'update', methods: ['PATCH'])]
@@ -182,7 +189,7 @@ final class TaskController extends AbstractController
             new OA\Response(
                 response: Response::HTTP_OK,
                 description: 'Task successfully updated',
-                content: new OA\JsonContent(ref: new Model(type: TaskResponseDto::class))
+                content: new OA\JsonContent(ref: new Model(type: TaskResponseDto::class, groups: ['task:read']))
             ),
             new OA\Response(
                 response: Response::HTTP_BAD_REQUEST,
@@ -207,6 +214,8 @@ final class TaskController extends AbstractController
         $this->taskManager->update($task, $dto);
         $responseDto = $this->responseDtoFactory->create($task);
 
-        return $this->json($responseDto, Response::HTTP_OK);
+        return $this->json($responseDto, Response::HTTP_OK, context: [
+            AbstractNormalizer::GROUPS => ['task:read'],
+        ]);
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Component\Searcher\Model;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 /**
  * Result of a search operation containing data and optional pagination info.
  *
@@ -14,7 +16,9 @@ final class SearchResult
      * @param Pagination|null $pagination null if pagination was not requested
      */
     public function __construct(
+        #[Groups('pagination')]
         private readonly array $data,
+        #[Groups('pagination')]
         private readonly ?Pagination $pagination,
     ) {
     }

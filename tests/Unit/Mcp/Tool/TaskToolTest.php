@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Mcp\Tool;
 
+use App\Component\Searcher\SearcherInterface;
 use App\Factory\Task\TaskResponseDtoFactory;
 use App\Mcp\Tool\TaskTool;
 use App\Repository\ProjectRepository;
@@ -18,6 +19,7 @@ class TaskToolTest extends TestCase
     private TaskTool $tool;
     private TaskManager $taskManager;
     private TaskResponseDtoFactory $factory;
+    private SearcherInterface $searcher;
     private ContainerInterface $container;
 
     protected function setUp(): void
@@ -38,9 +40,10 @@ class TaskToolTest extends TestCase
         );
 
         $this->factory = $this->createStub(TaskResponseDtoFactory::class);
+        $this->searcher = $this->createStub(SearcherInterface::class);
         $this->container = $this->createStub(ContainerInterface::class);
 
-        $this->tool = new TaskTool($this->taskManager, $this->factory);
+        $this->tool = new TaskTool($this->taskManager, $this->factory, $this->searcher);
         $this->tool->setContainer($this->container);
     }
 

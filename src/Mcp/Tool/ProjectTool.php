@@ -52,16 +52,11 @@ class ProjectTool extends AbstractTool
     ], required: ['name', 'prefix'])]
     public function create(RequestContext $context): CallToolResult
     {
-        return $this->handle(
-            'Project successfully created',
-            $context,
-            CreateProjectDto::class,
-            function (CreateProjectDto $dto) {
-                $task = $this->projectManager->create($dto);
+        return $this->handle($context, function (CreateProjectDto $dto): object {
+            $task = $this->projectManager->create($dto);
 
-                return $this->factory->create($task);
-            },
-        );
+            return $this->factory->create($task);
+        });
     }
 
     #[McpTool(
@@ -98,16 +93,11 @@ class ProjectTool extends AbstractTool
         #[Schema(description: 'UUID of the project to update', format: 'uuid')]
         string $projectId,
     ): CallToolResult {
-        return $this->handle(
-            'Project updated successfully',
-            $context,
-            UpdateProjectDto::class,
-            function (UpdateProjectDto $dto) use ($projectId) {
-                $project = $this->projectManager->get(Uuid::fromString($projectId));
-                $this->projectManager->update($project, $dto);
+        return $this->handle($context, function (UpdateProjectDto $dto) use ($projectId): object {
+            $project = $this->projectManager->get(Uuid::fromString($projectId));
+            $this->projectManager->update($project, $dto);
 
-                return $this->factory->create($project);
-            },
-        );
+            return $this->factory->create($project);
+        });
     }
 }

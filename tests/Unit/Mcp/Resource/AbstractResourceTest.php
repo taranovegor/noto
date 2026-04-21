@@ -47,8 +47,10 @@ class AbstractResourceTest extends TestCase
         $this->assertTrue($method->isPublic());
 
         $params = $method->getParameters();
-        $this->assertCount(2, $params);
+        $this->assertCount(3, $params);
         $this->assertEquals('uri', $params[0]->getName());
         $this->assertEquals('content', $params[1]->getName());
+        $this->assertEquals('context', $params[2]->getName());
+        $this->assertTrue($params[2]->isDefaultValueAvailable());
     }
 }
