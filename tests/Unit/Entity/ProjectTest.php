@@ -52,4 +52,12 @@ class ProjectTest extends TestCase
         $project = new Project('Test', 'ABC');
         $this->assertEquals('ABC', $project->prefix);
     }
+
+    public function testProjectIdEqualsRefId(): void
+    {
+        $project = new Project('Test Project', 'TST');
+
+        $this->assertEquals($project->id, $project->ref->id);
+        $this->assertSame($project->id, $project->ref->id);
+    }
 }

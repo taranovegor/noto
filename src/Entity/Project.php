@@ -12,17 +12,14 @@ use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'projects')]
-class Project implements HasUpdatedAtInterface
+class Project implements ReferenceableInterface, HasUpdatedAtInterface
 {
+    use ReferenceableTrait;
     use HasUpdatedAtTrait;
 
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME)]
     public private(set) Uuid $id;
-
-    #[ORM\OneToOne(targetEntity: Ref::class, cascade: ['persist'])]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    public private(set) Ref $ref;
 
     #[ORM\Column(length: 255)]
     public string $name;
@@ -48,8 +45,8 @@ class Project implements HasUpdatedAtInterface
 
     public function __construct(string $name, string $prefix)
     {
-        $this->id = Uuid::v7();
         $this->ref = new Ref(RefType::Project);
+        $this->id = $this->ref->id;
         $this->name = $name;
         $this->prefix = $prefix;
         $this->createdAt = new \DateTimeImmutable();

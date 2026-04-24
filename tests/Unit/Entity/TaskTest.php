@@ -71,4 +71,12 @@ class TaskTest extends TestCase
         $this->assertInstanceOf(Ref::class, $task->ref);
         $this->assertEquals(RefType::Task, $task->ref->type);
     }
+
+    public function testTaskIdEqualsRefId(): void
+    {
+        $task = new Task('Test Task');
+
+        $this->assertEquals($task->id, $task->ref->id);
+        $this->assertSame($task->id, $task->ref->id);
+    }
 }

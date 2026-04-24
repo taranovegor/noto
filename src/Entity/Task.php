@@ -13,17 +13,14 @@ use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'tasks')]
-class Task implements HasUpdatedAtInterface
+class Task implements ReferenceableInterface, HasUpdatedAtInterface
 {
+    use ReferenceableTrait;
     use HasUpdatedAtTrait;
 
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME)]
     public private(set) Uuid $id;
-
-    #[ORM\OneToOne(targetEntity: Ref::class, cascade: ['persist'])]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    public private(set) Ref $ref;
 
     #[ORM\ManyToOne(targetEntity: Project::class, inversedBy: 'tasks')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
@@ -52,8 +49,8 @@ class Task implements HasUpdatedAtInterface
 
     public function __construct(string $name)
     {
-        $this->id = Uuid::v7();
         $this->ref = new Ref(RefType::Task);
+        $this->id = $this->ref->id;
         $this->name = $name;
         $this->status = TaskStatus::Backlog;
         $this->createdAt = new \DateTimeImmutable();

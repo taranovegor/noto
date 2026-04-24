@@ -12,7 +12,6 @@ use App\Dto\Task\SearchTaskDto;
 use App\Entity\Task;
 use App\Enum\TaskStatus;
 use Doctrine\ORM\EntityManager;
-use stdClass;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class DoctrineSearcherTest extends KernelTestCase
