@@ -22,7 +22,7 @@ class AbstractTool extends AbstractMcpComponent
 
     /**
      * @param array<string, mixed>|list<array<string, mixed>>|object $data
-     * @param array<string, mixed> $context
+     * @param array<string, mixed>                                   $context
      */
     protected function success(array|object $data, array $context = []): CallToolResult
     {
@@ -31,7 +31,7 @@ class AbstractTool extends AbstractMcpComponent
 
     /**
      * @param array<string, mixed>|list<array<string, mixed>>|object $data
-     * @param array<string, mixed> $context
+     * @param array<string, mixed>                                   $context
      */
     protected function error(array|object $data, array $context = []): CallToolResult
     {
@@ -40,7 +40,7 @@ class AbstractTool extends AbstractMcpComponent
 
     /**
      * @param array<string, mixed>|list<array<string, mixed>>|object $data
-     * @param array<string, mixed> $context
+     * @param array<string, mixed>                                   $context
      */
     protected function result(array|object $data, bool $isError, array $context = []): CallToolResult
     {
@@ -74,7 +74,7 @@ class AbstractTool extends AbstractMcpComponent
      * Otherwise, calls the handler without arguments.
      *
      * @param RequestContext $context Request context containing tool parameters
-     * @param callable $handler Business logic handler. Can be called with denormalized object or no args. Returns CallToolResult for custom formatting or any value to wrap in success response.
+     * @param callable       $handler Business logic handler. Can be called with denormalized object or no args. Returns CallToolResult for custom formatting or any value to wrap in success response.
      *
      * @return CallToolResult Execution result (validation errors or operation result)
      */

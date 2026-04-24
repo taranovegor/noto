@@ -23,7 +23,7 @@ class ProjectTool extends AbstractTool
 
     #[McpTool(
         name: 'create_project',
-        description: 'Create a new project. Returns the created project with its ID.',
+        description: '[Create Tool] Create a new project.',
         annotations: new ToolAnnotations(
             readOnlyHint: false,
             destructiveHint: false,
@@ -33,21 +33,24 @@ class ProjectTool extends AbstractTool
     #[Schema(type: 'object', properties: [
         'name' => [
             'type' => 'string',
-            'description' => 'Human-readable project name (e.g. "Backend API")',
+            'description' => 'Human-readable project name (1-255 characters). Examples: "Backend API", "Mobile App", "Website Redesign"',
             'minLength' => 1,
             'maxLength' => 255,
+            'example' => 'Backend API',
         ],
         'prefix' => [
             'type' => 'string',
-            'description' => 'Unique 3-character uppercase prefix used to generate task codes',
+            'description' => 'Unique 3-character uppercase prefix (A-Z only). Used to auto-generate task codes: prefix + number (e.g., PRJ-1, PRJ-2). Must be unique across all projects.',
             'minLength' => 3,
             'maxLength' => 3,
             'pattern' => '^[A-Z]{3}$',
+            'example' => 'PRJ',
         ],
         'aliases' => [
             'type' => 'array',
-            'description' => 'Alternative names or slugs for this project (e.g. ["backend", "api"])',
+            'description' => 'Optional list of alternative names or aliases for searching (e.g. ["backend", "api", "rest"]). Help find the project by other names.',
             'items' => ['type' => 'string'],
+            'example' => ['backend', 'api'],
         ],
     ], required: ['name', 'prefix'])]
     public function create(RequestContext $context): CallToolResult
@@ -61,7 +64,7 @@ class ProjectTool extends AbstractTool
 
     #[McpTool(
         name: 'update_project',
-        description: 'Update one or more fields of an existing project. Only provided fields are updated; omitted fields remain unchanged.',
+        description: '[Update Tool] Update one or more fields of an existing project.',
         annotations: new ToolAnnotations(
             readOnlyHint: false,
             destructiveHint: true,
@@ -71,21 +74,24 @@ class ProjectTool extends AbstractTool
     #[Schema(type: 'object', properties: [
         'name' => [
             'type' => ['string', 'null'],
-            'description' => 'New project name. Omit to keep the current value',
+            'description' => 'New project name (1-255 characters). Omit to keep the current value.',
             'minLength' => 1,
             'maxLength' => 255,
+            'example' => 'Updated Backend API',
         ],
         'prefix' => [
             'type' => ['string', 'null'],
-            'description' => 'New 3-character uppercase prefix. Omit to keep the current value',
+            'description' => 'New 3-character uppercase prefix (A-Z only). Must be unique. Changing prefix affects future task codes but not existing ones. Omit to keep the current value.',
             'minLength' => 3,
             'maxLength' => 3,
             'pattern' => '^[A-Z]{3}$',
+            'example' => 'BAK',
         ],
         'aliases' => [
             'type' => ['array', 'null'],
-            'description' => 'New list of aliases. Replaces the existing list entirely. Omit to keep the current value',
+            'description' => 'New list of aliases. Replaces the entire existing list. Pass empty array to clear aliases. Omit to keep the current value.',
             'items' => ['type' => 'string'],
+            'example' => ['backend', 'rest-api', 'server'],
         ],
     ])]
     public function update(

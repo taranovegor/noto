@@ -132,6 +132,16 @@ Interactive API documentation (Swagger UI) is available at:
 http://localhost:8080/api/doc
 ```
 
+## MCP Server
+
+The application exposes an MCP (Model Context Protocol) server for programmatic task and project management via HTTP:
+
+```
+http://localhost:8080/_mcp
+```
+
+The server provides resources for reading and tools for creating/updating tasks and projects.
+
 ## Monitoring
 
 ### View Application Logs

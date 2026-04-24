@@ -98,9 +98,8 @@ Every entity that participates in cross-entity linking implements `Linkable` int
 ### Enums
 
 - `TaskStatus`: todo, in_progress, done
-- `TaskPriority`: low, medium, high, urgent
-- `ProjectStatus`: active, archived
-- `RefType`: task, project, recipe, note, reminder
+- `TaskPriority`: low, medium, high
+- `RefType`: task, project
 
 ### Testing
 
@@ -150,6 +149,17 @@ See `src/Component/Searcher/Enum/FilterOperator.php` for all supported operators
 ```
 
 To add a new filterable/sortable field to an endpoint, update the corresponding `SearchDefinition` (e.g., `TaskSearchDefinition`) and add the field to the DTO's `Searchable` attribute.
+
+---
+
+## MCP Server
+
+The project includes an MCP server exposing task and project management capabilities. The server provides:
+
+- **Resources** — read-only access to projects and tasks (e.g., `project://`, `task://{id}`)
+- **Tools** — create, update, and search tasks/projects with filtering and pagination
+
+All resources and tools are fully documented with examples and parameter details. Configuration and detailed instructions are in `config/packages/mcp.yaml`.
 
 ---
 

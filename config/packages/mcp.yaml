@@ -1,14 +1,32 @@
 mcp:
     app: 'noto'
     version: '0.1.1'
-    description: 'MCP server for structured task/project management via REST API'
+    description: 'MCP server for structured task/project management with filtering and search'
     instructions: |
-        This server provides task and project management capabilities.
+        Noto provides task and project management via resources and tools. All available resources and tools are listed with full descriptions. Each shows required parameters, examples, and output format.
 
-        Use for creating, updating, and retrieving projects and tasks.
-        All operations are performed through the Noto task management system.
+        **Update Tools (update_task, update_project):** Only fields you explicitly provide are updated. Omit any field to keep its current value (unless noted otherwise in the tool description).
 
-        Example contexts: task organization, project planning, deadline tracking.
+        **Error Handling:** If invalid data is provided (e.g., malformed UUID, out-of-range values, duplicate prefix) or a record is not found, a validation error will be returned describing the specific issues. Read the error details carefully and adjust your request accordingly before retrying.
+
+        **Filtering:** Only fields explicitly listed in the tool's schema (under `filter` properties) can be used for filtering. If a field is not mentioned in the schema, it cannot be filtered on — attempting to filter by an unlisted field will result in a validation error.
+
+        **Filter Operators** (used in search_tasks and other filtering tools):
+
+        - `eq:value` or just `value` — exact match (default operator if omitted)
+        - `neq:value` — not equal
+        - `in:val1,val2,val3` — match any of the comma-separated values
+        - `notIn:val1,val2,val3` — exclude any of the comma-separated values
+        - `gt:value` — greater than
+        - `gte:value` — greater than or equal
+        - `lt:value` — less than
+        - `lte:value` — less than or equal
+
+        **Examples:**
+        - `status: "in:backlog,in_progress"` → tasks that are either backlog or in_progress
+        - `status: "neq:done"` → tasks that are not done
+        - `deadline: "gte:2026-05-01"` → tasks with deadline on or after May 1, 2026
+        - `priority: "eq:high"` or `priority: "high"` → high priority only (eq is default)
 
     client_transports:
         stdio: true

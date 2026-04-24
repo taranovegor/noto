@@ -35,7 +35,7 @@ class ProjectResource extends AbstractResource
     #[McpResource(
         uri: 'project://',
         name: 'projects',
-        description: 'List of all projects',
+        description: 'List all projects. Each project has id, name, unique 3-char prefix (used for task codes), aliases, and timestamps.',
     )]
     public function list(): array
     {
@@ -54,7 +54,7 @@ class ProjectResource extends AbstractResource
     #[McpResourceTemplate(
         uriTemplate: 'project://{projectId}',
         name: 'project',
-        description: 'Project details: id, name, 3-char task prefix (e.g. PRJ → PRJ-1), aliases, createdAt.',
+        description: 'Single project by UUID. Contains: id, name, prefix (3-uppercase chars, used to auto-generate task codes like PRJ-42), aliases (alternative names), status, createdAt, updatedAt. Use after listing projects with project:// or when you have a projectId.',
         mimeType: 'application/json',
     )]
     public function get(string $projectId): TextResourceContents

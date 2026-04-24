@@ -26,7 +26,7 @@ class TaskResource extends AbstractResource
     #[McpResourceTemplate(
         uriTemplate: 'task://{taskId}',
         name: 'task',
-        description: 'Task details: id, name, status, priority, deadline, code, project, notes, timestamps.',
+        description: 'Single task by UUID. Contains: id, name, status, priority, deadline, code (auto-generated if assigned to project, e.g. PRJ-42), projectId, note, createdAt, updatedAt. Get all tasks with search_tasks tool or a specific task if you have its UUID.',
         mimeType: 'application/json',
     )]
     public function get(string $taskId): TextResourceContents
