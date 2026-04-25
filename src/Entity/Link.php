@@ -5,17 +5,15 @@ namespace App\Entity;
 use App\Enum\LinkKind;
 use App\Enum\RefType;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'links')]
 #[ORM\UniqueConstraint(columns: ['source_id', 'target_id', 'kind'])]
+#[ORM\HasLifecycleCallbacks]
 class Link
 {
-    #[ORM\Id]
-    #[ORM\Column(type: UuidType::NAME)]
-    public private(set) Uuid $id;
+    use UidTrait;
 
     #[ORM\ManyToOne(targetEntity: Ref::class, inversedBy: 'linksAsSource')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]

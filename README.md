@@ -6,6 +6,8 @@ Personal knowledge microservice for structured data storage
 - Docker and Docker Compose
 - Make (for convenient command execution)
 - Git
+- PostgreSQL 18 with pgvector extension
+- RabbitMQ 4 (for async message processing)
 
 ## Quick Start
 

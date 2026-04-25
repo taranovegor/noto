@@ -148,6 +148,30 @@
             "bin/phpunit"
         ]
     },
+    "symfony/ai-bundle": {
+        "version": "0.8",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "0.1",
+            "ref": "2be6ccd77335c2631fdf12d1680649b072efb8ad"
+        },
+        "files": [
+            "config/packages/ai.yaml"
+        ]
+    },
+    "symfony/ai-voyage-platform": {
+        "version": "0.8",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "0.1",
+            "ref": "72b062541e3c7c1c1cee5b8fef9f9264ffa0aeeb"
+        },
+        "files": [
+            "config/packages/ai_voyage_platform.yaml"
+        ]
+    },
     "symfony/console": {
         "version": "8.0",
         "recipe": {
@@ -207,6 +231,18 @@
     },
     "symfony/mcp-bundle": {
         "version": "v0.7.0"
+    },
+    "symfony/messenger": {
+        "version": "8.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "6.0",
+            "ref": "d8936e2e2230637ef97e5eecc0eea074eecae58b"
+        },
+        "files": [
+            "config/packages/messenger.yaml"
+        ]
     },
     "symfony/monolog-bundle": {
         "version": "4.0",

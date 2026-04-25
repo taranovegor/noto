@@ -1,0 +1,23 @@
+ai:
+    platform:
+        voyage:
+            api_key: '%env(VOYAGE_API_KEY)%'
+
+    agent: ~ # see https://symfony.com/doc/current/ai/bundles/ai-bundle.html
+
+    store: ~ # manually configured service App\Service\Embedding\EmbeddingStore
+
+    vectorizer:
+        voyage:
+            model: '%env(APP_VECTORIZER_MODEL)%'
+
+    indexer:
+        default:
+            loader: 'ai.store.document.entity_loader'
+            transformers:
+                - 'ai.store.document.transformer.plain_text'
+                - 'ai.store.document.transformer.text_trim'
+                - 'ai.store.document.transformer.text_split'
+
+    retriever:
+        default: ~ # configured automatically

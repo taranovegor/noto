@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libicu-dev \
     libzip-dev \
+    librabbitmq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-configure intl \
@@ -33,6 +34,8 @@ RUN docker-php-ext-configure intl \
     intl \
     sockets \
     zip
+
+RUN pecl install amqp && docker-php-ext-enable amqp
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 

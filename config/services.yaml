@@ -1,4 +1,20 @@
 parameters:
+    ai.additional_models:
+        voyage-4-large:
+            class: Symfony\AI\Platform\Bridge\Voyage\Voyage
+            capabilities:
+                - !php/const Symfony\AI\Platform\Capability::INPUT_MULTIPLE
+                - !php/const Symfony\AI\Platform\Capability::EMBEDDINGS
+        voyage-4:
+            class: Symfony\AI\Platform\Bridge\Voyage\Voyage
+            capabilities:
+                - !php/const Symfony\AI\Platform\Capability::INPUT_MULTIPLE
+                - !php/const Symfony\AI\Platform\Capability::EMBEDDINGS
+        voyage-4-lite:
+            class: Symfony\AI\Platform\Bridge\Voyage\Voyage
+            capabilities:
+                - !php/const Symfony\AI\Platform\Capability::INPUT_MULTIPLE
+                - !php/const Symfony\AI\Platform\Capability::EMBEDDINGS
 
 services:
     _defaults:
@@ -13,3 +29,30 @@ services:
         class: Symfony\Component\ErrorHandler\ErrorRenderer\SerializerErrorRenderer
         arguments:
             $format: 'json'
+
+    ai.platform.model_catalog.voyage:
+        class: Symfony\AI\Platform\Bridge\Voyage\ModelCatalog
+        arguments:
+            $additionalModels: '%ai.additional_models%'
+
+    Symfony\AI\Store\Document\VectorizerInterface: '@ai.vectorizer.voyage'
+
+    Symfony\AI\Store\StoreInterface: '@App\Service\Embedding\EmbeddingStore'
+
+    ai.store.document.transformer.text_trim:
+        class: Symfony\AI\Store\Document\Transformer\TextTrimTransformer
+
+    ai.store.document.transformer.plain_text:
+        class: App\Component\Ai\Store\Document\PlainTextTransformer
+
+    ai.store.document.transformer.text_split:
+        class: App\Component\Ai\Store\Document\TextSplitTransformer
+
+    ai.store.document.entity_loader:
+        class: App\Component\Ai\Store\Document\EntityLoader
+
+    League\CommonMark\Environment\EnvironmentInterface:
+        class: League\CommonMark\Environment\Environment
+
+    League\CommonMark\ConverterInterface:
+        class: League\CommonMark\CommonMarkConverter

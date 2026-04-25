@@ -7,19 +7,16 @@ use App\Enum\RefType;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Types\UuidType;
-use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'projects')]
+#[ORM\HasLifecycleCallbacks]
 class Project implements ReferenceableInterface, HasUpdatedAtInterface
 {
+    use UidTrait;
     use ReferenceableTrait;
+    use HasCreatedAtTrait;
     use HasUpdatedAtTrait;
-
-    #[ORM\Id]
-    #[ORM\Column(type: UuidType::NAME)]
-    public private(set) Uuid $id;
 
     #[ORM\Column(length: 255)]
     public string $name;
@@ -36,21 +33,17 @@ class Project implements ReferenceableInterface, HasUpdatedAtInterface
     #[ORM\Column(type: 'json')]
     public array $aliases = [];
 
-    #[ORM\Column]
-    public private(set) \DateTimeImmutable $createdAt;
-
     /** @var Collection<int, Task> */
     #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'project')]
     public private(set) Collection $tasks;
 
     public function __construct(string $name, string $prefix)
     {
-        $this->ref = new Ref(RefType::Project);
-        $this->id = $this->ref->id;
+        $this->initRef(RefType::Project);
         $this->name = $name;
         $this->prefix = $prefix;
         $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->touchUpdatedAt();
         $this->tasks = new ArrayCollection();
     }
 }

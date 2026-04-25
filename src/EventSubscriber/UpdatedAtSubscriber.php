@@ -3,18 +3,15 @@
 namespace App\EventSubscriber;
 
 use App\Contract\HasUpdatedAtInterface;
-use Doctrine\Common\EventSubscriber;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
 
-final readonly class UpdatedAtSubscriber implements EventSubscriber
+#[AsDoctrineListener(Events::prePersist)]
+#[AsDoctrineListener(Events::preUpdate)]
+final readonly class UpdatedAtSubscriber
 {
-    public function getSubscribedEvents(): array
-    {
-        return [Events::preUpdate, Events::prePersist];
-    }
-
     public function prePersist(PrePersistEventArgs $args): void
     {
         $this->touch($args->getObject());

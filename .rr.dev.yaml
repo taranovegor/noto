@@ -26,3 +26,12 @@ logs:
             mode: raw
         metrics:
             level: debug
+
+service:
+    app_async:
+        service_name_in_log: true
+        timeout_stop_sec: 60
+        remain_after_exit: true
+        restart_sec: 1
+        process_num: 1
+        command: bin/console messenger:consume async --no-ansi -v --limit=1 --time-limit=86400

@@ -2,25 +2,23 @@
 
 namespace App\Entity;
 
+use App\Component\Ai\Store\Attribute\Indexable;
 use App\Contract\HasUpdatedAtInterface;
 use App\Enum\RefType;
 use App\Enum\TaskPriority;
 use App\Enum\TaskStatus;
 use App\Service\Task\TaskCodeGenerator;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Types\UuidType;
-use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'tasks')]
+#[Indexable('id', fields: ['name', 'note'])]
+#[ORM\HasLifecycleCallbacks]
 class Task implements ReferenceableInterface, HasUpdatedAtInterface
 {
     use ReferenceableTrait;
+    use HasCreatedAtTrait;
     use HasUpdatedAtTrait;
-
-    #[ORM\Id]
-    #[ORM\Column(type: UuidType::NAME)]
-    public private(set) Uuid $id;
 
     #[ORM\ManyToOne(targetEntity: Project::class, inversedBy: 'tasks')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
@@ -44,17 +42,13 @@ class Task implements ReferenceableInterface, HasUpdatedAtInterface
     #[ORM\Column(type: 'text')]
     public string $note = '';
 
-    #[ORM\Column]
-    public private(set) \DateTimeImmutable $createdAt;
-
     public function __construct(string $name)
     {
-        $this->ref = new Ref(RefType::Task);
-        $this->id = $this->ref->id;
+        $this->initRef(RefType::Task);
         $this->name = $name;
         $this->status = TaskStatus::Backlog;
         $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->touchUpdatedAt();
     }
 
     /**
