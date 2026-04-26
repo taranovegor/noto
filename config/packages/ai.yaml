@@ -13,7 +13,7 @@ ai:
 
     indexer:
         default:
-            loader: 'ai.store.document.entity_loader'
+            loader: 'ai.store.document.indexable_entity_loader'
             transformers:
                 - 'ai.store.document.transformer.plain_text'
                 - 'ai.store.document.transformer.text_trim'

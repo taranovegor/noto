@@ -48,8 +48,8 @@ services:
     ai.store.document.transformer.text_split:
         class: App\Component\Ai\Store\Document\TextSplitTransformer
 
-    ai.store.document.entity_loader:
-        class: App\Component\Ai\Store\Document\EntityLoader
+    ai.store.document.indexable_entity_loader:
+        class: App\Component\Ai\Store\Document\IndexableEntityLoader
 
     League\CommonMark\Environment\EnvironmentInterface:
         class: League\CommonMark\Environment\Environment
