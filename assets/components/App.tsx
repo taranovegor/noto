@@ -2,45 +2,76 @@ import React, { useState, useEffect } from 'react';
 import { ProjectsList } from './ProjectsList';
 import { TasksList } from './TasksList';
 import { TaskPage } from './TaskPage';
+import { NotesList } from './NotesList';
+import { NotePage } from './NotePage';
 import '../styles/app.css';
 
-type View = 'projects' | 'tasks' | 'task';
+type View = 'projects' | 'tasks' | 'task' | 'notes' | 'note';
 
-function parseRoute(): { view: View; taskId?: string } {
+function parseRoute(): { view: View; entityId?: string } {
   const hash = window.location.hash.slice(1);
 
   if (hash.startsWith('task/')) {
     const taskId = hash.slice(5);
-    return { view: 'task', taskId };
+    return { view: 'task', entityId: taskId };
+  }
+
+  if (hash.startsWith('note/')) {
+    const noteId = hash.slice(5);
+    return { view: 'note', entityId: noteId };
+  }
+
+  if (hash === 'task') {
+    return { view: 'task' };
+  }
+
+  if (hash === 'note') {
+    return { view: 'note' };
   }
 
   if (hash === 'projects') {
     return { view: 'projects' };
   }
 
+  if (hash === 'notes') {
+    return { view: 'notes' };
+  }
+
   return { view: 'tasks' };
 }
 
-function setRoute(view: View, taskId?: string) {
-  if (view === 'task' && taskId) {
-    window.location.hash = `task/${taskId}`;
+function setRoute(view: View, entityId?: string) {
+  if (view === 'task') {
+    if (entityId) {
+      window.location.hash = `task/${entityId}`;
+    } else {
+      window.location.hash = 'task';
+    }
+  } else if (view === 'note') {
+    if (entityId) {
+      window.location.hash = `note/${entityId}`;
+    } else {
+      window.location.hash = 'note';
+    }
   } else if (view === 'projects') {
     window.location.hash = 'projects';
+  } else if (view === 'notes') {
+    window.location.hash = 'notes';
   } else {
     window.location.hash = '';
   }
 }
 
 export function App() {
-  const { view: initialView, taskId: initialTaskId } = parseRoute();
+  const { view: initialView, entityId: initialEntityId } = parseRoute();
   const [currentView, setCurrentView] = useState<View>(initialView);
-  const [selectedTaskId, setSelectedTaskId] = useState<string | undefined>(initialTaskId);
+  const [selectedEntityId, setSelectedEntityId] = useState<string | undefined>(initialEntityId);
 
   useEffect(() => {
     const handleHashChange = () => {
-      const { view, taskId } = parseRoute();
+      const { view, entityId } = parseRoute();
       setCurrentView(view);
-      setSelectedTaskId(taskId);
+      setSelectedEntityId(entityId);
     };
 
     window.addEventListener('hashchange', handleHashChange);
@@ -49,20 +80,32 @@ export function App() {
 
   const goToBoard = () => {
     setRoute('tasks');
-    setSelectedTaskId(undefined);
+    setSelectedEntityId(undefined);
     setCurrentView('tasks');
   };
 
   const navigateToTask = (taskId: string) => {
     setRoute('task', taskId);
-    setSelectedTaskId(taskId);
+    setSelectedEntityId(taskId);
     setCurrentView('task');
   };
 
   const navigateToNewTask = () => {
     setRoute('task');
-    setSelectedTaskId(undefined);
+    setSelectedEntityId(undefined);
     setCurrentView('task');
+  };
+
+  const navigateToNote = (noteId: string) => {
+    setRoute('note', noteId);
+    setSelectedEntityId(noteId);
+    setCurrentView('note');
+  };
+
+  const navigateToNewNote = () => {
+    setRoute('note');
+    setSelectedEntityId(undefined);
+    setCurrentView('note');
   };
 
   const navigateToProjects = () => {
@@ -73,6 +116,11 @@ export function App() {
   const navigateToTasks = () => {
     setRoute('tasks');
     setCurrentView('tasks');
+  };
+
+  const navigateToNotes = () => {
+    setRoute('notes');
+    setCurrentView('notes');
   };
 
   return (
@@ -90,6 +138,12 @@ export function App() {
             onClick={navigateToTasks}
           >
             Tasks
+          </button>
+          <button
+            className={`sidebar-nav-item ${currentView === 'notes' ? 'active' : ''}`}
+            onClick={navigateToNotes}
+          >
+            Notes
           </button>
           <button
             className={`sidebar-nav-item ${currentView === 'projects' ? 'active' : ''}`}
@@ -110,12 +164,25 @@ export function App() {
                 onNewTask={navigateToNewTask}
               />
             )}
+            {currentView === 'notes' && (
+              <NotesList
+                onNoteClick={navigateToNote}
+                onNewNote={navigateToNewNote}
+              />
+            )}
             {currentView === 'projects' && <ProjectsList />}
             {currentView === 'task' && (
               <TaskPage
-                taskId={selectedTaskId}
+                taskId={selectedEntityId}
                 onBack={goToBoard}
                 onCreated={navigateToTask}
+              />
+            )}
+            {currentView === 'note' && (
+              <NotePage
+                noteId={selectedEntityId}
+                onBack={navigateToNotes}
+                onCreated={navigateToNote}
               />
             )}
           </div>

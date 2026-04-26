@@ -9,4 +9,5 @@ enum RefType: string
 {
     case Project = 'project';
     case Task = 'task';
+    case Note = 'note';
 }
