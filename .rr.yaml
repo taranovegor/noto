@@ -1,6 +1,9 @@
 version: "3"
 
 server:
+    on_init:
+        command: 'composer run-script init-scripts'
+        exit_on_error: true
     command: "php public/index.php"
     env:
         - APP_RUNTIME: Baldinof\RoadRunnerBundle\Runtime\Runtime

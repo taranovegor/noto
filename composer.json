@@ -78,13 +78,18 @@
     "scripts": {
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
-            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+            "assets:install public": "symfony-cmd"
         },
         "post-install-cmd": [
             "@auto-scripts"
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "init-scripts": [
+            "bin/console cache:warmup",
+            "bin/console doctrine:migrations:migrate --no-interaction",
+            "bin/console assets:install public"
         ]
     },
     "conflict": {
