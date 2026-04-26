@@ -38,6 +38,7 @@ class McpSearchDtoResolverTest extends TestCase
         $this->resolver = new McpSearchDtoResolver(
             $this->validator,
             $definitionLoader,
+            $container,
             $this->logger
         );
     }

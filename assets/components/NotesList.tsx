@@ -17,6 +17,8 @@ export function NotesList({ onNoteClick, onNewNote }: NotesListProps) {
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
+  const [searchInput, setSearchInput] = useState('');
+  const [activeSearch, setActiveSearch] = useState<string | null>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
 
   const loadNotes = useCallback((isInitial: boolean = false) => {
@@ -25,7 +27,10 @@ export function NotesList({ onNoteClick, onNewNote }: NotesListProps) {
 
     (isFirstLoad ? setLoading : setLoadingMore)(true);
 
-    api.notes.list(PAGE_SIZE, currentOffset)
+    (activeSearch
+      ? api.notes.search(activeSearch, PAGE_SIZE, currentOffset)
+      : api.notes.list(PAGE_SIZE, currentOffset)
+    )
       .then((data) => {
         const newNotes = isInitial ? data.data : [...notes, ...data.data];
         setNotes(newNotes);
@@ -39,11 +44,32 @@ export function NotesList({ onNoteClick, onNewNote }: NotesListProps) {
         if (isFirstLoad) setLoading(false);
         else setLoadingMore(false);
       });
-  }, [notes, offset]);
+  }, [notes, offset, activeSearch]);
+
+  const handleSearch = useCallback((query: string) => {
+    setOffset(0);
+    if (query.trim()) {
+      setActiveSearch(query);
+    } else {
+      setActiveSearch(null);
+    }
+  }, []);
+
+  const handleSearchKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch((e.target as HTMLInputElement).value);
+    }
+  }, [handleSearch]);
+
+  const handleClearSearch = useCallback(() => {
+    setOffset(0);
+    setSearchInput('');
+    setActiveSearch(null);
+  }, []);
 
   useEffect(() => {
     loadNotes(true);
-  }, []);
+  }, [activeSearch]);
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -64,6 +90,42 @@ export function NotesList({ onNoteClick, onNewNote }: NotesListProps) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h2 style={{ marginBottom: 0 }}>Notes</h2>
         <button className="btn btn-primary" onClick={onNewNote}>New note</button>
+      </div>
+
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+        <input
+          type="text"
+          placeholder="Search notes..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          onKeyDown={handleSearchKeyDown}
+          style={{
+            flex: 1,
+            padding: '8px 12px',
+            borderRadius: '4px',
+            border: '1px solid var(--color-border)',
+            backgroundColor: 'var(--color-bg)',
+            color: 'var(--color-text)',
+            fontSize: '0.9rem',
+            fontFamily: 'inherit',
+          }}
+        />
+        <button
+          className="btn btn-primary"
+          onClick={() => handleSearch(searchInput)}
+          style={{ whiteSpace: 'nowrap' }}
+        >
+          Search
+        </button>
+        {activeSearch && (
+          <button
+            className="btn"
+            onClick={handleClearSearch}
+            style={{ whiteSpace: 'nowrap' }}
+          >
+            Clear
+          </button>
+        )}
       </div>
 
       {error && (

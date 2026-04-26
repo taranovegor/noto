@@ -7,6 +7,8 @@ use App\Component\Searcher\Definition\SearchableDefinitionInterface;
 use App\Component\Searcher\Enum\FilterOperator;
 use App\Entity\Task;
 use App\Enum\TaskStatus;
+use App\Service\Embedding\EmbeddingVectorFilterHandler;
+use App\Service\Embedding\FilterInputVectorizer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class TaskSearchDefinition implements SearchableDefinitionInterface
@@ -18,6 +20,10 @@ final class TaskSearchDefinition implements SearchableDefinitionInterface
 
     public function configure(SearchConfigurator $config): void
     {
+        $config->addFilter('query', [FilterOperator::Like])
+            ->setInputTransformer(FilterInputVectorizer::class)
+            ->setHandler(EmbeddingVectorFilterHandler::class);
+
         $config->addFilter('projectId', [FilterOperator::Eq])
            ->setProperty('project')
            ->addConstraint(new Assert\Uuid());

@@ -12,6 +12,7 @@ use App\Component\Searcher\Loader\SearchDefinitionLoader;
 use App\Component\Searcher\Model\FilterCondition;
 use App\Component\Searcher\Model\PaginationDetails;
 use App\Component\Searcher\Model\SortInstruction;
+use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Validator\Constraint;
@@ -29,6 +30,7 @@ abstract class AbstractSearchDtoResolver
     public function __construct(
         private readonly ValidatorInterface $validator,
         private readonly SearchDefinitionLoader $definitionLoader,
+        private readonly ContainerInterface $container,
         protected readonly ?LoggerInterface $logger = null,
     ) {
     }
@@ -248,6 +250,12 @@ abstract class AbstractSearchDtoResolver
                 }
 
                 $parsedValue = $this->parseFilterValue($operatorEnum, $value);
+
+                if ($filterDefinitions[$field]->getInputTransformer()) {
+                    $transformer = $this->resolveService($filterDefinitions[$field]->getInputTransformer());
+                    $parsedValue = $transformer($operatorEnum, $parsedValue);
+                }
+
                 $filters[] = new FilterCondition($field, $operatorEnum, $parsedValue);
             }
         }
@@ -262,17 +270,7 @@ abstract class AbstractSearchDtoResolver
      */
     private function resolveOperator(string $operator): FilterOperator
     {
-        return match ($operator) {
-            'eq' => FilterOperator::Eq,
-            'neq' => FilterOperator::Neq,
-            'gt' => FilterOperator::Gt,
-            'gte' => FilterOperator::Gte,
-            'lt' => FilterOperator::Lt,
-            'lte' => FilterOperator::Lte,
-            'in' => FilterOperator::In,
-            'not_in' => FilterOperator::NotIn,
-            default => throw new \ValueError("Unknown operator: $operator"),
-        };
+        return FilterOperator::from($operator);
     }
 
     /**
@@ -367,5 +365,17 @@ abstract class AbstractSearchDtoResolver
         }
 
         return new PaginationDetails($limit, $offset);
+    }
+
+    /**
+     * Resolve a service from container (either class string or callable).
+     */
+    private function resolveService(string|callable $service): callable
+    {
+        if (is_callable($service) && !is_string($service)) {
+            return $service;
+        }
+
+        return $this->container->get($service);
     }
 }

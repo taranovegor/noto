@@ -12,6 +12,7 @@ enum FilterOperator: string implements OperatorInterface
     case Lte = 'lte';
     case In = 'in';
     case NotIn = 'notIn';
+    case Like = 'like';
 
     public function getName(): string
     {

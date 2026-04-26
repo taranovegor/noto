@@ -5,6 +5,9 @@ export const notes = {
   list: (limit = 100, offset = 0) =>
     request<ListResponse<NoteResponseDto>>(`/api/notes?limit=${limit}&offset=${offset}&sort=-updatedAt`),
 
+  search: (query: string, limit = 100, offset = 0) =>
+    request<ListResponse<NoteResponseDto>>(`/api/notes?filter[query]=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}&sort=-updatedAt`),
+
   get: (id: string) =>
     request<NoteResponseDto>(`/api/notes/${id}`),
 

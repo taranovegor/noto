@@ -43,6 +43,11 @@ class TaskTool extends AbstractTool
             'type' => ['object', 'null'],
             'description' => 'Filter conditions object with field-value pairs. Supports operators: eq, neq, in, notIn, gt, gte, lt, lte (see instructions for examples).',
             'properties' => [
+                'query' => [
+                    'type' => ['string', 'null'],
+                    'description' => 'Search query text (full-text search)',
+                    'example' => 'implement auth',
+                ],
                 'projectId' => [
                     'type' => ['string', 'null'],
                     'description' => 'Filter by project UUID. Example: "eq:019d87b4-ae7b-7e2a-a0a3-3774fab76a3e" or just the UUID for exact match',

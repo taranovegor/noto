@@ -16,5 +16,6 @@ class Kernel extends BaseKernel
     {
         $container->addCompilerPass(new AiStore\IndexableCompilerPass());
         $container->addCompilerPass(new Searcher\NelmioApiDocCompilerPass());
+        $container->addCompilerPass(new Searcher\FilterCompilerPass());
     }
 }

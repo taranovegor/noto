@@ -5,6 +5,9 @@ export const tasks = {
   list: (limit = 100) =>
     request<ListResponse<TaskResponseDto>>(`/api/tasks?limit=${limit}`),
 
+  search: (query: string, limit = 100, offset = 0) =>
+    request<ListResponse<TaskResponseDto>>(`/api/tasks?filter[query]=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`),
+
   get: (id: string) =>
     request<TaskResponseDto>(`/api/tasks/${id}`),
 

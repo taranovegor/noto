@@ -3,6 +3,7 @@
 namespace App\Component\Searcher;
 
 use App\Component\Searcher\Configurator\SearchConfigurator;
+use App\Component\Searcher\Context\DoctrineFilterContext;
 use App\Component\Searcher\Definition\SearchableDefinitionInterface;
 use App\Component\Searcher\Dto\FilterableInterface;
 use App\Component\Searcher\Dto\PaginableInterface;
@@ -15,6 +16,7 @@ use App\Component\Searcher\Model\SearchCriteria;
 use App\Component\Searcher\Model\SearchResult;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use Psr\Container\ContainerInterface;
 
 /**
  * Doctrine ORM implementation of the search interface.
@@ -31,6 +33,7 @@ final readonly class DoctrineSearcher implements SearcherInterface
     public function __construct(
         private EntityManagerInterface $entityManager,
         private SearchDefinitionLoader $searchDefinitionLoader,
+        private ContainerInterface $container,
     ) {
     }
 
@@ -50,14 +53,16 @@ final readonly class DoctrineSearcher implements SearcherInterface
         $criteria = $this->buildCriteria($searchable, $definition, $configurator);
 
         if ($searchable instanceof FilterableInterface && $criteria->hasFilters()) {
-            $this->applyFilters($qb, $criteria);
+            $this->applyFilters($qb, $criteria, $configurator);
         }
 
         if ($searchable instanceof SortableInterface && $criteria->hasSorting()) {
             $this->applySorting($qb, $criteria);
         }
 
-        $total = (int) (clone $qb)
+        $countQb = clone $qb;
+        $this->removeOrderByParameters($countQb);
+        $total = (int) $countQb
             ->select('COUNT(e)')
             ->resetDQLPart('orderBy')
             ->getQuery()
@@ -140,25 +145,49 @@ final readonly class DoctrineSearcher implements SearcherInterface
     /**
      * Apply filter conditions to the query builder.
      */
-    private function applyFilters(QueryBuilder $qb, SearchCriteria $criteria): void
+    private function applyFilters(QueryBuilder $qb, SearchCriteria $criteria, SearchConfigurator $configurator): void
     {
         $parameterIndex = 0;
+        $context = new DoctrineFilterContext('e', $qb);
 
         foreach ($criteria->getFilters() as $field => $filterCondition) {
             $paramName = 'filter_'.(++$parameterIndex);
 
-            $expr = $qb->expr();
-            match ($filterCondition->operator) {
-                FilterOperator::Eq => $qb->andWhere($expr->eq("e.$field", ":$paramName"))->setParameter($paramName, $filterCondition->value),
-                FilterOperator::Neq => $qb->andWhere($expr->neq("e.$field", ":$paramName"))->setParameter($paramName, $filterCondition->value),
-                FilterOperator::Gt => $qb->andWhere($expr->gt("e.$field", ":$paramName"))->setParameter($paramName, $filterCondition->value),
-                FilterOperator::Gte => $qb->andWhere($expr->gte("e.$field", ":$paramName"))->setParameter($paramName, $filterCondition->value),
-                FilterOperator::Lt => $qb->andWhere($expr->lt("e.$field", ":$paramName"))->setParameter($paramName, $filterCondition->value),
-                FilterOperator::Lte => $qb->andWhere($expr->lte("e.$field", ":$paramName"))->setParameter($paramName, $filterCondition->value),
-                FilterOperator::In => $qb->andWhere($expr->in("e.$field", ":$paramName"))->setParameter($paramName, (array) $filterCondition->value),
-                FilterOperator::NotIn => $qb->andWhere($expr->notIn("e.$field", ":$paramName"))->setParameter($paramName, (array) $filterCondition->value),
-                default => throw new \LogicException(sprintf('Unsupported filter operator: %s', $filterCondition->operator->name)),
-            };
+            $filterDefinition = $configurator->getFilterDefinition($field);
+
+            if ($filterDefinition?->getHandler()) {
+                $handler = $this->resolveService($filterDefinition->getHandler());
+                ($handler)($context, $filterCondition->operator, $filterCondition->value);
+            } else {
+                $this->applyStandardFilter($qb, $field, $filterCondition->operator, $filterCondition->value, $paramName);
+            }
+        }
+    }
+
+    private function applyStandardFilter(QueryBuilder $qb, string $field, FilterOperator $operator, mixed $value, string $paramName): void
+    {
+        $expr = $qb->expr();
+
+        if (FilterOperator::Eq === $operator) {
+            $qb->andWhere($expr->eq("e.$field", ":$paramName"))->setParameter($paramName, $value);
+        } elseif (FilterOperator::Neq === $operator) {
+            $qb->andWhere($expr->neq("e.$field", ":$paramName"))->setParameter($paramName, $value);
+        } elseif (FilterOperator::Gt === $operator) {
+            $qb->andWhere($expr->gt("e.$field", ":$paramName"))->setParameter($paramName, $value);
+        } elseif (FilterOperator::Gte === $operator) {
+            $qb->andWhere($expr->gte("e.$field", ":$paramName"))->setParameter($paramName, $value);
+        } elseif (FilterOperator::Lt === $operator) {
+            $qb->andWhere($expr->lt("e.$field", ":$paramName"))->setParameter($paramName, $value);
+        } elseif (FilterOperator::Lte === $operator) {
+            $qb->andWhere($expr->lte("e.$field", ":$paramName"))->setParameter($paramName, $value);
+        } elseif (FilterOperator::In === $operator) {
+            $qb->andWhere($expr->in("e.$field", ":$paramName"))->setParameter($paramName, (array) $value);
+        } elseif (FilterOperator::NotIn === $operator) {
+            $qb->andWhere($expr->notIn("e.$field", ":$paramName"))->setParameter($paramName, (array) $value);
+        } elseif (FilterOperator::Like === $operator) {
+            $qb->andWhere($expr->like("e.$field", ":$paramName"))->setParameter($paramName, "%$value%");
+        } else {
+            throw new \LogicException(sprintf('Unsupported filter operator: %s', $operator->name));
         }
     }
 
@@ -170,5 +199,37 @@ final readonly class DoctrineSearcher implements SearcherInterface
         foreach ($criteria->getSorting() as $field => $direction) {
             $qb->addOrderBy("e.$field", strtoupper($direction->value));
         }
+    }
+
+    /**
+     * Remove parameters that are referenced in ORDER BY clause.
+     * Call before resetDQLPart('orderBy') to avoid "Too many parameters" error.
+     */
+    private function removeOrderByParameters(QueryBuilder $qb): void
+    {
+        $orderByParts = $qb->getDQLPart('orderBy');
+        if (empty($orderByParts)) {
+            return;
+        }
+
+        $orderByString = implode(', ', array_map('strval', $orderByParts));
+
+        foreach ($qb->getParameters() as $parameter) {
+            if (str_contains($orderByString, ':'.$parameter->getName())) {
+                $qb->getParameters()->removeElement($parameter);
+            }
+        }
+    }
+
+    /**
+     * Resolve a service from container (either class string or callable).
+     */
+    private function resolveService(string|callable $service): callable
+    {
+        if (is_callable($service) && !is_string($service)) {
+            return $service;
+        }
+
+        return $this->container->get($service);
     }
 }

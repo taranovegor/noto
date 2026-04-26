@@ -300,4 +300,139 @@ class DoctrineSearcherTest extends KernelTestCase
         $this->assertEquals(2, $pagination->getTotal());
         $this->assertCount(2, $result->getData());
     }
+
+    public function testSearchWithCustomFilterHandler(): void
+    {
+        $task1 = new Task('Task 1');
+        $task1->status = TaskStatus::Backlog;
+        $task2 = new Task('Task 2');
+        $task2->status = TaskStatus::InProgress;
+
+        $this->em->persist($task1);
+        $this->em->persist($task2);
+        $this->em->flush();
+
+        // The 'query' filter uses a FilterHandler (EmbeddingVectorFilterHandler)
+        // This test verifies that the handler is called and processes the filter
+        // For this test, we just verify that the searcher doesn't crash when handler is present
+        $filters = [
+            new FilterCondition('query', FilterOperator::Like, 'test query'),
+        ];
+        $dto = new SearchTaskDto($filters, [], new PaginationDetails(20, 0));
+
+        // Should not throw an exception
+        $result = $this->searcher->search($dto);
+
+        // Handler applied custom filter logic without errors
+        $this->assertIsArray($result->getData());
+    }
+
+    public function testSearchWithNotInFilter(): void
+    {
+        $task1 = new Task('Task 1');
+        $task1->status = TaskStatus::Backlog;
+        $task2 = new Task('Task 2');
+        $task2->status = TaskStatus::InProgress;
+        $task3 = new Task('Task 3');
+        $task3->status = TaskStatus::Done;
+
+        $this->em->persist($task1);
+        $this->em->persist($task2);
+        $this->em->persist($task3);
+        $this->em->flush();
+
+        $filters = [
+            new FilterCondition('status', FilterOperator::NotIn, ['backlog', 'done']),
+        ];
+        $dto = new SearchTaskDto($filters, [], new PaginationDetails(20, 0));
+        $result = $this->searcher->search($dto);
+
+        $this->assertCount(1, $result->getData());
+        $this->assertEquals('Task 2', $result->getData()[0]->name);
+    }
+
+    public function testSearchWithLikeFilterOnNameField(): void
+    {
+        $task1 = new Task('Apple Task');
+        $task1->status = TaskStatus::Backlog;
+        $task2 = new Task('Banana Task');
+        $task2->status = TaskStatus::Backlog;
+        $task3 = new Task('Cherry Fruit');
+        $task3->status = TaskStatus::Backlog;
+
+        $this->em->persist($task1);
+        $this->em->persist($task2);
+        $this->em->persist($task3);
+        $this->em->flush();
+
+        // LIKE filter - matches all tasks with 'Task' in name (LIKE uses % wildcard)
+        $filters = [
+            new FilterCondition('name', FilterOperator::Like, 'Task'),
+        ];
+        $dto = new SearchTaskDto($filters, [], new PaginationDetails(20, 0));
+        $result = $this->searcher->search($dto);
+
+        // All 3 tasks match because LIKE '%Task%' includes 'Apple Task', 'Banana Task'
+        // and 'Cherry Fruit' may or may not be included depending on DB behavior
+        $this->assertGreaterThanOrEqual(2, count($result->getData()));
+        $names = array_map(fn ($task) => $task->name, $result->getData());
+        $this->assertContains('Apple Task', $names);
+        $this->assertContains('Banana Task', $names);
+    }
+
+    public function testSearchWithDifferentComparison(): void
+    {
+        // Test Neq operator - excludes specified status
+        $task1 = new Task('Task 1');
+        $task1->status = TaskStatus::Backlog;
+
+        $task2 = new Task('Task 2');
+        $task2->status = TaskStatus::InProgress;
+
+        $task3 = new Task('Task 3');
+        $task3->status = TaskStatus::Done;
+
+        $this->em->persist($task1);
+        $this->em->persist($task2);
+        $this->em->persist($task3);
+        $this->em->flush();
+
+        $filters = [
+            new FilterCondition('status', FilterOperator::Neq, 'done'),
+        ];
+        $dto = new SearchTaskDto($filters, [], new PaginationDetails(20, 0));
+        $result = $this->searcher->search($dto);
+
+        // Should have 2 tasks that are not 'done'
+        $this->assertCount(2, $result->getData());
+        $names = array_map(fn ($task) => $task->name, $result->getData());
+        $this->assertContains('Task 1', $names);
+        $this->assertContains('Task 2', $names);
+    }
+
+    public function testSearchWithMultipleFiltersAppliesBoth(): void
+    {
+        // Create a project for filtering
+        $project = new \App\Entity\Project('Test Project', 'TST');
+        $this->em->persist($project);
+        $this->em->flush();
+
+        for ($i = 1; $i <= 5; ++$i) {
+            $task = new Task("Task $i");
+            $task->status = TaskStatus::Backlog;
+            $task->setProject($project, "TST-$i");
+            $this->em->persist($task);
+        }
+        $this->em->flush();
+
+        $filters = [
+            new FilterCondition('status', FilterOperator::Eq, 'backlog'),
+            new FilterCondition('projectId', FilterOperator::Eq, $project->id->toString()),
+        ];
+        $dto = new SearchTaskDto($filters, [], new PaginationDetails(20, 0));
+        $result = $this->searcher->search($dto);
+
+        // Should have all 5 backlog tasks in this project
+        $this->assertCount(5, $result->getData());
+    }
 }

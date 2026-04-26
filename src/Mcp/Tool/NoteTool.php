@@ -39,6 +39,17 @@ class NoteTool extends AbstractTool
         ),
     )]
     #[Schema(type: 'object', properties: [
+        'filter' => [
+            'type' => ['object', 'null'],
+            'description' => 'Filter conditions object with field-value pairs.',
+            'properties' => [
+                'query' => [
+                    'type' => ['string', 'null'],
+                    'description' => 'Search query text (full-text search)',
+                    'example' => 'I left my keys at',
+                ],
+            ],
+        ],
         'sort' => [
             'type' => ['string', 'null'],
             'description' => 'Sort fields separated by semicolon. Prefix with - for DESC, omit or use no prefix for ASC. Examples: "-updatedAt" (newest first), "createdAt" (oldest first)',
