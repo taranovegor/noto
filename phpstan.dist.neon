@@ -5,3 +5,7 @@ parameters:
         - config/
         - public/
         - src/
+
+services:
+    - class: App\Tests\Architecture\ComponentIsolationRule
+      tags: [phpat.test]
