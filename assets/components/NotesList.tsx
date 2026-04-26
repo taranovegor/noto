@@ -1,95 +1,80 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { NoteResponseDto } from '../types/api';
-import { api } from '../api';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { formatDateTime } from '../utils/date';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { loadNotes, loadMoreNotes, setActiveSearch, setScrollPosition } from '../store/slices/notes';
 
-interface NotesListProps {
-  onNoteClick: (noteId: string) => void;
-  onNewNote: () => void;
-}
-
-const PAGE_SIZE = 10;
-
-export function NotesList({ onNoteClick, onNewNote }: NotesListProps) {
-  const [notes, setNotes] = useState<NoteResponseDto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [offset, setOffset] = useState(0);
+export function NotesList() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useAppDispatch();
+  const { notes, loading, loadingMore, error, hasMore, initialized, offset, activeSearch, lastSearchQuery, scrollPosition } = useAppSelector(state => state.notes);
   const [searchInput, setSearchInput] = useState('');
-  const [activeSearch, setActiveSearch] = useState<string | null>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
 
-  const loadNotes = useCallback((isInitial: boolean = false) => {
-    const currentOffset = isInitial ? 0 : offset;
-    const isFirstLoad = isInitial || offset === 0;
-
-    (isFirstLoad ? setLoading : setLoadingMore)(true);
-
-    (activeSearch
-      ? api.notes.search(activeSearch, PAGE_SIZE, currentOffset)
-      : api.notes.list(PAGE_SIZE, currentOffset)
-    )
-      .then((data) => {
-        const newNotes = isInitial ? data.data : [...notes, ...data.data];
-        setNotes(newNotes);
-        setOffset(currentOffset + PAGE_SIZE);
-        setHasMore(currentOffset + PAGE_SIZE < data.pagination.total);
-      })
-      .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : 'Failed to load notes');
-      })
-      .finally(() => {
-        if (isFirstLoad) setLoading(false);
-        else setLoadingMore(false);
-      });
-  }, [notes, offset, activeSearch]);
-
-  const handleSearch = useCallback((query: string) => {
-    setOffset(0);
-    if (query.trim()) {
-      setActiveSearch(query);
-    } else {
-      setActiveSearch(null);
-    }
-  }, []);
-
-  const handleSearchKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSearch((e.target as HTMLInputElement).value);
-    }
-  }, [handleSearch]);
-
-  const handleClearSearch = useCallback(() => {
-    setOffset(0);
-    setSearchInput('');
-    setActiveSearch(null);
-  }, []);
-
   useEffect(() => {
-    loadNotes(true);
+    setSearchInput(activeSearch || '');
   }, [activeSearch]);
 
   useEffect(() => {
+    if (!initialized && !activeSearch) {
+      dispatch(loadNotes(null));
+    }
+  }, [dispatch, initialized, activeSearch]);
+
+  useEffect(() => {
+    if (activeSearch !== null && activeSearch !== lastSearchQuery) {
+      dispatch(loadNotes(activeSearch));
+    }
+  }, [activeSearch, lastSearchQuery, dispatch]);
+
+
+  useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore && !loading && !loadingMore) {
-        loadNotes(false);
+      if (entries[0].isIntersecting && hasMore && !loadingMore) {
+        dispatch(loadMoreNotes({ search: activeSearch, offset }));
       }
     }, { threshold: 0.1 });
 
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
-
+    if (observerTarget.current) observer.observe(observerTarget.current);
     return () => observer.disconnect();
-  }, [hasMore, loading, loadingMore, loadNotes]);
+  }, [hasMore, loadingMore, offset, activeSearch, dispatch]);
+
+  const handleSearch = (query: string) => {
+    const trimmed = query.trim() || null;
+    setSearchInput(query);
+    dispatch(setActiveSearch(trimmed));
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') handleSearch((e.target as HTMLInputElement).value);
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput('');
+    dispatch(setActiveSearch(null));
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      dispatch(setScrollPosition(window.scrollY));
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (scrollPosition > 0) {
+      window.scrollTo(0, scrollPosition);
+    }
+  }, []);
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h2 style={{ marginBottom: 0 }}>Notes</h2>
-        <button className="btn btn-primary" onClick={onNewNote}>New note</button>
+        <button className="btn btn-primary" onClick={() => navigate('/notes/new')}>New note</button>
       </div>
 
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
@@ -118,21 +103,13 @@ export function NotesList({ onNoteClick, onNewNote }: NotesListProps) {
           Search
         </button>
         {activeSearch && (
-          <button
-            className="btn"
-            onClick={handleClearSearch}
-            style={{ whiteSpace: 'nowrap' }}
-          >
+          <button className="btn" onClick={handleClearSearch} style={{ whiteSpace: 'nowrap' }}>
             Clear
           </button>
         )}
       </div>
 
-      {error && (
-        <div className="error-message">
-          {error}
-        </div>
-      )}
+      {error && <div className="error-message">{error}</div>}
 
       {loading ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -150,41 +127,17 @@ export function NotesList({ onNoteClick, onNewNote }: NotesListProps) {
             <div
               key={note.id}
               className="card"
-              onClick={() => onNoteClick(note.id)}
+              onClick={() => navigate(`/notes/${note.id}`)}
               data-stagger-index={index}
-              style={{
-                padding: '16px',
-                cursor: 'pointer',
-                animationDelay: `${index * 30}ms`,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
-              }}
+              style={{ padding: '16px', cursor: 'pointer', animationDelay: `${index * 30}ms`, display: 'flex', flexDirection: 'column', gap: '8px' }}
             >
-              <div style={{
-                fontSize: '1rem',
-                fontWeight: 600,
-                color: 'var(--color-text)',
-                lineHeight: 1.3,
-              }}>
+              <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text)', lineHeight: 1.3 }}>
                 {note.title}
               </div>
-              <div style={{
-                fontSize: '0.85rem',
-                color: 'var(--color-text-secondary)',
-                lineHeight: 1.4,
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-              }}>
+              <div style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                 {note.content}
               </div>
-              <div style={{
-                fontSize: '0.75rem',
-                color: 'var(--color-text-secondary)',
-                marginTop: '4px',
-              }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
                 {formatDateTime(note.updatedAt)}
               </div>
             </div>
@@ -205,13 +158,9 @@ export function NotesList({ onNoteClick, onNewNote }: NotesListProps) {
           <div ref={observerTarget} style={{ height: '20px', marginTop: '20px' }} />
         </div>
       ) : (
-        <div style={{
-          textAlign: 'center',
-          padding: '40px 20px',
-          color: 'var(--color-text-secondary)',
-        }}>
+        <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--color-text-secondary)' }}>
           <p>No notes yet.</p>
-          <button className="btn btn-primary" onClick={onNewNote} style={{ marginTop: '16px' }}>
+          <button className="btn btn-primary" onClick={() => navigate('/notes/new')} style={{ marginTop: '16px' }}>
             Create your first note
           </button>
         </div>

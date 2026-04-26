@@ -1,21 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { ProjectResponseDto } from '../types/api';
-import { api } from '../api';
+import React, { useEffect } from 'react';
 import { formatDate } from '../utils/date';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { loadProjects } from '../store/slices/projects';
 
 export function ProjectsList() {
-  const [projects, setProjects] = useState<ProjectResponseDto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const { projects, loading, error, initialized } = useAppSelector(state => state.projects);
 
   useEffect(() => {
-    api.projects.list()
-      .then((data) => setProjects(data.data))
-      .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : 'Failed to load projects');
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    if (!initialized) {
+      dispatch(loadProjects());
+    }
+  }, [dispatch, initialized]);
 
   return (
     <div>

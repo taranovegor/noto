@@ -1,4 +1,5 @@
-import { TaskResponseDto, CreateTaskDto, UpdateTaskDto, ListResponse } from '../types/api';
+import { TaskResponseDto, CreateTaskDto, UpdateTaskDto } from '../types/tasks';
+import { ListResponse } from '../types/api';
 import { request } from './request';
 
 export const tasks = {

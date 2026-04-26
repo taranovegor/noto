@@ -1,4 +1,4 @@
-import { TaskStatus, TaskPriority } from '../types/api';
+import { TaskStatus, TaskPriority } from '../types/tasks';
 
 export interface ColorOption<T> {
   value: T;

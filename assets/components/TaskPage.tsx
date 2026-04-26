@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { TaskResponseDto, TaskStatus, TaskPriority, ProjectResponseDto } from '../types/api';
+import { useParams, useNavigate } from 'react-router-dom';
+import { TaskResponseDto, TaskStatus, TaskPriority } from '../types/tasks';
+import { ProjectResponseDto } from '../types/projects';
 import { api } from '../api';
 import { STATUS_OPTIONS, PRIORITY_OPTIONS, ColorOption } from '../constants';
 import { formatDateTime, toDateInputValue } from '../utils/date';
 import { MarkdownEditor } from './MarkdownEditor';
-
-interface TaskPageProps {
-  taskId?: string;
-  onBack: () => void;
-  onCreated?: (id: string) => void;
-}
 
 interface FormState {
   name: string;
@@ -84,8 +80,10 @@ function InlineSelect<T extends string>({
   );
 }
 
-export function TaskPage({ taskId, onBack, onCreated }: TaskPageProps) {
-  const isNew = !taskId;
+export function TaskPage() {
+  const { id: taskId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const isNew = !taskId || taskId === 'new';
 
   const [task, setTask] = useState<TaskResponseDto | null>(null);
   const [form, setForm] = useState<FormState>({
@@ -119,8 +117,8 @@ export function TaskPage({ taskId, onBack, onCreated }: TaskPageProps) {
 
   // Загрузить задачу или черновик при монтировании
   useEffect(() => {
-    if (taskId) {
-      api.tasks.get(taskId)
+    if (!isNew) {
+      api.tasks.get(taskId!)
         .then((data) => {
           setTask(data);
           const state = fromTask(data);
@@ -175,9 +173,9 @@ export function TaskPage({ taskId, onBack, onCreated }: TaskPageProps) {
           projectId: form.projectId || undefined,
         });
         localStorage.removeItem('taskDraft');
-        onCreated?.(created.id);
+        navigate(`/tasks/${created.id}`);
       } else {
-        const updated = await api.tasks.update(taskId, {
+        const updated = await api.tasks.update(taskId!, {
           name: form.name.trim(),
           status: form.status,
           priority: form.priority ?? null,
@@ -243,7 +241,7 @@ export function TaskPage({ taskId, onBack, onCreated }: TaskPageProps) {
 
   return (
     <form onSubmit={handleSave} style={{ maxWidth: '720px', animation: 'viewEnter 200ms var(--ease-out) forwards' }}>
-      <button type="button" onClick={onBack} className="btn-ghost" style={{ marginBottom: '32px', display: 'inline-flex', alignItems: 'center' }}>
+      <button type="button" onClick={() => navigate('/tasks')} className="btn-ghost" style={{ marginBottom: '32px', display: 'inline-flex', alignItems: 'center' }}>
         ← Back
       </button>
 

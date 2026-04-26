@@ -1,4 +1,5 @@
-import { NoteResponseDto, CreateNoteDto, UpdateNoteDto, ListResponse } from '../types/api';
+import { NoteResponseDto, CreateNoteDto, UpdateNoteDto } from '../types/notes';
+import { ListResponse } from '../types/api';
 import { request } from './request';
 
 export const notes = {

@@ -1,26 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { NoteResponseDto, UpdateNoteDto } from '../types/api';
+import { useParams, useNavigate } from 'react-router-dom';
+import { NoteResponseDto, UpdateNoteDto } from '../types/notes';
 import { api } from '../api';
 import { formatDateTime } from '../utils/date';
 import { MarkdownEditor } from './MarkdownEditor';
 
-interface NotePageProps {
-  noteId?: string;
-  onBack: () => void;
-  onCreated?: (noteId: string) => void;
-}
-
-export function NotePage({ noteId, onBack, onCreated }: NotePageProps) {
+export function NotePage() {
+  const { id: noteId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const isNew = !noteId || noteId === 'new';
   const [note, setNote] = useState<NoteResponseDto | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [loading, setLoading] = useState(noteId ? true : false);
+  const [loading, setLoading] = useState(isNew ? false : true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
-    if (!noteId) {
+    if (isNew) {
       return;
     }
 
@@ -56,12 +54,12 @@ export function NotePage({ noteId, onBack, onCreated }: NotePageProps) {
     setError(null);
 
     try {
-      if (noteId) {
+      if (!isNew) {
         const dto: UpdateNoteDto = {
           title: title.trim(),
           content: content.trim(),
         };
-        const updated = await api.notes.update(noteId, dto);
+        const updated = await api.notes.update(noteId!, dto);
         setNote(updated);
       } else {
         const created = await api.notes.create({
@@ -70,7 +68,7 @@ export function NotePage({ noteId, onBack, onCreated }: NotePageProps) {
         });
         setNote(created);
         setIsDirty(false);
-        onCreated?.(created.id);
+        navigate(`/notes/${created.id}`);
       }
       setIsDirty(false);
     } catch (err: unknown) {
@@ -83,7 +81,7 @@ export function NotePage({ noteId, onBack, onCreated }: NotePageProps) {
   if (loading) {
     return (
       <div className="container">
-        <button onClick={onBack} style={{ marginBottom: '20px' }} className="btn btn-secondary">
+        <button onClick={() => navigate('/notes')} style={{ marginBottom: '20px' }} className="btn btn-secondary">
           ← Back
         </button>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -97,7 +95,7 @@ export function NotePage({ noteId, onBack, onCreated }: NotePageProps) {
   return (
     <div className="container" style={{ maxWidth: '900px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <button onClick={onBack} className="btn btn-secondary">
+        <button onClick={() => navigate('/notes')} className="btn btn-secondary">
           ← Back
         </button>
         <button
