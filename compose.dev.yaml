@@ -7,8 +7,10 @@ services:
         environment:
             PHP_IDE_CONFIG: ${PHP_IDE_CONFIG:-serverName=localhost}
         depends_on:
-            - db
-            - amqp
+            db:
+                condition: service_healthy
+            amqp:
+                condition: service_healthy
 
     db:
         image: pgvector/pgvector:pg18
@@ -22,6 +24,11 @@ services:
         volumes:
             - db_data:/var/lib/postgresql
         restart: unless-stopped
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready"]
+            interval: 5s
+            timeout: 3s
+            retries: 6
 
     amqp:
         image: rabbitmq:4-management
@@ -33,6 +40,11 @@ services:
             RABBITMQ_DEFAULT_USER: guest
             RABBITMQ_DEFAULT_PASS: ${AMQP_PASSWORD:-guest}
         restart: unless-stopped
+        healthcheck:
+            test: rabbitmq-diagnostics check_port_connectivity
+            interval: 5s
+            timeout: 3s
+            retries: 6
 
 volumes:
     db_data:
