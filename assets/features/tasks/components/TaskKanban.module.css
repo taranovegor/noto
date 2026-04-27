@@ -1,0 +1,135 @@
+/* Mobile-first base: carousel layout */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.kanban {
+  display: flex;
+  gap: 0;
+}
+
+.mobilePage {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.mobileFlexArea {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-inline: -24px;
+}
+
+.kanbanWrapper {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  column-gap: var(--space-lg);
+}
+
+.kanbanWrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.kanbanColumn {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-inline: 24px;
+}
+
+.carouselDots {
+  display: none;
+  /*display: flex;*/
+  justify-content: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-xl);
+}
+
+.dot,
+.dotActive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: var(--space-sm);
+  cursor: pointer;
+  background: none;
+}
+
+.dot::after,
+.dotActive::after {
+  content: '';
+  display: block;
+  border-radius: 9999px;
+  transition: all 200ms var(--ease-out);
+}
+
+.dot::after {
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-border);
+}
+
+.dotActive::after {
+  width: 24px;
+  height: 8px;
+  border-radius: 4px;
+  background-color: var(--color-text);
+}
+
+/* Desktop overrides */
+
+@media (min-width: 769px) {
+  .kanban {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-xl);
+    flex: 1;
+    min-height: 0;
+  }
+
+  .kanban > * {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .kanbanColumn {
+    flex: none;
+    scroll-snap-align: none;
+    padding: 0;
+    height: auto;
+  }
+
+  .kanbanWrapper {
+    overflow-x: visible;
+    scroll-snap-type: none;
+    flex: none;
+  }
+
+  .carouselDots {
+    display: none;
+  }
+}
+
+/*:global(.container):has(.mobilePage) {*/
+/*  height: 100%;*/
+/*}*/
+
+/*:global(.main-content):has(.mobilePage) {*/
+/*  overflow: hidden !important;*/
+/*}*/

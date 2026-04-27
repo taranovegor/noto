@@ -34,6 +34,7 @@ final class TaskSearchDefinition implements SearchableDefinitionInterface
                TaskStatus::cases(),
            )));
 
+        $config->addSortable('updatedAt');
         $config->addSortable('createdAt');
         $config->addSortable('id');
     }

@@ -1,0 +1,15 @@
+import React from 'react';
+import styles from './NotePage.module.css';
+
+export function NotePageSkeleton() {
+  return (
+    <div className={styles.skeletonForm}>
+      <div className={styles.skeletonTitle}>
+        <div className="skeleton skeleton-text" style={{ height: '2rem', width: '70%' }} />
+      </div>
+      <div className={styles.skeletonBody}>
+        <div className="skeleton skeleton-text" style={{ height: '16rem' }} />
+      </div>
+    </div>
+  );
+}

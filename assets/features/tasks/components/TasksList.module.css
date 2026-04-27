@@ -1,0 +1,60 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-xl);
+}
+
+.headerTitle {
+  margin-bottom: 0;
+}
+
+.shellSearch {
+  display: flex;
+  flex-direction: column;
+}
+
+.shellSearch .content {
+  flex: none;
+  min-height: auto;
+}
+
+/* Full-height shell */
+
+:global(html):has(.shell),
+:global(body):has(.shell) {
+  overflow: hidden;
+}
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  /* todo: refactor */
+  height: calc(
+    100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - var(--space-lg) -
+      44px
+  );
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 769px) {
+  :global(html):has(.shell),
+  :global(body):has(.shell) {
+    overflow: visible;
+  }
+
+  .shell {
+    height: calc(100vh - 80px);
+  }
+}
+
+.observerSentinel {
+  height: 20px;
+  margin-top: var(--space-xl);
+}

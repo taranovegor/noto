@@ -1,0 +1,5 @@
+when@dev:
+    _profiler_vite:
+        path: /_profiler/vite
+        defaults:
+            _controller: Pentatrion\ViteBundle\Controller\ProfilerController::info

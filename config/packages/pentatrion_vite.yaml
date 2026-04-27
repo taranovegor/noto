@@ -1,0 +1,8 @@
+pentatrion_vite:
+    build_directory: 'build'
+    script_attributes:
+        defer: true
+
+when@prod:
+    pentatrion_vite:
+        cache: true

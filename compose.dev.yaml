@@ -2,6 +2,9 @@ services:
     app:
         build:
             target: development
+        ports:
+            - '8080:8080'
+            - '5173:5173'
         volumes:
             - ./:/app
         environment:

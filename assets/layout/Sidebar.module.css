@@ -1,0 +1,110 @@
+.sidebar {
+  width: 100%;
+  flex-direction: row;
+  padding: 0;
+  border-right: none;
+  border-top: 1px solid var(--color-border);
+  position: fixed;
+  bottom: 0;
+  z-index: 100;
+  background-color: var(--color-bg);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.header {
+  display: none;
+}
+
+.nav {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.navItem {
+  flex: 1;
+  text-align: center;
+  padding: 0 8px;
+  min-height: 44px;
+  font-size: var(--text-sm);
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 150ms var(--ease-out);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navItem:hover {
+  color: var(--color-text);
+  background-color: var(--color-hover);
+}
+
+.navItem:active {
+  transform: scale(0.99);
+  transition: transform 100ms ease-out;
+}
+
+.navItemActive {
+  color: var(--color-text);
+  font-weight: var(--weight-semibold);
+  background-color: var(--color-surface);
+}
+
+@media (min-width: 769px) {
+  .sidebar {
+    width: 200px;
+    flex-direction: column;
+    padding: var(--space-xl) 0;
+    border-right: 1px solid var(--color-border);
+    border-top: none;
+    position: static;
+    z-index: auto;
+    padding-bottom: 0;
+  }
+
+  .header {
+    display: block;
+    padding: 0 var(--space-xl) var(--space-xl);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .nav {
+    flex-direction: column;
+    width: auto;
+  }
+
+  .navItem {
+    flex: none;
+    text-align: left;
+    padding: var(--space-md) var(--space-xl);
+    min-height: auto;
+    font-size: var(--text-sm);
+    justify-content: flex-start;
+  }
+
+  .navItemActive {
+    font-weight: var(--weight-medium);
+  }
+}
+
+.title {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: color 200ms var(--ease-out);
+}
+
+.title:hover {
+  color: var(--color-text-secondary);
+}

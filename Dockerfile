@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
-COPY webpack.config.js tsconfig.json ./
+COPY vite.config.ts tsconfig.json ./
 COPY assets ./assets
 RUN npm run build
 

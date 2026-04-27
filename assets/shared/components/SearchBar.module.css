@@ -1,0 +1,33 @@
+.wrapper {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xl);
+}
+
+.input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-family: inherit;
+  transition:
+    border-color 150ms var(--ease-out),
+    box-shadow 150ms var(--ease-out);
+}
+
+.input:hover {
+  border-color: var(--color-text-secondary);
+}
+
+.input:focus {
+  border-color: var(--color-text);
+  box-shadow: 0 0 0 3px rgba(47, 52, 55, 0.1);
+  outline: none;
+}
+
+.clearButton {
+  padding: var(--space-sm) var(--space-sm);
+}

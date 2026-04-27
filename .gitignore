@@ -33,9 +33,7 @@ phpstan.neon
 /.phpunit.cache/
 ###< phpunit/phpunit ###
 
-###> symfony/webpack-encore-bundle ###
-/node_modules/
+###> assets ###
 /public/build/
-npm-debug.log
-yarn-error.log
-###< symfony/webpack-encore-bundle ###
+/node_modules/
+###< assets ###

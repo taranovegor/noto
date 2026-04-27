@@ -73,10 +73,13 @@ phpstan: ## Run static analysis
 assets-install: ## Install frontend dependencies in container
 	$(DOCKER_COMPOSE) exec app npm ci
 
-assets-dev: ## Build assets for development in container
+assets-dev-server: ## Start Vite dev server with HMR in container
+	$(DOCKER_COMPOSE) exec app npm run dev-server
+
+assets-dev: ## Build assets in watch mode
 	$(DOCKER_COMPOSE) exec app npm run dev
 
-assets-watch: ## Watch and rebuild assets on changes in container
+assets-watch: ## Build assets in watch mode (alias for assets-dev)
 	$(DOCKER_COMPOSE) exec app npm run watch
 
 assets-build: ## Build production assets

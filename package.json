@@ -1,37 +1,53 @@
 {
-    "devDependencies": {
-        "@babel/core": "^7.17.0",
-        "@babel/preset-env": "^7.16.0",
-        "@babel/preset-react": "^7.28.5",
-        "@symfony/webpack-encore": "^6.0.0",
-        "@types/react": "^19.2.14",
-        "@types/react-dom": "^19.2.3",
-        "core-js": "^3.38.0",
-        "regenerator-runtime": "^0.13.9",
-        "typescript": "^5.9.3",
-        "webpack": "^5.72",
-        "webpack-cli": "^6.0.0",
-        "webpack-dev-server": "^5.2.3"
-    },
-    "license": "UNLICENSED",
-    "private": true,
-    "scripts": {
-        "dev-server": "encore dev-server",
-        "dev": "encore dev",
-        "watch": "encore dev --watch",
-        "build": "encore production --progress"
-    },
-    "dependencies": {
-        "@reduxjs/toolkit": "^2.11.2",
-        "@tiptap/react": "^3.22.3",
-        "@tiptap/starter-kit": "^3.22.3",
-        "marked": "^18.0.0",
-        "prop-types": "^15.8.1",
-        "react": "^19.2.5",
-        "react-dom": "^19.2.5",
-        "react-redux": "^9.2.0",
-        "react-router-dom": "^6.24.0",
-        "tiptap-markdown": "^0.9.0",
-        "ts-loader": "^9.5.7"
-    }
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.59.1",
+    "@typescript-eslint/parser": "^8.59.1",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.3",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.10",
+    "vite-plugin-symfony": "^8.2.4"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "dev-server": "vite",
+    "dev": "vite build --watch",
+    "watch": "vite build --watch",
+    "build": "vite build",
+    "lint": "eslint assets/",
+    "lint:fix": "eslint --fix assets/",
+    "format": "prettier --write \"assets/**/*.{ts,tsx,css}\"",
+    "format:check": "prettier --check \"assets/**/*.{ts,tsx,css}\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "assets/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "assets/**/*.css": [
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.11.2",
+    "@tiptap/react": "^3.22.3",
+    "@tiptap/starter-kit": "^3.22.3",
+    "marked": "^18.0.0",
+    "prop-types": "^15.8.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^6.24.0",
+    "tiptap-markdown": "^0.9.0"
+  }
 }

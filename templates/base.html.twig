@@ -2,18 +2,26 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="theme-color" content="#ffffff">
-        <meta name="description" content="Task and project management application">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJpY29uIGljb24tdGFibGVyIGljb25zLXRhYmxlci1vdXRsaW5lIGljb24tdGFibGVyLXNxdWFyZS1sZXR0ZXItbiI+PHBhdGggc3Ryb2tlPSJub25lIiBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIiAvPjxwYXRoIGQ9Ik0zIDVhMiAyIDAgMCAxIDIgLTJoMTRhMiAyIDAgMCAxIDIgMnYxNGEyIDIgMCAwIDEgLTIgMmgtMTRhMiAyIDAgMCAxIC0yIC0ydi0xNCIgLz48cGF0aCBkPSJNMTAgMTZ2LThsNCA4di04IiAvPjwvc3ZnPg==">
-        <link rel="manifest" href="/manifest.json">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+        <meta name="theme-color" content="#fefefe">
+        <meta name="description" content="Personal task and project management">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="Noto">
+        <title>{% block title %}Noto{% endblock %}</title>
+        <link rel="icon" href="/icon.svg" type="image/svg+xml">
+        <link rel="apple-touch-icon" href="/icons/icon-180.png">
+        <link rel="apple-touch-startup-image" href="/splash/splash-375x667.png" media="(device-width: 375px) and (device-height: 667px)">
+        <link rel="apple-touch-startup-image" href="/splash/splash-375x812.png" media="(device-width: 375px) and (device-height: 812px)">
+        <link rel="apple-touch-startup-image" href="/splash/splash-390x844.png" media="(device-width: 390px) and (device-height: 844px)">
+        <link rel="apple-touch-startup-image" href="/splash/splash-430x932.png" media="(device-width: 430px) and (device-height: 932px)">
+        <link rel="manifest" href="/manifest.webmanifest">
         {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
+            {{ vite_entry_link_tags('app') }}
         {% endblock %}
 
         {% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
+            {{ vite_entry_script_tags('app') }}
         {% endblock %}
     </head>
     <body>
