@@ -1,0 +1,144 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-3xl);
+  background: var(--color-bg);
+}
+
+.card {
+  width: 100%;
+  max-width: 360px;
+  padding: var(--space-2xl);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.title {
+  margin: 0 0 var(--space-2xl) 0;
+  font-size: 1.875rem;
+  font-weight: 600;
+  font-family: 'Newsreader', 'Playfair Display', serif;
+  color: var(--color-fg);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.input {
+  font-size: var(--text-base);
+  font-family: 'Geist Sans', 'Helvetica Neue', 'SF Pro Display', sans-serif;
+  padding: 11px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: var(--leading-relaxed);
+  transition:
+    border-color 200ms var(--ease-out),
+    box-shadow 200ms var(--ease-out);
+  margin-bottom: var(--space-md);
+}
+
+.input:hover {
+  border-color: var(--color-border);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-text-secondary);
+  box-shadow: 0 0 0 2px rgba(47, 52, 55, 0.05);
+  background: var(--color-bg);
+}
+
+.input:disabled {
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+.input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.rememberMe {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: 0;
+  margin-bottom: var(--space-lg);
+}
+
+.rememberMe input[type='checkbox'] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  accent-color: var(--color-fg);
+}
+
+.rememberLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-normal);
+  font-family: 'Geist Sans', 'Helvetica Neue', 'SF Pro Display', sans-serif;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  user-select: none;
+  line-height: var(--leading-normal);
+}
+
+.submitButton {
+  padding: 0 20px;
+  height: 44px;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  font-family: 'Geist Sans', 'Helvetica Neue', 'SF Pro Display', sans-serif;
+  letter-spacing: 0;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-fg);
+  color: var(--color-fg-inverse);
+  cursor: pointer;
+  transition:
+    background-color 200ms var(--ease-out),
+    transform 120ms var(--ease-out);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: var(--color-fg-hover);
+}
+
+.submitButton:active:not(:disabled) {
+  transform: scale(0.98);
+  transition: transform 120ms var(--ease-out);
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.errorMessage {
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-lg);
+  background: rgba(159, 47, 45, 0.05);
+  border: 1px solid rgba(159, 47, 45, 0.2);
+  border-radius: 6px;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-normal);
+  font-family: 'Geist Sans', 'Helvetica Neue', 'SF Pro Display', sans-serif;
+  color: #9f2f2d;
+  line-height: var(--leading-normal);
+}

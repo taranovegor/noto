@@ -3,25 +3,16 @@
 namespace App\Tests\Integration\Controller\Api;
 
 use App\Entity\Note;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Uid\Uuid;
 
-class NoteControllerTest extends WebTestCase
+class NoteControllerTest extends AuthenticatedApiTestCase
 {
-    private function cleanupNotes(): void
-    {
-        $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $em->createQuery('DELETE FROM App\Entity\Note')->execute();
-        $em->createQuery('DELETE FROM App\Entity\Ref')->execute();
-    }
-
     // --- List Tests ---
 
     public function testListNotesReturnsEmptyArray(): void
     {
-        $client = self::createClient();
-        $this->cleanupNotes();
+        $client = $this->getAuthenticatedClient();
 
         $client->request('GET', '/api/notes');
 
@@ -35,9 +26,8 @@ class NoteControllerTest extends WebTestCase
 
     public function testListNotesReturnsNotes(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupNotes();
 
         $note1 = new Note('First Note', 'Content 1');
         $note2 = new Note('Second Note', 'Content 2');
@@ -57,9 +47,8 @@ class NoteControllerTest extends WebTestCase
 
     public function testListNotesWithPagination(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupNotes();
 
         for ($i = 1; $i <= 5; ++$i) {
             $note = new Note("Note $i", "Content $i");
@@ -82,8 +71,7 @@ class NoteControllerTest extends WebTestCase
 
     public function testCreateNoteWithValidData(): void
     {
-        $client = self::createClient();
-        $this->cleanupNotes();
+        $client = $this->getAuthenticatedClient();
 
         $data = [
             'title' => 'New Note',
@@ -104,8 +92,7 @@ class NoteControllerTest extends WebTestCase
 
     public function testCreateNoteValidationMissingTitle(): void
     {
-        $client = self::createClient();
-        $this->cleanupNotes();
+        $client = $this->getAuthenticatedClient();
 
         $data = [
             'title' => '',  // Invalid: empty title
@@ -123,8 +110,7 @@ class NoteControllerTest extends WebTestCase
 
     public function testCreateNoteValidationMissingContent(): void
     {
-        $client = self::createClient();
-        $this->cleanupNotes();
+        $client = $this->getAuthenticatedClient();
 
         $data = [
             'title' => 'Title',
@@ -138,8 +124,7 @@ class NoteControllerTest extends WebTestCase
 
     public function testCreateNoteWithLongContent(): void
     {
-        $client = self::createClient();
-        $this->cleanupNotes();
+        $client = $this->getAuthenticatedClient();
 
         $longContent = str_repeat('Lorem ipsum dolor sit amet ', 100);
         $data = [
@@ -159,9 +144,8 @@ class NoteControllerTest extends WebTestCase
 
     public function testGetNoteReturnsNoteData(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupNotes();
 
         $note = new Note('Get Test Note', 'Content');
         $em->persist($note);
@@ -179,8 +163,7 @@ class NoteControllerTest extends WebTestCase
 
     public function testGetNoteNotFound(): void
     {
-        $client = self::createClient();
-        $this->cleanupNotes();
+        $client = $this->getAuthenticatedClient();
         $nonExistentId = Uuid::v7()->toRfc4122();
 
         $client->request('GET', '/api/notes/'.$nonExistentId);
@@ -190,7 +173,7 @@ class NoteControllerTest extends WebTestCase
 
     public function testGetNoteInvalidUuid(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
 
         $client->request('GET', '/api/notes/invalid-uuid');
 
@@ -201,9 +184,8 @@ class NoteControllerTest extends WebTestCase
 
     public function testUpdateNotePartially(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupNotes();
 
         $note = new Note('Original Title', 'Original Content');
         $em->persist($note);
@@ -225,9 +207,8 @@ class NoteControllerTest extends WebTestCase
 
     public function testUpdateNoteAllFields(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupNotes();
 
         $note = new Note('Old Title', 'Old Content');
         $em->persist($note);
@@ -249,8 +230,7 @@ class NoteControllerTest extends WebTestCase
 
     public function testUpdateNonExistentNote(): void
     {
-        $client = self::createClient();
-        $this->cleanupNotes();
+        $client = $this->getAuthenticatedClient();
         $nonExistentId = Uuid::v7()->toRfc4122();
 
         $data = [

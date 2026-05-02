@@ -41,7 +41,7 @@ final class FilterCompilerPass implements CompilerPassInterface
             try {
                 $interfaces = class_implements($class);
 
-                if ($interfaces === false) {
+                if (false === $interfaces) {
                     continue;
                 }
 
@@ -76,7 +76,7 @@ final class FilterCompilerPass implements CompilerPassInterface
             try {
                 $parents = class_parents($class);
 
-                if ($parents === false) {
+                if (false === $parents) {
                     continue;
                 }
 

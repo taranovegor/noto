@@ -6,25 +6,16 @@ use App\Entity\Project;
 use App\Entity\Task;
 use App\Enum\TaskPriority;
 use App\Enum\TaskStatus;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Uid\Uuid;
 
-class TaskControllerTest extends WebTestCase
+class TaskControllerTest extends AuthenticatedApiTestCase
 {
-    private function cleanupTasks(): void
-    {
-        $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $em->createQuery('DELETE FROM App\Entity\Task')->execute();
-        $em->createQuery('DELETE FROM App\Entity\Ref')->execute();
-        $em->createQuery('DELETE FROM App\Entity\Project')->execute();
-    }
-
     // --- Create Tests ---
 
     public function testCreateTaskWithoutProject(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
 
         $data = [
             'projectId' => null,
@@ -50,7 +41,7 @@ class TaskControllerTest extends WebTestCase
 
     public function testCreateTaskValidationError(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
 
         $data = [
             'projectId' => null,
@@ -73,7 +64,7 @@ class TaskControllerTest extends WebTestCase
 
     public function testCreateTaskWithNonExistentProject(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
 
         $data = [
             'projectId' => Uuid::v7()->toRfc4122(),  // Non-existent project
@@ -99,9 +90,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testGetTaskReturnsTaskData(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupTasks();
 
         // Create a test task
         $task = new Task('Get Test Task');
@@ -123,7 +113,7 @@ class TaskControllerTest extends WebTestCase
 
     public function testGetTaskNotFound(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $nonExistentId = Uuid::v7()->toRfc4122();
 
         $client->request('GET', '/api/tasks/'.$nonExistentId);
@@ -133,7 +123,7 @@ class TaskControllerTest extends WebTestCase
 
     public function testGetTaskInvalidUuid(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
 
         $client->request('GET', '/api/tasks/invalid-uuid');
 
@@ -144,9 +134,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testUpdateTaskPartially(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupTasks();
 
         $task = new Task('Update Test Task');
         $task->status = TaskStatus::Backlog;
@@ -179,11 +168,10 @@ class TaskControllerTest extends WebTestCase
 
     public function testUpdateNonExistentTask(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $nonExistentId = Uuid::v7()->toRfc4122();
 
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupTasks();
 
         $project = new Project('Default Project', 'DEF');
         $em->persist($project);
@@ -205,9 +193,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testUpdateTaskWithNonExistentProject(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupTasks();
 
         $task = new Task('Update Test Task');
         $em->persist($task);
@@ -237,9 +224,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testListTasksWithoutFilters(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupTasks();
 
         $task1 = new Task('Task 1');
         $task2 = new Task('Task 2');
@@ -259,9 +245,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testListTasksWithStatusFilter(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupTasks();
 
         $task1 = new Task('Active Task');
         $task1->status = TaskStatus::InProgress;
@@ -286,9 +271,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testListTasksWithMultipleStatusFilters(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupTasks();
 
         $task1 = new Task('Task 1');
         $task1->status = TaskStatus::Backlog;
@@ -312,9 +296,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testListTasksWithSorting(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupTasks();
 
         $task1 = new Task('First');
         $task2 = new Task('Second');
@@ -338,9 +321,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testListTasksWithPagination(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupTasks();
 
         // Create 30 tasks
         for ($i = 1; $i <= 30; ++$i) {
@@ -362,9 +344,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testListTasksWithPaginationOffset(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupTasks();
 
         for ($i = 1; $i <= 30; ++$i) {
             $task = new Task("Task $i");
@@ -383,9 +364,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testListTasksWithoutPagination(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupTasks();
 
         for ($i = 1; $i <= 30; ++$i) {
             $task = new Task("Task $i");
@@ -404,9 +384,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testListTasksWithFilterAndSorting(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupTasks();
 
         $task1 = new Task('Task A');
         $task1->status = TaskStatus::InProgress;
@@ -432,9 +411,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testListTasksResponseStructure(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupTasks();
 
         $task = new Task('Test Task');
         $task->status = TaskStatus::InProgress;
@@ -459,9 +437,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testListTasksIgnoresUnknownFilters(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupTasks();
 
         $task1 = new Task('Task 1');
         $task2 = new Task('Task 2');
@@ -482,9 +459,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testListTasksWithEmptyFilterValue(): void
     {
-        $client = self::createClient();
+        $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->cleanupTasks();
 
         $task = new Task('Test');
         $em->persist($task);

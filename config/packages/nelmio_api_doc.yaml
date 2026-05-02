@@ -5,7 +5,15 @@ when@dev:
                 title: Noto
                 description: Personal knowledge microservice for structured data storage
                 version: '%env(string:VERSION)%'
+            security:
+                - Bearer: []
             components:
+                securitySchemes:
+                    Bearer:
+                        type: http
+                        scheme: bearer
+                        bearerFormat: JWT
+                        description: 'Enter your JWT token'
                 schemas:
                     Error:
                         type: object
@@ -58,6 +66,127 @@ when@dev:
                                 example:
                                     "{{ type }}": "string"
                                     "hint": "string"
+                    LoginRequest:
+                        type: object
+                        required:
+                            - username
+                            - password
+                        properties:
+                            username:
+                                type: string
+                                example: "user@example.com"
+                            password:
+                                type: string
+                                format: password
+                                example: "password123"
+                    LoginResponse:
+                        type: object
+                        properties:
+                            token:
+                                type: string
+                                example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                            refresh_token:
+                                type: string
+                                example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            paths:
+                /api/auth/login:
+                    post:
+                        tags:
+                            - Authentication
+                        summary: Login with username and password
+                        description: Authenticate user and receive JWT token and refresh token
+                        security: []
+                        requestBody:
+                            required: true
+                            content:
+                                application/json:
+                                    schema:
+                                        $ref: '#/components/schemas/LoginRequest'
+                        responses:
+                            '200':
+                                description: Successful login
+                                content:
+                                    application/json:
+                                        schema:
+                                            $ref: '#/components/schemas/LoginResponse'
+                            '401':
+                                description: Invalid credentials
+                                content:
+                                    application/json:
+                                        schema:
+                                            $ref: '#/components/schemas/Error'
+                /api/auth/refresh:
+                    post:
+                        tags:
+                            - Authentication
+                        summary: Refresh JWT token
+                        description: Get a new JWT token using refresh token
+                        security: []
+                        requestBody:
+                            required: true
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        required:
+                                            - refresh_token
+                                        properties:
+                                            refresh_token:
+                                                type: string
+                                                example: "6ceee0f0dc2c45a215bea3c6a1a5e3f4"
+                        responses:
+                            '200':
+                                description: Token refreshed successfully
+                                content:
+                                    application/json:
+                                        schema:
+                                            type: object
+                                            properties:
+                                                token:
+                                                    type: string
+                                                    example: "6ceee0f0dc2c45a215bea3c6a1a5e3f4"
+                            '401':
+                                description: Invalid or expired refresh token
+                                content:
+                                    application/json:
+                                        schema:
+                                            $ref: '#/components/schemas/Error'
+                /api/auth/logout:
+                    post:
+                        tags:
+                            - Authentication
+                        summary: Logout
+                        description: Logout the current user and invalidate refresh token. Requires valid JWT token.
+                        security:
+                            - Bearer: []
+                        requestBody:
+                            required: true
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        required:
+                                            - refresh_token
+                                        properties:
+                                            refresh_token:
+                                                type: string
+                                                description: The refresh token to invalidate
+                                                example: "6ceee0f0dc2c45a215bea3c6a1a5e3f4"
+                        responses:
+                            '204':
+                                description: Successfully logged out and refresh token invalidated
+                            '401':
+                                description: Invalid or missing JWT token
+                                content:
+                                    application/json:
+                                        schema:
+                                            $ref: '#/components/schemas/Error'
+                            '400':
+                                description: Invalid refresh token
+                                content:
+                                    application/json:
+                                        schema:
+                                            $ref: '#/components/schemas/Error'
         html_config:
             stoplight_config:
                 basePath: /api/doc

@@ -4,6 +4,7 @@ $finder = new PhpCsFixer\Finder()
     ->in(__DIR__)
     ->exclude('var')
     ->notPath([
+        'node_modules',
         'config/bundles.php',
         'config/reference.php',
     ])
