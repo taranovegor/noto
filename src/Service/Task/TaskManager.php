@@ -32,7 +32,7 @@ final readonly class TaskManager
         $task->status = $dto->status;
         $task->priority = $dto->priority;
         $task->deadline = $dto->deadline;
-        $task->note = $dto->note ?? '';
+        $task->note = $dto->note;
 
         $this->taskRepository->add($task);
 

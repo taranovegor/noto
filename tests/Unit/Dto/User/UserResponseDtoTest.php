@@ -19,7 +19,6 @@ class UserResponseDtoTest extends TestCase
         $this->assertEquals($email, $dto->email);
     }
 
-
     public function testDtoWithDifferentEmails(): void
     {
         $id = Uuid::v7();

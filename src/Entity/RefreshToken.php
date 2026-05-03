@@ -35,6 +35,7 @@ class RefreshToken implements RefreshTokenInterface
     {
         $valid = new \DateTimeImmutable(sprintf('+%d seconds', $ttl));
 
+        // @phpstan-ignore new.static
         return new static($user->getUserIdentifier(), $refreshToken, $valid);
     }
 
