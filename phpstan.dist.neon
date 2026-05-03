@@ -5,6 +5,8 @@ parameters:
         - config/
         - public/
         - src/
+    excludePaths:
+        - config/reference.php
 
 services:
     - class: App\Tests\Architecture\ComponentIsolationRule

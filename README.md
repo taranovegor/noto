@@ -8,6 +8,7 @@ Personal knowledge microservice for structured data storage
 - Git
 - PostgreSQL 18 with pgvector extension
 - RabbitMQ 4 (for async message processing)
+- Centrifuge 6 (for real-time WebSocket messaging)
 
 ## Quick Start
 

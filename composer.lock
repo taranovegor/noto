@@ -4,145 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "721745626aaad49b235ce197ea7ad590",
+    "content-hash": "96f52d64a3380178a32766b7c7a5f8e0",
     "packages": [
-        {
-            "name": "async-aws/core",
-            "version": "1.29.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/async-aws/core.git",
-                "reference": "70899695fcc7b23a9247926ff8b581668583b993"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/async-aws/core/zipball/70899695fcc7b23a9247926ff8b581668583b993",
-                "reference": "70899695fcc7b23a9247926ff8b581668583b993",
-                "shasum": ""
-            },
-            "require": {
-                "ext-hash": "*",
-                "ext-simplexml": "*",
-                "php": "^8.2",
-                "psr/cache": "^1.0 || ^2.0 || ^3.0",
-                "psr/log": "^1.0 || ^2.0 || ^3.0",
-                "symfony/deprecation-contracts": "^2.1 || ^3.0",
-                "symfony/http-client": "^4.4.16 || ^5.1.7 || ^6.0 || ^7.0 || ^8.0",
-                "symfony/http-client-contracts": "^1.1.8 || ^2.0 || ^3.0",
-                "symfony/service-contracts": "^1.0 || ^2.0 || ^3.0"
-            },
-            "conflict": {
-                "async-aws/s3": "<1.1",
-                "symfony/http-client": "5.2.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^11.5.42",
-                "symfony/error-handler": "^7.3.2 || ^8.0",
-                "symfony/phpunit-bridge": "^7.3.2 || ^8.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.29-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "AsyncAws\\Core\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Core package to integrate with AWS. This is a lightweight AWS SDK provider by AsyncAws.",
-            "keywords": [
-                "amazon",
-                "async-aws",
-                "aws",
-                "sdk",
-                "sts"
-            ],
-            "support": {
-                "source": "https://github.com/async-aws/core/tree/1.29.0"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/jderusse",
-                    "type": "github"
-                },
-                {
-                    "url": "https://github.com/nyholm",
-                    "type": "github"
-                }
-            ],
-            "time": "2026-04-18T17:06:10+00:00"
-        },
-        {
-            "name": "async-aws/s3",
-            "version": "3.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/async-aws/s3.git",
-                "reference": "26bf7e498df4fd135fb2c32cbaa5ba92c0615fa3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/async-aws/s3/zipball/26bf7e498df4fd135fb2c32cbaa5ba92c0615fa3",
-                "reference": "26bf7e498df4fd135fb2c32cbaa5ba92c0615fa3",
-                "shasum": ""
-            },
-            "require": {
-                "async-aws/core": "^1.22",
-                "ext-dom": "*",
-                "ext-filter": "*",
-                "ext-hash": "*",
-                "ext-simplexml": "*",
-                "php": "^8.2"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^11.5.42",
-                "symfony/error-handler": "^7.3.2 || ^8.0",
-                "symfony/phpunit-bridge": "^7.3.2 || ^8.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.3-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "AsyncAws\\S3\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "S3 client, part of the AWS SDK provided by AsyncAws.",
-            "keywords": [
-                "amazon",
-                "async-aws",
-                "aws",
-                "s3",
-                "sdk"
-            ],
-            "support": {
-                "source": "https://github.com/async-aws/s3/tree/3.3.0"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/jderusse",
-                    "type": "github"
-                },
-                {
-                    "url": "https://github.com/nyholm",
-                    "type": "github"
-                }
-            ],
-            "time": "2026-04-29T10:05:33+00:00"
-        },
         {
             "name": "baldinof/roadrunner-bundle",
             "version": "3.3.2",
@@ -233,6 +96,58 @@
                 }
             ],
             "time": "2026-01-09T16:39:11+00:00"
+        },
+        {
+            "name": "centrifugal/phpcent",
+            "version": "6.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/centrifugal/phpcent.git",
+                "reference": "8d815846101aa4211414512792ba90033327164d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/centrifugal/phpcent/zipball/8d815846101aa4211414512792ba90033327164d",
+                "reference": "8d815846101aa4211414512792ba90033327164d",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "php": ">=7.0.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "9.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "phpcent\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "PHP library to communicate with Centrifugo HTTP API",
+            "homepage": "https://github.com/centrifugal/phpcent",
+            "keywords": [
+                "centrifugo",
+                "messaging",
+                "realtime",
+                "websocket"
+            ],
+            "support": {
+                "issues": "https://github.com/centrifugal/phpcent/issues",
+                "source": "https://github.com/centrifugal/phpcent/tree/v6.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/centrifugal",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-06-27T19:04:03+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -1424,70 +1339,6 @@
             "time": "2026-02-08T16:21:46+00:00"
         },
         {
-            "name": "dragonmantank/cron-expression",
-            "version": "v3.6.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dragonmantank/cron-expression.git",
-                "reference": "d61a8a9604ec1f8c3d150d09db6ce98b32675013"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dragonmantank/cron-expression/zipball/d61a8a9604ec1f8c3d150d09db6ce98b32675013",
-                "reference": "d61a8a9604ec1f8c3d150d09db6ce98b32675013",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.2|^8.3|^8.4|^8.5"
-            },
-            "replace": {
-                "mtdowling/cron-expression": "^1.0"
-            },
-            "require-dev": {
-                "phpstan/extension-installer": "^1.4.3",
-                "phpstan/phpstan": "^1.12.32|^2.1.31",
-                "phpunit/phpunit": "^8.5.48|^9.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Cron\\": "src/Cron/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Chris Tankersley",
-                    "email": "chris@ctankersley.com",
-                    "homepage": "https://github.com/dragonmantank"
-                }
-            ],
-            "description": "CRON for PHP: Calculate the next or previous run date and determine if a CRON expression is due",
-            "keywords": [
-                "cron",
-                "schedule"
-            ],
-            "support": {
-                "issues": "https://github.com/dragonmantank/cron-expression/issues",
-                "source": "https://github.com/dragonmantank/cron-expression/tree/v3.6.0"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/dragonmantank",
-                    "type": "github"
-                }
-            ],
-            "time": "2025-10-31T18:51:33+00:00"
-        },
-        {
             "name": "gesdinet/jwt-refresh-token-bundle",
             "version": "v2.0.0",
             "source": {
@@ -1870,322 +1721,6 @@
                 }
             ],
             "time": "2022-12-11T20:36:23+00:00"
-        },
-        {
-            "name": "league/flysystem",
-            "version": "3.33.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "570b8871e0ce693764434b29154c54b434905350"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/570b8871e0ce693764434b29154c54b434905350",
-                "reference": "570b8871e0ce693764434b29154c54b434905350",
-                "shasum": ""
-            },
-            "require": {
-                "league/flysystem-local": "^3.0.0",
-                "league/mime-type-detection": "^1.0.0",
-                "php": "^8.0.2"
-            },
-            "conflict": {
-                "async-aws/core": "<1.19.0",
-                "async-aws/s3": "<1.14.0",
-                "aws/aws-sdk-php": "3.209.31 || 3.210.0",
-                "guzzlehttp/guzzle": "<7.0",
-                "guzzlehttp/ringphp": "<1.1.1",
-                "phpseclib/phpseclib": "3.0.15",
-                "symfony/http-client": "<5.2"
-            },
-            "require-dev": {
-                "async-aws/s3": "^1.5 || ^2.0",
-                "async-aws/simple-s3": "^1.1 || ^2.0",
-                "aws/aws-sdk-php": "^3.295.10",
-                "composer/semver": "^3.0",
-                "ext-fileinfo": "*",
-                "ext-ftp": "*",
-                "ext-mongodb": "^1.3|^2",
-                "ext-zip": "*",
-                "friendsofphp/php-cs-fixer": "^3.5",
-                "google/cloud-storage": "^1.23",
-                "guzzlehttp/psr7": "^2.6",
-                "microsoft/azure-storage-blob": "^1.1",
-                "mongodb/mongodb": "^1.2|^2",
-                "phpseclib/phpseclib": "^3.0.36",
-                "phpstan/phpstan": "^1.10",
-                "phpunit/phpunit": "^9.5.11|^10.0",
-                "sabre/dav": "^4.6.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "League\\Flysystem\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Frank de Jonge",
-                    "email": "info@frankdejonge.nl"
-                }
-            ],
-            "description": "File storage abstraction for PHP",
-            "keywords": [
-                "WebDAV",
-                "aws",
-                "cloud",
-                "file",
-                "files",
-                "filesystem",
-                "filesystems",
-                "ftp",
-                "s3",
-                "sftp",
-                "storage"
-            ],
-            "support": {
-                "issues": "https://github.com/thephpleague/flysystem/issues",
-                "source": "https://github.com/thephpleague/flysystem/tree/3.33.0"
-            },
-            "time": "2026-03-25T07:59:30+00:00"
-        },
-        {
-            "name": "league/flysystem-async-aws-s3",
-            "version": "3.31.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thephpleague/flysystem-async-aws-s3.git",
-                "reference": "6928568d3fe24afc4d7d583fc1844d0c1d07651b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem-async-aws-s3/zipball/6928568d3fe24afc4d7d583fc1844d0c1d07651b",
-                "reference": "6928568d3fe24afc4d7d583fc1844d0c1d07651b",
-                "shasum": ""
-            },
-            "require": {
-                "async-aws/s3": "^1.5 || ^2.0 || ^3.0",
-                "league/flysystem": "^3.10.0",
-                "league/mime-type-detection": "^1.0.0",
-                "php": "^8.0.2"
-            },
-            "conflict": {
-                "symfony/http-client": "<5.2"
-            },
-            "require-dev": {
-                "async-aws/simple-s3": "^2.1"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "League\\Flysystem\\AsyncAwsS3\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Frank de Jonge",
-                    "email": "info@frankdejonge.nl"
-                }
-            ],
-            "description": "AsyncAws S3 filesystem adapter for Flysystem.",
-            "keywords": [
-                "Flysystem",
-                "async-aws",
-                "aws",
-                "file",
-                "files",
-                "filesystem",
-                "s3",
-                "storage"
-            ],
-            "support": {
-                "source": "https://github.com/thephpleague/flysystem-async-aws-s3/tree/3.31.0"
-            },
-            "time": "2026-01-23T15:30:45+00:00"
-        },
-        {
-            "name": "league/flysystem-bundle",
-            "version": "3.7.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thephpleague/flysystem-bundle.git",
-                "reference": "5eb41be38fc3759f74c9e458a6a5f0ef5f49284a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem-bundle/zipball/5eb41be38fc3759f74c9e458a6a5f0ef5f49284a",
-                "reference": "5eb41be38fc3759f74c9e458a6a5f0ef5f49284a",
-                "shasum": ""
-            },
-            "require": {
-                "league/flysystem": "^3.0",
-                "php": ">=8.2",
-                "symfony/config": "^6.0 || ^7.0 || ^8.0",
-                "symfony/dependency-injection": "^6.0 || ^7.0 || ^8.0",
-                "symfony/deprecation-contracts": "^2.1 || ^3",
-                "symfony/http-kernel": "^6.0 || ^7.0 || ^8.0",
-                "symfony/options-resolver": "^6.0 || ^7.0 || ^8.0"
-            },
-            "require-dev": {
-                "doctrine/mongodb-odm": "^2.0",
-                "league/flysystem-async-aws-s3": "^3.1",
-                "league/flysystem-aws-s3-v3": "^3.1",
-                "league/flysystem-azure-blob-storage": "^3.1",
-                "league/flysystem-ftp": "^3.1",
-                "league/flysystem-google-cloud-storage": "^3.1",
-                "league/flysystem-gridfs": "^3.28",
-                "league/flysystem-memory": "^3.1",
-                "league/flysystem-read-only": "^3.15",
-                "league/flysystem-sftp-v3": "^3.1",
-                "league/flysystem-webdav": "^3.29",
-                "platformcommunity/flysystem-bunnycdn": "^3.3",
-                "symfony/dotenv": "^6.0 || ^7.0 || ^8.0",
-                "symfony/framework-bundle": "^6.0 || ^7.0 || ^8.0",
-                "symfony/phpunit-bridge": "^6.0 || ^7.0 || ^8.0",
-                "symfony/var-dumper": "^6.0 || ^7.0 || ^8.0"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "League\\FlysystemBundle\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Titouan Galopin",
-                    "email": "galopintitouan@gmail.com"
-                }
-            ],
-            "description": "Symfony bundle integrating Flysystem into Symfony applications",
-            "keywords": [
-                "Flysystem",
-                "bundle",
-                "filesystem",
-                "symfony"
-            ],
-            "support": {
-                "issues": "https://github.com/thephpleague/flysystem-bundle/issues",
-                "source": "https://github.com/thephpleague/flysystem-bundle/tree/3.7.0"
-            },
-            "time": "2026-03-28T22:14:56+00:00"
-        },
-        {
-            "name": "league/flysystem-local",
-            "version": "3.31.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thephpleague/flysystem-local.git",
-                "reference": "2f669db18a4c20c755c2bb7d3a7b0b2340488079"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem-local/zipball/2f669db18a4c20c755c2bb7d3a7b0b2340488079",
-                "reference": "2f669db18a4c20c755c2bb7d3a7b0b2340488079",
-                "shasum": ""
-            },
-            "require": {
-                "ext-fileinfo": "*",
-                "league/flysystem": "^3.0.0",
-                "league/mime-type-detection": "^1.0.0",
-                "php": "^8.0.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "League\\Flysystem\\Local\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Frank de Jonge",
-                    "email": "info@frankdejonge.nl"
-                }
-            ],
-            "description": "Local filesystem adapter for Flysystem.",
-            "keywords": [
-                "Flysystem",
-                "file",
-                "files",
-                "filesystem",
-                "local"
-            ],
-            "support": {
-                "source": "https://github.com/thephpleague/flysystem-local/tree/3.31.0"
-            },
-            "time": "2026-01-23T15:30:45+00:00"
-        },
-        {
-            "name": "league/mime-type-detection",
-            "version": "1.16.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thephpleague/mime-type-detection.git",
-                "reference": "2d6702ff215bf922936ccc1ad31007edc76451b9"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/mime-type-detection/zipball/2d6702ff215bf922936ccc1ad31007edc76451b9",
-                "reference": "2d6702ff215bf922936ccc1ad31007edc76451b9",
-                "shasum": ""
-            },
-            "require": {
-                "ext-fileinfo": "*",
-                "php": "^7.4 || ^8.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.2",
-                "phpstan/phpstan": "^0.12.68",
-                "phpunit/phpunit": "^8.5.8 || ^9.3 || ^10.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "League\\MimeTypeDetection\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Frank de Jonge",
-                    "email": "info@frankdejonge.nl"
-                }
-            ],
-            "description": "Mime-type detection for Flysystem",
-            "support": {
-                "issues": "https://github.com/thephpleague/mime-type-detection/issues",
-                "source": "https://github.com/thephpleague/mime-type-detection/tree/1.16.0"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/frankdejonge",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/league/flysystem",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2024-09-21T08:32:55+00:00"
         },
         {
             "name": "lexik/jwt-authentication-bundle",
@@ -6008,73 +5543,6 @@
             "time": "2024-09-25T14:21:43+00:00"
         },
         {
-            "name": "symfony/expression-language",
-            "version": "v8.0.8",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/expression-language.git",
-                "reference": "b2a5fd3b7331ae10cc0ed75a28d64b25b67d2c7b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/expression-language/zipball/b2a5fd3b7331ae10cc0ed75a28d64b25b67d2c7b",
-                "reference": "b2a5fd3b7331ae10cc0ed75a28d64b25b67d2c7b",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.4",
-                "symfony/cache": "^7.4|^8.0",
-                "symfony/service-contracts": "^2.5|^3"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Component\\ExpressionLanguage\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Provides an engine that can compile and evaluate expressions",
-            "homepage": "https://symfony.com",
-            "support": {
-                "source": "https://github.com/symfony/expression-language/tree/v8.0.8"
-            },
-            "funding": [
-                {
-                    "url": "https://symfony.com/sponsor",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://github.com/nicolas-grekas",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2026-03-30T15:14:47+00:00"
-        },
-        {
             "name": "symfony/filesystem",
             "version": "v8.0.9",
             "source": {
@@ -7115,27 +6583,39 @@
             "time": "2026-04-02T18:27:21+00:00"
         },
         {
-            "name": "symfony/options-resolver",
+            "name": "symfony/notifier",
             "version": "v8.0.8",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/options-resolver.git",
-                "reference": "b48bce0a70b914f6953dafbd10474df232ed4de8"
+                "url": "https://github.com/symfony/notifier.git",
+                "reference": "e65ae16a36900c92e977733fcee22d47f79c3601"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/options-resolver/zipball/b48bce0a70b914f6953dafbd10474df232ed4de8",
-                "reference": "b48bce0a70b914f6953dafbd10474df232ed4de8",
+                "url": "https://api.github.com/repos/symfony/notifier/zipball/e65ae16a36900c92e977733fcee22d47f79c3601",
+                "reference": "e65ae16a36900c92e977733fcee22d47f79c3601",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.4",
-                "symfony/deprecation-contracts": "^2.5|^3"
+                "psr/log": "^1|^2|^3"
+            },
+            "conflict": {
+                "symfony/event-dispatcher-contracts": "<2.5",
+                "symfony/http-client-contracts": "<2.5"
+            },
+            "require-dev": {
+                "symfony/event-dispatcher": "^6.4|^7.0|^8.0",
+                "symfony/event-dispatcher-contracts": "^2.5|^3",
+                "symfony/http-client": "^7.4|^8.0",
+                "symfony/http-client-contracts": "^2.5|^3",
+                "symfony/http-foundation": "^7.4|^8.0",
+                "symfony/messenger": "^7.4|^8.0"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Symfony\\Component\\OptionsResolver\\": ""
+                    "Symfony\\Component\\Notifier\\": ""
                 },
                 "exclude-from-classmap": [
                     "/Tests/"
@@ -7155,15 +6635,14 @@
                     "homepage": "https://symfony.com/contributors"
                 }
             ],
-            "description": "Provides an improved replacement for the array_replace PHP function",
+            "description": "Sends notifications via one or more channels (email, SMS, ...)",
             "homepage": "https://symfony.com",
             "keywords": [
-                "config",
-                "configuration",
-                "options"
+                "notification",
+                "notifier"
             ],
             "support": {
-                "source": "https://github.com/symfony/options-resolver/tree/v8.0.8"
+                "source": "https://github.com/symfony/notifier/tree/v8.0.8"
             },
             "funding": [
                 {
@@ -8089,91 +7568,6 @@
                 }
             ],
             "time": "2026-03-30T15:14:47+00:00"
-        },
-        {
-            "name": "symfony/scheduler",
-            "version": "v8.0.10",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/scheduler.git",
-                "reference": "64a4ae9af5653fcee9cbd31ad7a8d2128eec1de2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/scheduler/zipball/64a4ae9af5653fcee9cbd31ad7a8d2128eec1de2",
-                "reference": "64a4ae9af5653fcee9cbd31ad7a8d2128eec1de2",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.4",
-                "symfony/clock": "^7.4|^8.0"
-            },
-            "require-dev": {
-                "dragonmantank/cron-expression": "^3.1",
-                "symfony/cache": "^7.4.8|^8.0.8",
-                "symfony/console": "^7.4|^8.0",
-                "symfony/dependency-injection": "^7.4|^8.0",
-                "symfony/event-dispatcher": "^7.4|^8.0",
-                "symfony/lock": "^7.4|^8.0",
-                "symfony/messenger": "^7.4|^8.0",
-                "symfony/serializer": "^7.4|^8.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Component\\Scheduler\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Sergey Rabochiy",
-                    "email": "upyx.00@gmail.com"
-                },
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Provides scheduling through Symfony Messenger",
-            "homepage": "https://symfony.com",
-            "keywords": [
-                "cron",
-                "schedule",
-                "scheduler"
-            ],
-            "support": {
-                "source": "https://github.com/symfony/scheduler/tree/v8.0.10"
-            },
-            "funding": [
-                {
-                    "url": "https://symfony.com/sponsor",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://github.com/nicolas-grekas",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2026-05-06T12:05:43+00:00"
         },
         {
             "name": "symfony/security-bundle",
@@ -13676,6 +13070,77 @@
             "homepage": "https://symfony.com",
             "support": {
                 "source": "https://github.com/symfony/dom-crawler/tree/v8.0.8"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-03-30T15:14:47+00:00"
+        },
+        {
+            "name": "symfony/options-resolver",
+            "version": "v8.0.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/options-resolver.git",
+                "reference": "b48bce0a70b914f6953dafbd10474df232ed4de8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/options-resolver/zipball/b48bce0a70b914f6953dafbd10474df232ed4de8",
+                "reference": "b48bce0a70b914f6953dafbd10474df232ed4de8",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4",
+                "symfony/deprecation-contracts": "^2.5|^3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\OptionsResolver\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides an improved replacement for the array_replace PHP function",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "config",
+                "configuration",
+                "options"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/options-resolver/tree/v8.0.8"
             },
             "funding": [
                 {

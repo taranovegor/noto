@@ -88,6 +88,15 @@ when@dev:
                             refresh_token:
                                 type: string
                                 example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                            centrifugal:
+                                type: object
+                                properties:
+                                    userId:
+                                        type: string
+                                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                    token:
+                                        type: string
+                                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
             paths:
                 /api/auth/login:
                     post:

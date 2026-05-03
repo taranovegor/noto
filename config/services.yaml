@@ -73,3 +73,11 @@ services:
         arguments:
             $s3Client: '@cloudflare_r2_client'
             $bucket: '%env(CLOUDFLARE_R2_BUCKET)%'
+
+    phpcent\Client:
+        arguments:
+            $url: '%env(CENTRIFUGO_URL)%'
+            $apikey: '%env(CENTRIFUGO_API_KEY)%'
+            $secret: '%env(CENTRIFUGO_SECRET)%'
+
+    App\Component\Centrifugal\CentrifugalInterface: '@App\Component\Centrifugal\Centrifugal'

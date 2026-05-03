@@ -5,6 +5,7 @@ monolog:
         - s3
         - attachment
         - ref
+        - websocket
 
 when@dev:
     monolog:
