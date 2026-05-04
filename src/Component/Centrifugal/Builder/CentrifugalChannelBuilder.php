@@ -15,12 +15,14 @@ class CentrifugalChannelBuilder
         $this->reset();
     }
 
-    public function reset(): void
+    public function reset(): self
     {
         $this->namespace = null;
         $this->channelName = null;
         $this->userIds = [];
         $this->private = false;
+
+        return $this;
     }
 
     public function private(): static

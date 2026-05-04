@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Component\Broadcaster\Attribute\Broadcastable;
 use App\Contract\HasUpdatedAtInterface;
 use App\Enum\RefType;
 use App\Enum\StashType;
@@ -10,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: StashRepository::class)]
 #[ORM\Table(name: 'stashes')]
+#[Broadcastable(namespace: 'stashes')]
 class Stash implements ReferenceableInterface, HasUpdatedAtInterface
 {
     use ReferenceableTrait;

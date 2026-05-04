@@ -1,0 +1,138 @@
+asyncapi: 3.0.0
+info:
+    title: Noto — Centrifugo WebSocket
+    version: 'latest'
+    description: |
+        Realtime entity create/update notifications.
+        Transport — Centrifugo (WebSocket), server-side publish only.
+
+defaultContentType: application/json
+
+servers:
+    dev:
+        host: localhost:8000
+        protocol: ws
+        description: Dev Centrifugo
+
+channels:
+    'noto-notes:events':
+        address: 'noto-notes:events'
+        description: Note events — only Note entities
+        messages:
+            noteEvent:
+                $ref: '#/components/messages/noteEvent'
+
+    'noto-tasks:events':
+        address: 'noto-tasks:events'
+        description: Task events — only Task entities
+        messages:
+            taskEvent:
+                $ref: '#/components/messages/taskEvent'
+
+
+operations:
+    onNoteEvent:
+        action: receive
+        channel:
+            $ref: '#/channels/noto-notes:events'
+        summary: Receive Note event
+
+    onTaskEvent:
+        action: receive
+        channel:
+            $ref: '#/channels/noto-tasks:events'
+        summary: Receive Task event
+
+
+components:
+    messages:
+        noteEvent:
+            summary: Note event
+            payload:
+                $ref: '#/components/schemas/noteEnvelope'
+
+        taskEvent:
+            summary: Task event
+            payload:
+                $ref: '#/components/schemas/taskEnvelope'
+
+    schemas:
+        noteEnvelope:
+            required:
+                - meta
+                - data
+            properties:
+                meta:
+                    $ref: '#/components/schemas/meta'
+                data:
+                    $ref: '#/components/schemas/note'
+
+        taskEnvelope:
+            required:
+                - meta
+                - data
+            properties:
+                meta:
+                    $ref: '#/components/schemas/meta'
+                data:
+                    $ref: '#/components/schemas/task'
+
+        meta:
+            required:
+                - id
+                - event
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                    description: Message UUID v7
+                event:
+                    type: string
+                    enum: ['created', 'updated', 'deleted']
+                    description: Event type
+
+        note:
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                title:
+                    type: string
+                content:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+
+        task:
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                projectId:
+                    type: string
+                    format: uuid
+                code:
+                    type: string
+                name:
+                    type: string
+                status:
+                    type: string
+                    enum: ['backlog', 'todo', 'in_progress', 'done']
+                priority:
+                    type: string
+                    enum: ['low', 'medium', 'high']
+                deadline:
+                    type: string
+                    format: date-time
+                note:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time

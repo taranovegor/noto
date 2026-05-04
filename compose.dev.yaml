@@ -68,22 +68,9 @@ services:
             CENTRIFUGO_CHANNEL_NAMESPACES: >-
                 [
                   {
-                    "name": "noto-note",
+                    "name": "noto-stashes",
                     "allow_user_limited_channels": true,
-                    "allow_publish_for_client": false,
-                    "history_size": 100,
-                    "history_ttl": "1h"
-                  },
-                  {
-                    "name": "noto-task",
-                    "allow_user_limited_channels": true,
-                    "allow_publish_for_client": false,
-                    "history_size": 100,
-                    "history_ttl": "1h"
-                  },
-                  {
-                    "name": "noto-reminder",
-                    "allow_user_limited_channels": true,
+                    "allow_subscribe_for_client": true,
                     "allow_publish_for_client": false,
                     "history_size": 100,
                     "history_ttl": "1h"

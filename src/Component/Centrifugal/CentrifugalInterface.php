@@ -13,7 +13,7 @@ interface CentrifugalInterface
     public function generateConnectionToken(UserInterface $user, array $channels = [], ?\DateInterval $ttl = null): ConnectionTokenDto;
 
     /**
-     * @param array<string, scalar> $data
+     * @param array<string, mixed> $data
      */
     public function publish(string $channel, array $data): void;
 }

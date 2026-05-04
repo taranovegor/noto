@@ -2,7 +2,7 @@ when@dev:
     nelmio_api_doc:
         documentation:
             info:
-                title: Noto
+                title: '%app.name%'
                 description: Personal knowledge microservice for structured data storage
                 version: '%env(string:VERSION)%'
             security:

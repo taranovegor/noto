@@ -2,9 +2,7 @@
 
 namespace App\Component\WebSocket\Recipient;
 
-use Symfony\Component\Notifier\Recipient\RecipientInterface;
-
-final readonly class WebSocketRecipient implements RecipientInterface
+final readonly class WebSocketRecipient implements WebSocketRecipientInterface
 {
     public function __construct(
         private string $channel,

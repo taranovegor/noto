@@ -58,8 +58,8 @@ class CentrifugalTransportTest extends TestCase
             ->with(
                 'test-channel',
                 $this->callback(function ($data) {
-                    return isset($data['_subject']) && 'Test subject' === $data['_subject']
-                        && isset($data['_id']);
+                    return isset($data['meta']['subject']) && 'Test subject' === $data['meta']['subject']
+                        && isset($data['meta']['id']);
                 })
             );
 
@@ -81,10 +81,10 @@ class CentrifugalTransportTest extends TestCase
             ->with(
                 'test-channel',
                 $this->callback(function ($data) {
-                    return isset($data['_subject'])
-                        && isset($data['_id'])
-                        && isset($data['custom'])
-                        && 'data' === $data['custom'];
+                    return isset($data['meta']['subject'])
+                        && isset($data['meta']['id'])
+                        && isset($data['data']['custom'])
+                        && 'data' === $data['data']['custom'];
                 })
             );
 
@@ -165,7 +165,7 @@ class CentrifugalTransportTest extends TestCase
                 'tasks-channel',
                 $this->callback(function ($data) use ($complexData) {
                     foreach ($complexData as $key => $value) {
-                        if (!isset($data[$key]) || $data[$key] !== $value) {
+                        if (!isset($data['data'][$key]) || $data['data'][$key] !== $value) {
                             return false;
                         }
                     }
@@ -190,9 +190,9 @@ class CentrifugalTransportTest extends TestCase
             ->with(
                 'channel',
                 $this->callback(function ($data) {
-                    return isset($data['_subject']) && 'Message Subject' === $data['_subject']
-                        && isset($data['_id'])
-                        && isset($data['existing']) && 'data' === $data['existing'];
+                    return isset($data['meta']['subject']) && 'Message Subject' === $data['meta']['subject']
+                        && isset($data['meta']['id'])
+                        && isset($data['data']['existing']) && 'data' === $data['data']['existing'];
                 })
             );
 

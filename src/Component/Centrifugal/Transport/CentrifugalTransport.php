@@ -40,10 +40,13 @@ final class CentrifugalTransport extends AbstractTransport
         try {
             $this->centrifugal->publish(
                 $message->getRecipientId(),
-                array_merge([
-                    '_id' => $id = Uuid::v7()->toRfc4122(),
-                    '_subject' => $message->getSubject(),
-                ], $message->getOptions()?->toArray() ?? []),
+                [
+                    'meta' => [
+                        'id' => $id = Uuid::v7()->toRfc4122(),
+                        'subject' => $message->getSubject(),
+                    ],
+                    'data' => $message->getOptions()?->toArray() ?? [],
+                ],
             );
         } catch (\Throwable $e) {
             throw new WebSocketTransportException($e->getMessage(), previous: $e);

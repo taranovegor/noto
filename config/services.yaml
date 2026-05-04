@@ -1,4 +1,6 @@
 parameters:
+    app.name: 'noto'
+
     ai.additional_models:
         voyage-4-large:
             class: Symfony\AI\Platform\Bridge\Voyage\Voyage
@@ -81,3 +83,9 @@ services:
             $secret: '%env(CENTRIFUGO_SECRET)%'
 
     App\Component\Centrifugal\CentrifugalInterface: '@App\Component\Centrifugal\Centrifugal'
+
+    App\Component\Broadcaster\Broadcaster:
+        arguments:
+            $namespacePrefix: '%app.name%'
+
+    App\Component\Broadcaster\BroadcasterInterface: '@App\Component\Broadcaster\Broadcaster'
