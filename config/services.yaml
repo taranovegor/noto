@@ -78,11 +78,15 @@ services:
 
     phpcent\Client:
         arguments:
-            $url: '%env(CENTRIFUGO_URL)%'
+            $url: '%env(CENTRIFUGO_API_URL)%'
             $apikey: '%env(CENTRIFUGO_API_KEY)%'
             $secret: '%env(CENTRIFUGO_SECRET)%'
 
-    App\Component\Centrifugal\CentrifugalInterface: '@App\Component\Centrifugal\Centrifugal'
+    App\Component\Centrifugo\CentrifugalInterface: '@App\Component\Centrifugo\Centrifugo'
+
+    App\Component\Centrifugo\EventSubscriber\AttachConnectionTokenOnAuthenticationSuccess:
+        arguments:
+            $centrifugoUrl: '%env(CENTRIFUGO_WS_URL)%'
 
     App\Component\Broadcaster\Broadcaster:
         arguments:

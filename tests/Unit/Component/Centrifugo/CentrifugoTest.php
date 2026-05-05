@@ -1,22 +1,22 @@
 <?php
 
-namespace App\Tests\Unit\Component\Centrifugal;
+namespace App\Tests\Unit\Component\Centrifugo;
 
-use App\Component\Centrifugal\Centrifugal;
-use App\Component\Centrifugal\Dto\ConnectionTokenDto;
-use App\Component\Centrifugal\Service\UserIdNormalizer;
+use App\Component\Centrifugo\Centrifugo;
+use App\Component\Centrifugo\Dto\ConnectionTokenDto;
+use App\Component\Centrifugo\Service\UserIdNormalizer;
 use phpcent\Client;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class CentrifugalTest extends TestCase
+class CentrifugoTest extends TestCase
 {
     private MockObject|Client $mockClient;
     private MockObject|LoggerInterface $mockLogger;
     private UserIdNormalizer $userIdNormalizer;
-    private Centrifugal $centrifugal;
+    private Centrifugo $centrifugo;
 
     protected function setUp(): void
     {
@@ -24,7 +24,7 @@ class CentrifugalTest extends TestCase
         $this->mockLogger = $this->createStub(LoggerInterface::class);
         $this->userIdNormalizer = new UserIdNormalizer();
 
-        $this->centrifugal = new Centrifugal(
+        $this->centrifugo = new Centrifugo(
             $this->mockClient,
             $this->mockLogger,
             $this->userIdNormalizer,
@@ -51,7 +51,7 @@ class CentrifugalTest extends TestCase
             )
             ->willReturn('test-token');
 
-        $result = $this->centrifugal->generateConnectionToken($user);
+        $result = $this->centrifugo->generateConnectionToken($user);
 
         $this->assertInstanceOf(ConnectionTokenDto::class, $result);
         $this->assertEquals($normalizedUserId, $result->userId);
@@ -78,7 +78,7 @@ class CentrifugalTest extends TestCase
             )
             ->willReturn('test-token-custom');
 
-        $result = $this->centrifugal->generateConnectionToken($user, [], $customTtl);
+        $result = $this->centrifugo->generateConnectionToken($user, [], $customTtl);
 
         $this->assertInstanceOf(ConnectionTokenDto::class, $result);
         $this->assertEquals('test-token-custom', $result->token);
@@ -104,7 +104,7 @@ class CentrifugalTest extends TestCase
             )
             ->willReturn('test-token-channels');
 
-        $result = $this->centrifugal->generateConnectionToken($user, $channels);
+        $result = $this->centrifugo->generateConnectionToken($user, $channels);
 
         $this->assertInstanceOf(ConnectionTokenDto::class, $result);
         $this->assertEquals('test-token-channels', $result->token);
@@ -118,7 +118,7 @@ class CentrifugalTest extends TestCase
             ->willReturn('test-user');
 
         $mockLogger = $this->createMock(LoggerInterface::class);
-        $centrifugal = new Centrifugal($this->mockClient, $mockLogger, $this->userIdNormalizer);
+        $centrifugo = new Centrifugo($this->mockClient, $mockLogger, $this->userIdNormalizer);
 
         $this->mockClient->expects($this->once())
             ->method('generateConnectionToken')
@@ -131,7 +131,7 @@ class CentrifugalTest extends TestCase
                 $this->arrayHasKey('userId')
             );
 
-        $centrifugal->generateConnectionToken($user);
+        $centrifugo->generateConnectionToken($user);
     }
 
     public function testPublishData(): void
@@ -143,7 +143,7 @@ class CentrifugalTest extends TestCase
             ->method('publish')
             ->with($channel, $data);
 
-        $this->centrifugal->publish($channel, $data);
+        $this->centrifugo->publish($channel, $data);
     }
 
     public function testPublishLogsDebugMessage(): void
@@ -152,7 +152,7 @@ class CentrifugalTest extends TestCase
         $data = ['key' => 'value'];
 
         $mockLogger = $this->createMock(LoggerInterface::class);
-        $centrifugal = new Centrifugal($this->mockClient, $mockLogger, $this->userIdNormalizer);
+        $centrifugo = new Centrifugo($this->mockClient, $mockLogger, $this->userIdNormalizer);
 
         $this->mockClient->expects($this->once())
             ->method('publish');
@@ -164,7 +164,7 @@ class CentrifugalTest extends TestCase
                 $this->arrayHasKey('channel')
             );
 
-        $centrifugal->publish($channel, $data);
+        $centrifugo->publish($channel, $data);
     }
 
     public function testPublishWithComplexData(): void
@@ -181,7 +181,7 @@ class CentrifugalTest extends TestCase
             ->method('publish')
             ->with($channel, $data);
 
-        $this->centrifugal->publish($channel, $data);
+        $this->centrifugo->publish($channel, $data);
     }
 
     public function testPublishEmptyData(): void
@@ -193,6 +193,6 @@ class CentrifugalTest extends TestCase
             ->method('publish')
             ->with($channel, $data);
 
-        $this->centrifugal->publish($channel, $data);
+        $this->centrifugo->publish($channel, $data);
     }
 }

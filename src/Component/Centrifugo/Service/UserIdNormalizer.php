@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Component\Centrifugal\Service;
+namespace App\Component\Centrifugo\Service;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 

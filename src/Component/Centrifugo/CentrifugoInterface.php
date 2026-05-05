@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Component\Centrifugal;
+namespace App\Component\Centrifugo;
 
-use App\Component\Centrifugal\Dto\ConnectionTokenDto;
+use App\Component\Centrifugo\Dto\ConnectionTokenDto;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-interface CentrifugalInterface
+interface CentrifugoInterface
 {
     /**
      * @param string[] $channels

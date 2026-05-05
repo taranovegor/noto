@@ -1,21 +1,21 @@
 <?php
 
-namespace App\Tests\Unit\Component\Centrifugal\Transport;
+namespace App\Tests\Unit\Component\Centrifugo\Transport;
 
-use App\Component\Centrifugal\Centrifugal;
-use App\Component\Centrifugal\Service\UserIdNormalizer;
-use App\Component\Centrifugal\Transport\CentrifugalTransport;
-use App\Component\Centrifugal\Transport\CentrifugalTransportFactory;
+use App\Component\Centrifugo\Centrifugo;
+use App\Component\Centrifugo\Service\UserIdNormalizer;
+use App\Component\Centrifugo\Transport\CentrifugoTransport;
+use App\Component\Centrifugo\Transport\CentrifugoTransportFactory;
 use phpcent\Client;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Notifier\Exception\UnsupportedSchemeException;
 use Symfony\Component\Notifier\Transport\Dsn;
 
-class CentrifugalTransportFactoryTest extends TestCase
+class CentrifugoTransportFactoryTest extends TestCase
 {
-    private Centrifugal $centrifugal;
-    private CentrifugalTransportFactory $factory;
+    private Centrifugo $centrifugo;
+    private CentrifugoTransportFactory $factory;
 
     protected function setUp(): void
     {
@@ -23,26 +23,26 @@ class CentrifugalTransportFactoryTest extends TestCase
         $mockLogger = $this->createStub(LoggerInterface::class);
         $userIdNormalizer = new UserIdNormalizer();
 
-        $this->centrifugal = new Centrifugal($mockClient, $mockLogger, $userIdNormalizer);
-        $this->factory = new CentrifugalTransportFactory($this->centrifugal);
+        $this->centrifugo = new Centrifugo($mockClient, $mockLogger, $userIdNormalizer);
+        $this->factory = new CentrifugoTransportFactory($this->centrifugo);
     }
 
-    public function testCreateReturnsCentrifugalTransport(): void
+    public function testCreateReturnsCentrifugoTransport(): void
     {
-        $dsn = new Dsn('centrifugal://localhost:8000');
+        $dsn = new Dsn('centrifugo://localhost:8000');
 
         $transport = $this->factory->create($dsn);
 
-        $this->assertInstanceOf(CentrifugalTransport::class, $transport);
+        $this->assertInstanceOf(CentrifugoTransport::class, $transport);
     }
 
-    public function testCreateWithValidCentrifugalScheme(): void
+    public function testCreateWithValidCentrifugoScheme(): void
     {
-        $dsn = new Dsn('centrifugal://api.example.com:8000');
+        $dsn = new Dsn('centrifugo://api.example.com:8000');
 
         $transport = $this->factory->create($dsn);
 
-        $this->assertInstanceOf(CentrifugalTransport::class, $transport);
+        $this->assertInstanceOf(CentrifugoTransport::class, $transport);
     }
 
     public function testCreateThrowsExceptionForUnsupportedScheme(): void
@@ -69,16 +69,16 @@ class CentrifugalTransportFactoryTest extends TestCase
         $this->factory->create($dsn);
     }
 
-    public function testSupportsReturnsTrueForValidCentrifugalDsn(): void
+    public function testSupportsReturnsTrueForValidCentrifugoDsn(): void
     {
-        $dsn = new Dsn('centrifugal://localhost:8000');
+        $dsn = new Dsn('centrifugo://localhost:8000');
 
         $this->assertTrue($this->factory->supports($dsn));
     }
 
-    public function testSupportsReturnsTrueForCentrifugalScheme(): void
+    public function testSupportsReturnsTrueForCentrifugoScheme(): void
     {
-        $dsn = new Dsn('centrifugal://localhost:8000');
+        $dsn = new Dsn('centrifugo://localhost:8000');
 
         $this->assertTrue($this->factory->supports($dsn));
     }

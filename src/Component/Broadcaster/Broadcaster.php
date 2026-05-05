@@ -3,7 +3,7 @@
 namespace App\Component\Broadcaster;
 
 use App\Component\Broadcaster\Notification\BroadcastNotification;
-use App\Component\Centrifugal\Builder\CentrifugalChannelBuilder;
+use App\Component\Centrifugo\Builder\CentrifugoChannelBuilder;
 use App\Component\WebSocket\Recipient\WebSocketRecipient;
 use Symfony\Component\Notifier\NotifierInterface;
 
@@ -11,7 +11,7 @@ final readonly class Broadcaster implements BroadcasterInterface
 {
     public function __construct(
         private NotifierInterface $notifier,
-        private CentrifugalChannelBuilder $channelBuilder,
+        private CentrifugoChannelBuilder $channelBuilder,
         private string $namespacePrefix,
     ) {
     }

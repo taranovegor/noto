@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Tests\Unit\Component\Centrifugal\Dto;
+namespace App\Tests\Unit\Component\Centrifugo\Dto;
 
-use App\Component\Centrifugal\Dto\ConnectionTokenDto;
+use App\Component\Centrifugo\Dto\ConnectionTokenDto;
 use PHPUnit\Framework\TestCase;
 
 class ConnectionTokenDtoTest extends TestCase

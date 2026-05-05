@@ -5,7 +5,6 @@ namespace App\Tests\Unit\Component\Broadcaster\EventSubscriber;
 use App\Component\Broadcaster\Attribute\Broadcastable;
 use App\Component\Broadcaster\BroadcasterInterface;
 use App\Component\Broadcaster\Enum\BroadcastChannel;
-use App\Component\Broadcaster\Enum\BroadcastEvent;
 use App\Component\Broadcaster\EventSubscriber\BroadcastEvents;
 use App\Component\Broadcaster\Normalizer\BroadcastNormalizer;
 use App\Component\Broadcaster\Normalizer\BroadcastNormalizerInterface;

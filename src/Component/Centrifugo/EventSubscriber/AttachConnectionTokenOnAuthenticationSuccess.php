@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Component\Centrifugal\EventSubscriber;
+namespace App\Component\Centrifugo\EventSubscriber;
 
-use App\Component\Centrifugal\CentrifugalInterface;
+use App\Component\Centrifugo\CentrifugoInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\AuthenticationSuccessEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Events;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -11,8 +11,9 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 final readonly class AttachConnectionTokenOnAuthenticationSuccess implements EventSubscriberInterface
 {
     public function __construct(
-        private CentrifugalInterface $centrifugal,
+        private CentrifugoInterface $centrifugo,
         private NormalizerInterface $normalizer,
+        private string $centrifugoUrl,
     ) {
     }
 
@@ -23,10 +24,13 @@ final readonly class AttachConnectionTokenOnAuthenticationSuccess implements Eve
 
     public function __invoke(AuthenticationSuccessEvent $event): void
     {
-        $connectionToken = $this->centrifugal->generateConnectionToken($event->getUser());
+        $connectionToken = $this->centrifugo->generateConnectionToken($event->getUser());
 
         $event->setData(array_merge($event->getData(), [
-            'centrifugal' => $this->normalizer->normalize($connectionToken),
+            'centrifugo' => array_merge(
+                $this->normalizer->normalize($connectionToken),
+                ['url' => $this->centrifugoUrl],
+            ),
         ]));
     }
 }

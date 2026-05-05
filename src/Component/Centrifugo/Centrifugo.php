@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Component\Centrifugal;
+namespace App\Component\Centrifugo;
 
-use App\Component\Centrifugal\Dto\ConnectionTokenDto;
-use App\Component\Centrifugal\Service\UserIdNormalizer;
+use App\Component\Centrifugo\Dto\ConnectionTokenDto;
+use App\Component\Centrifugo\Service\UserIdNormalizer;
 use phpcent\Client;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-final readonly class Centrifugal implements CentrifugalInterface
+final readonly class Centrifugo implements CentrifugoInterface
 {
     public function __construct(
         private Client $client,

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Tests\Unit\Component\Centrifugal\Service;
+namespace App\Tests\Unit\Component\Centrifugo\Service;
 
-use App\Component\Centrifugal\Service\UserIdNormalizer;
+use App\Component\Centrifugo\Service\UserIdNormalizer;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\User\UserInterface;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Component\Centrifugal\Dto;
+namespace App\Component\Centrifugo\Dto;
 
 readonly class ConnectionTokenDto
 {

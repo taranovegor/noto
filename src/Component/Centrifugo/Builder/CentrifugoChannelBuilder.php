@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Component\Centrifugal\Builder;
+namespace App\Component\Centrifugo\Builder;
 
-class CentrifugalChannelBuilder
+class CentrifugoChannelBuilder
 {
     private ?string $namespace = null;
     private ?string $channelName = null;

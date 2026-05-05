@@ -88,7 +88,7 @@ when@dev:
                             refresh_token:
                                 type: string
                                 example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                            centrifugal:
+                            centrifugo:
                                 type: object
                                 properties:
                                     userId:
@@ -97,6 +97,9 @@ when@dev:
                                     token:
                                         type: string
                                         example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                    url:
+                                        type: string
+                                        example: "ws://localhost:8000"
             paths:
                 /api/auth/login:
                     post:

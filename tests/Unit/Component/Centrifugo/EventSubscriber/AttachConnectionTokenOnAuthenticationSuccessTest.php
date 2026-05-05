@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Tests\Unit\Component\Centrifugal\EventSubscriber;
+namespace App\Tests\Unit\Component\Centrifugo\EventSubscriber;
 
-use App\Component\Centrifugal\CentrifugalInterface;
-use App\Component\Centrifugal\Dto\ConnectionTokenDto;
-use App\Component\Centrifugal\EventSubscriber\AttachConnectionTokenOnAuthenticationSuccess;
+use App\Component\Centrifugo\CentrifugoInterface;
+use App\Component\Centrifugo\Dto\ConnectionTokenDto;
+use App\Component\Centrifugo\EventSubscriber\AttachConnectionTokenOnAuthenticationSuccess;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\AuthenticationSuccessEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Events;
 use PHPUnit\Framework\TestCase;
@@ -17,12 +17,13 @@ class AttachConnectionTokenOnAuthenticationSuccessTest extends TestCase
 
     protected function setUp(): void
     {
-        $stubCentrifugal = $this->createStub(CentrifugalInterface::class);
+        $stubCentrifugo = $this->createStub(CentrifugoInterface::class);
         $stubNormalizer = $this->createStub(NormalizerInterface::class);
 
         $this->subscriber = new AttachConnectionTokenOnAuthenticationSuccess(
-            $stubCentrifugal,
-            $stubNormalizer
+            $stubCentrifugo,
+            $stubNormalizer,
+            'http://centrifugo:8000',
         );
     }
 
@@ -41,15 +42,15 @@ class AttachConnectionTokenOnAuthenticationSuccessTest extends TestCase
 
     public function testInvokeAttachesConnectionTokenToResponse(): void
     {
-        $mockCentrifugal = $this->createMock(CentrifugalInterface::class);
+        $mockCentrifugo = $this->createMock(CentrifugoInterface::class);
         $mockNormalizer = $this->createMock(NormalizerInterface::class);
-        $subscriber = new AttachConnectionTokenOnAuthenticationSuccess($mockCentrifugal, $mockNormalizer);
+        $subscriber = new AttachConnectionTokenOnAuthenticationSuccess($mockCentrifugo, $mockNormalizer, 'http://centrifugo:8000');
 
         $user = $this->createStub(UserInterface::class);
 
         $connectionToken = new ConnectionTokenDto('user-123', 'token-abc');
 
-        $mockCentrifugal->expects($this->once())
+        $mockCentrifugo->expects($this->once())
             ->method('generateConnectionToken')
             ->with($user)
             ->willReturn($connectionToken);
@@ -72,7 +73,7 @@ class AttachConnectionTokenOnAuthenticationSuccessTest extends TestCase
             ->method('setData')
             ->with([
                 'jwt' => 'jwt-token',
-                'centrifugal' => ['userId' => 'user-123', 'token' => 'token-abc'],
+                'centrifugo' => ['userId' => 'user-123', 'token' => 'token-abc', 'url' => 'http://centrifugo:8000'],
             ]);
 
         $subscriber->__invoke($event);
@@ -80,14 +81,14 @@ class AttachConnectionTokenOnAuthenticationSuccessTest extends TestCase
 
     public function testInvokeGeneratesConnectionToken(): void
     {
-        $mockCentrifugal = $this->createMock(CentrifugalInterface::class);
+        $mockCentrifugo = $this->createMock(CentrifugoInterface::class);
         $mockNormalizer = $this->createMock(NormalizerInterface::class);
-        $subscriber = new AttachConnectionTokenOnAuthenticationSuccess($mockCentrifugal, $mockNormalizer);
+        $subscriber = new AttachConnectionTokenOnAuthenticationSuccess($mockCentrifugo, $mockNormalizer, 'http://centrifugo:8000');
 
         $user = $this->createStub(UserInterface::class);
         $connectionToken = new ConnectionTokenDto('user-456', 'token-xyz');
 
-        $mockCentrifugal->expects($this->once())
+        $mockCentrifugo->expects($this->once())
             ->method('generateConnectionToken')
             ->with($user)
             ->willReturn($connectionToken);
@@ -113,14 +114,14 @@ class AttachConnectionTokenOnAuthenticationSuccessTest extends TestCase
 
     public function testInvokeNormalizesConnectionToken(): void
     {
-        $mockCentrifugal = $this->createMock(CentrifugalInterface::class);
+        $mockCentrifugo = $this->createMock(CentrifugoInterface::class);
         $mockNormalizer = $this->createMock(NormalizerInterface::class);
-        $subscriber = new AttachConnectionTokenOnAuthenticationSuccess($mockCentrifugal, $mockNormalizer);
+        $subscriber = new AttachConnectionTokenOnAuthenticationSuccess($mockCentrifugo, $mockNormalizer, 'http://centrifugo:8000');
 
         $user = $this->createStub(UserInterface::class);
         $connectionToken = new ConnectionTokenDto('user-789', 'token-123');
 
-        $mockCentrifugal->expects($this->once())
+        $mockCentrifugo->expects($this->once())
             ->method('generateConnectionToken')
             ->willReturn($connectionToken);
 
@@ -146,14 +147,14 @@ class AttachConnectionTokenOnAuthenticationSuccessTest extends TestCase
 
     public function testInvokeMergesWithExistingData(): void
     {
-        $mockCentrifugal = $this->createMock(CentrifugalInterface::class);
+        $mockCentrifugo = $this->createMock(CentrifugoInterface::class);
         $mockNormalizer = $this->createMock(NormalizerInterface::class);
-        $subscriber = new AttachConnectionTokenOnAuthenticationSuccess($mockCentrifugal, $mockNormalizer);
+        $subscriber = new AttachConnectionTokenOnAuthenticationSuccess($mockCentrifugo, $mockNormalizer, 'http://centrifugo:8000');
 
         $user = $this->createStub(UserInterface::class);
         $connectionToken = new ConnectionTokenDto('user-id', 'token');
 
-        $mockCentrifugal->expects($this->once())
+        $mockCentrifugo->expects($this->once())
             ->method('generateConnectionToken')
             ->willReturn($connectionToken);
 
@@ -177,7 +178,7 @@ class AttachConnectionTokenOnAuthenticationSuccessTest extends TestCase
             ->method('getData')
             ->willReturn($existingData);
 
-        $expectedData = array_merge($existingData, ['centrifugal' => $normalizedToken]);
+        $expectedData = array_merge($existingData, ['centrifugo' => array_merge($normalizedToken, ['url' => 'http://centrifugo:8000'])]);
 
         $event->expects($this->once())
             ->method('setData')
@@ -188,14 +189,14 @@ class AttachConnectionTokenOnAuthenticationSuccessTest extends TestCase
 
     public function testInvokeHandlesEmptyEventData(): void
     {
-        $mockCentrifugal = $this->createMock(CentrifugalInterface::class);
+        $mockCentrifugo = $this->createMock(CentrifugoInterface::class);
         $mockNormalizer = $this->createMock(NormalizerInterface::class);
-        $subscriber = new AttachConnectionTokenOnAuthenticationSuccess($mockCentrifugal, $mockNormalizer);
+        $subscriber = new AttachConnectionTokenOnAuthenticationSuccess($mockCentrifugo, $mockNormalizer, 'http://centrifugo:8000');
 
         $user = $this->createStub(UserInterface::class);
         $connectionToken = new ConnectionTokenDto('user', 'token');
 
-        $mockCentrifugal->expects($this->once())
+        $mockCentrifugo->expects($this->once())
             ->method('generateConnectionToken')
             ->willReturn($connectionToken);
 
@@ -216,7 +217,7 @@ class AttachConnectionTokenOnAuthenticationSuccessTest extends TestCase
 
         $event->expects($this->once())
             ->method('setData')
-            ->with(['centrifugal' => $normalizedToken]);
+            ->with(['centrifugo' => array_merge($normalizedToken, ['url' => 'http://centrifugo:8000'])]);
 
         $subscriber->__invoke($event);
     }
@@ -236,9 +237,9 @@ class AttachConnectionTokenOnAuthenticationSuccessTest extends TestCase
 
     public function testMultipleInvocationsWithDifferentUsers(): void
     {
-        $mockCentrifugal = $this->createMock(CentrifugalInterface::class);
+        $mockCentrifugo = $this->createMock(CentrifugoInterface::class);
         $mockNormalizer = $this->createMock(NormalizerInterface::class);
-        $subscriber = new AttachConnectionTokenOnAuthenticationSuccess($mockCentrifugal, $mockNormalizer);
+        $subscriber = new AttachConnectionTokenOnAuthenticationSuccess($mockCentrifugo, $mockNormalizer, 'http://centrifugo:8000');
 
         $user1 = $this->createStub(UserInterface::class);
         $user2 = $this->createStub(UserInterface::class);
@@ -246,7 +247,7 @@ class AttachConnectionTokenOnAuthenticationSuccessTest extends TestCase
         $token1 = new ConnectionTokenDto('user-1', 'token-1');
         $token2 = new ConnectionTokenDto('user-2', 'token-2');
 
-        $mockCentrifugal->expects($this->exactly(2))
+        $mockCentrifugo->expects($this->exactly(2))
             ->method('generateConnectionToken')
             ->willReturnOnConsecutiveCalls($token1, $token2);
 

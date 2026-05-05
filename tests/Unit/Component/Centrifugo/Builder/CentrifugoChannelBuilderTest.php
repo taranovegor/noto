@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Tests\Unit\Component\Centrifugal\Builder;
+namespace App\Tests\Unit\Component\Centrifugo\Builder;
 
-use App\Component\Centrifugal\Builder\CentrifugalChannelBuilder;
+use App\Component\Centrifugo\Builder\CentrifugoChannelBuilder;
 use PHPUnit\Framework\TestCase;
 
-class CentrifugalChannelBuilderTest extends TestCase
+class CentrifugoChannelBuilderTest extends TestCase
 {
-    private CentrifugalChannelBuilder $builder;
+    private CentrifugoChannelBuilder $builder;
 
     protected function setUp(): void
     {
-        $this->builder = new CentrifugalChannelBuilder();
+        $this->builder = new CentrifugoChannelBuilder();
     }
 
     public function testBuildSimplePublicChannel(): void
@@ -116,7 +116,7 @@ class CentrifugalChannelBuilderTest extends TestCase
         $reservedSymbols = [':', '#', '$', '/', '*', '&'];
 
         foreach ($reservedSymbols as $symbol) {
-            $builder = new CentrifugalChannelBuilder();
+            $builder = new CentrifugoChannelBuilder();
             $channelName = 'test'.$symbol.'channel';
 
             $this->expectException(\InvalidArgumentException::class);

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Tests\Unit\Component\Centrifugal\Transport;
+namespace App\Tests\Unit\Component\Centrifugo\Transport;
 
-use App\Component\Centrifugal\CentrifugalInterface;
-use App\Component\Centrifugal\Transport\CentrifugalTransport;
+use App\Component\Centrifugo\CentrifugoInterface;
+use App\Component\Centrifugo\Transport\CentrifugoTransport;
 use App\Component\WebSocket\Exception\WebSocketTransportException;
 use App\Component\WebSocket\Message\WebSocketOptions;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -12,15 +12,15 @@ use Symfony\Component\Notifier\Exception\UnsupportedMessageTypeException;
 use Symfony\Component\Notifier\Message\ChatMessage;
 use Symfony\Component\Notifier\Message\SmsMessage;
 
-class CentrifugalTransportTest extends TestCase
+class CentrifugoTransportTest extends TestCase
 {
-    private MockObject|CentrifugalInterface $mockCentrifugal;
-    private CentrifugalTransport $transport;
+    private MockObject|CentrifugoInterface $mockCentrifugo;
+    private CentrifugoTransport $transport;
 
     protected function setUp(): void
     {
-        $this->mockCentrifugal = $this->createStub(CentrifugalInterface::class);
-        $this->transport = new CentrifugalTransport($this->mockCentrifugal);
+        $this->mockCentrifugo = $this->createStub(CentrifugoInterface::class);
+        $this->transport = new CentrifugoTransport($this->mockCentrifugo);
     }
 
     public function testSupportsReturnsTrueForChatMessageWithNoOptions(): void
@@ -47,13 +47,13 @@ class CentrifugalTransportTest extends TestCase
 
     public function testDoSendPublishesChatMessageWithWebSocketOptions(): void
     {
-        $centrifugal = $this->createMock(CentrifugalInterface::class);
-        $transport = new CentrifugalTransport($centrifugal);
+        $centrifugo = $this->createMock(CentrifugoInterface::class);
+        $transport = new CentrifugoTransport($centrifugo);
 
         $options = new WebSocketOptions('test-channel');
         $message = new ChatMessage('Test subject', $options);
 
-        $centrifugal->expects($this->once())
+        $centrifugo->expects($this->once())
             ->method('publish')
             ->with(
                 'test-channel',
@@ -70,13 +70,13 @@ class CentrifugalTransportTest extends TestCase
 
     public function testDoSendPublishesChatMessageWithData(): void
     {
-        $centrifugal = $this->createMock(CentrifugalInterface::class);
-        $transport = new CentrifugalTransport($centrifugal);
+        $centrifugo = $this->createMock(CentrifugoInterface::class);
+        $transport = new CentrifugoTransport($centrifugo);
 
         $options = new WebSocketOptions('test-channel', ['custom' => 'data']);
         $message = new ChatMessage('Test subject', $options);
 
-        $centrifugal->expects($this->once())
+        $centrifugo->expects($this->once())
             ->method('publish')
             ->with(
                 'test-channel',
@@ -95,13 +95,13 @@ class CentrifugalTransportTest extends TestCase
 
     public function testDoSendGeneratesUniqueMessageIds(): void
     {
-        $centrifugal = $this->createMock(CentrifugalInterface::class);
-        $transport = new CentrifugalTransport($centrifugal);
+        $centrifugo = $this->createMock(CentrifugoInterface::class);
+        $transport = new CentrifugoTransport($centrifugo);
 
         $message1 = new ChatMessage('Subject 1', new WebSocketOptions('channel1'));
         $message2 = new ChatMessage('Subject 2', new WebSocketOptions('channel2'));
 
-        $centrifugal->expects($this->exactly(2))
+        $centrifugo->expects($this->exactly(2))
             ->method('publish');
 
         $sentMessage1 = $transport->send($message1);
@@ -120,13 +120,13 @@ class CentrifugalTransportTest extends TestCase
 
     public function testDoSendThrowsWebSocketTransportExceptionOnPublishFailure(): void
     {
-        $centrifugal = $this->createMock(CentrifugalInterface::class);
-        $transport = new CentrifugalTransport($centrifugal);
+        $centrifugo = $this->createMock(CentrifugoInterface::class);
+        $transport = new CentrifugoTransport($centrifugo);
 
         $options = new WebSocketOptions('test-channel');
         $message = new ChatMessage('Test subject', $options);
 
-        $centrifugal->expects($this->once())
+        $centrifugo->expects($this->once())
             ->method('publish')
             ->willThrowException(new \RuntimeException('Publish failed'));
 
@@ -138,13 +138,13 @@ class CentrifugalTransportTest extends TestCase
     {
         $stringRepresentation = (string) $this->transport;
 
-        $this->assertStringStartsWith('centrifugal://', $stringRepresentation);
+        $this->assertStringStartsWith('centrifugo://', $stringRepresentation);
     }
 
     public function testDoSendWithComplexDataInOptions(): void
     {
-        $centrifugal = $this->createMock(CentrifugalInterface::class);
-        $transport = new CentrifugalTransport($centrifugal);
+        $centrifugo = $this->createMock(CentrifugoInterface::class);
+        $transport = new CentrifugoTransport($centrifugo);
 
         $complexData = [
             'notification' => [
@@ -159,7 +159,7 @@ class CentrifugalTransportTest extends TestCase
         $options = new WebSocketOptions('tasks-channel', $complexData);
         $message = new ChatMessage('Task notification', $options);
 
-        $centrifugal->expects($this->once())
+        $centrifugo->expects($this->once())
             ->method('publish')
             ->with(
                 'tasks-channel',
@@ -179,13 +179,13 @@ class CentrifugalTransportTest extends TestCase
 
     public function testDoSendMergesSubjectAndIdWithOptionsData(): void
     {
-        $centrifugal = $this->createMock(CentrifugalInterface::class);
-        $transport = new CentrifugalTransport($centrifugal);
+        $centrifugo = $this->createMock(CentrifugoInterface::class);
+        $transport = new CentrifugoTransport($centrifugo);
 
         $options = new WebSocketOptions('channel', ['existing' => 'data']);
         $message = new ChatMessage('Message Subject', $options);
 
-        $centrifugal->expects($this->once())
+        $centrifugo->expects($this->once())
             ->method('publish')
             ->with(
                 'channel',

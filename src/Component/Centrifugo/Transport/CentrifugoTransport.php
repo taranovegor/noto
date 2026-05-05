@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Component\Centrifugal\Transport;
+namespace App\Component\Centrifugo\Transport;
 
-use App\Component\Centrifugal\CentrifugalInterface;
+use App\Component\Centrifugo\CentrifugoInterface;
 use App\Component\WebSocket\Exception\WebSocketTransportException;
 use App\Component\WebSocket\Message\WebSocketOptions;
 use Symfony\Component\Notifier\Exception\UnsupportedMessageTypeException;
@@ -14,12 +14,12 @@ use Symfony\Component\Uid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final class CentrifugalTransport extends AbstractTransport
+final class CentrifugoTransport extends AbstractTransport
 {
-    public const string SCHEME = 'centrifugal';
+    public const string SCHEME = 'centrifugo';
 
     public function __construct(
-        private readonly CentrifugalInterface $centrifugal,
+        private readonly CentrifugoInterface $centrifugo,
         ?HttpClientInterface $client = null,
         ?EventDispatcherInterface $dispatcher = null,
     ) {
@@ -38,7 +38,7 @@ final class CentrifugalTransport extends AbstractTransport
         }
 
         try {
-            $this->centrifugal->publish(
+            $this->centrifugo->publish(
                 $message->getRecipientId(),
                 [
                     'meta' => [

@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Component\Centrifugal\Transport;
+namespace App\Component\Centrifugo\Transport;
 
-use App\Component\Centrifugal\Centrifugal;
+use App\Component\Centrifugo\Centrifugo;
 use Symfony\Component\Notifier\Exception\UnsupportedSchemeException;
 use Symfony\Component\Notifier\Transport\AbstractTransportFactory;
 use Symfony\Component\Notifier\Transport\Dsn;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final class CentrifugalTransportFactory extends AbstractTransportFactory
+final class CentrifugoTransportFactory extends AbstractTransportFactory
 {
     public function __construct(
-        private readonly Centrifugal $centrifugal,
+        private readonly Centrifugo $centrifugo,
         ?EventDispatcherInterface $dispatcher = null,
         ?HttpClientInterface $client = null,
     ) {
@@ -21,17 +21,17 @@ final class CentrifugalTransportFactory extends AbstractTransportFactory
 
     protected function getSupportedSchemes(): array
     {
-        return [CentrifugalTransport::SCHEME];
+        return [CentrifugoTransport::SCHEME];
     }
 
-    public function create(Dsn $dsn): CentrifugalTransport
+    public function create(Dsn $dsn): CentrifugoTransport
     {
         $scheme = $dsn->getScheme();
 
-        if (CentrifugalTransport::SCHEME !== $scheme) {
-            throw new UnsupportedSchemeException($dsn, CentrifugalTransport::SCHEME, $this->getSupportedSchemes());
+        if (CentrifugoTransport::SCHEME !== $scheme) {
+            throw new UnsupportedSchemeException($dsn, CentrifugoTransport::SCHEME, $this->getSupportedSchemes());
         }
 
-        return new CentrifugalTransport($this->centrifugal, null, $this->dispatcher);
+        return new CentrifugoTransport($this->centrifugo, null, $this->dispatcher);
     }
 }

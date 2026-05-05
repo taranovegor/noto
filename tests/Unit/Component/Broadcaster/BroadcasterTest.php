@@ -5,7 +5,7 @@ namespace App\Tests\Unit\Component\Broadcaster;
 use App\Component\Broadcaster\Broadcaster;
 use App\Component\Broadcaster\BroadcasterInterface;
 use App\Component\Broadcaster\Notification\BroadcastNotification;
-use App\Component\Centrifugal\Builder\CentrifugalChannelBuilder;
+use App\Component\Centrifugo\Builder\CentrifugoChannelBuilder;
 use App\Component\WebSocket\Recipient\WebSocketRecipient;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Notifier\NotifierInterface;
@@ -15,7 +15,7 @@ class BroadcasterTest extends TestCase
     public function testBroadcastSendsToCorrectChannel(): void
     {
         $notifier = $this->createMock(NotifierInterface::class);
-        $broadcaster = new Broadcaster($notifier, new CentrifugalChannelBuilder(), 'noto');
+        $broadcaster = new Broadcaster($notifier, new CentrifugoChannelBuilder(), 'noto');
 
         $notifier->expects($this->once())
             ->method('send')
@@ -32,7 +32,7 @@ class BroadcasterTest extends TestCase
     public function testBroadcastSendsNotificationWithData(): void
     {
         $notifier = $this->createMock(NotifierInterface::class);
-        $broadcaster = new Broadcaster($notifier, new CentrifugalChannelBuilder(), 'noto');
+        $broadcaster = new Broadcaster($notifier, new CentrifugoChannelBuilder(), 'noto');
 
         $data = ['id' => '019ddda6-541c-7262-91ac-f9af494e26ef', 'title' => 'Test'];
 
@@ -53,7 +53,7 @@ class BroadcasterTest extends TestCase
     public function testBroadcastBuildsChannelWithNamespacePrefix(): void
     {
         $notifier = $this->createMock(NotifierInterface::class);
-        $broadcaster = new Broadcaster($notifier, new CentrifugalChannelBuilder(), 'noto');
+        $broadcaster = new Broadcaster($notifier, new CentrifugoChannelBuilder(), 'noto');
 
         $notifier->expects($this->once())
             ->method('send')
@@ -71,7 +71,7 @@ class BroadcasterTest extends TestCase
     {
         $broadcaster = new Broadcaster(
             $this->createStub(NotifierInterface::class),
-            new CentrifugalChannelBuilder(),
+            new CentrifugoChannelBuilder(),
             'noto',
         );
 

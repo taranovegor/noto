@@ -14,7 +14,7 @@ services:
                 condition: service_healthy
             amqp:
                 condition: service_healthy
-            centrifuge:
+            centrifugo:
                 condition: service_healthy
 
     db:
@@ -51,9 +51,9 @@ services:
             timeout: 3s
             retries: 6
 
-    centrifuge:
+    centrifugo:
         image: centrifugo/centrifugo:v6
-        container_name: noto_centrifuge
+        container_name: noto_centrifugo
         ports:
             - "8000:8000"
         environment:
