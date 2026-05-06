@@ -20,28 +20,24 @@ namespace App\Enum;
 enum LinkKind: string
 {
     /**
-     * Artifact attached to its owner. Target's lifecycle follows source.
-     * Created explicitly by the user.
+     * Source owns target. Deleting source cascades to target.
      *
-     * Examples: Task → Document.
+     * Example: a file attached to a task goes away when the task is deleted.
      */
-    case Attachment = 'attachment';
+    case Ownership = 'ownership';
 
     /**
-     * Target was produced from source. Records provenance; both sides then
-     * live independently. Always created by the system.
+     * Target was produced from source. Records provenance only — both sides
+     * live independently after creation.
      *
-     * Example: Reminder generated from a Task's deadline.
+     * Example: a Secret generated from a task remains even if the task is deleted.
      */
     case Derivation = 'derivation';
 
     /**
      * Soft pointer: source refers to target without owning or producing it.
-     * Covers both parser-detected and user-added links. If the product later
-     * needs to split auto vs manual, introduce a separate Mention case rather
-     * than overloading this one.
      *
-     * Example: a Note mentions a Task in its body.
+     * Example: a Note that mentions a Task in its body.
      */
     case Reference = 'reference';
 }
