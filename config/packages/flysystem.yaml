@@ -1,0 +1,8 @@
+flysystem:
+    storages:
+        default.storage:
+            visibility: private
+            retain_visibility: false
+            asyncaws:
+                client: 'cloudflare_r2_client'
+                bucket: '%env(CLOUDFLARE_R2_BUCKET)%'

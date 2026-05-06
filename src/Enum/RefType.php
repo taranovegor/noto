@@ -7,6 +7,7 @@ namespace App\Enum;
  */
 enum RefType: string
 {
+    case Attachment = 'attachment';
     case Project = 'project';
     case Task = 'task';
     case Note = 'note';

@@ -56,3 +56,20 @@ services:
 
     League\CommonMark\ConverterInterface:
         class: League\CommonMark\CommonMarkConverter
+
+    cloudflare_r2_client:
+        class: 'AsyncAws\S3\S3Client'
+        arguments:
+            $configuration:
+              {
+                endpoint: '%env(CLOUDFLARE_R2_ENDPOINT)%',
+                accessKeyId: '%env(CLOUDFLARE_R2_ID)%',
+                accessKeySecret: '%env(CLOUDFLARE_R2_SECRET)%'
+              }
+            $httpClient: '@http_client'
+            $logger: '@monolog.logger.s3'
+
+    App\Service\Attachment\AttachmentUrlGenerator:
+        arguments:
+            $s3Client: '@cloudflare_r2_client'
+            $bucket: '%env(CLOUDFLARE_R2_BUCKET)%'
