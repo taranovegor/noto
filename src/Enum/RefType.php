@@ -9,6 +9,7 @@ enum RefType: string
 {
     case Attachment = 'attachment';
     case Project = 'project';
+    case Stash = 'stash';
     case Task = 'task';
     case Note = 'note';
     case User = 'user';

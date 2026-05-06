@@ -4,13 +4,14 @@ namespace App\Service\Attachment;
 
 use App\Dto\Attachment\AttachmentDto;
 use App\Entity\Attachment;
+use App\Entity\Ref;
 use App\Enum\AttachmentStatus;
 use App\Exception\EntityNotFoundException;
 use App\Repository\AttachmentRepository;
 use App\Service\Flusher;
 use Symfony\Component\Uid\Uuid;
 
-final readonly class AttachmentManager
+readonly class AttachmentManager
 {
     public function __construct(
         private AttachmentRepository $attachmentRepository,
@@ -51,5 +52,13 @@ final readonly class AttachmentManager
 
         $attachment->status = AttachmentStatus::Uploaded;
         $this->flusher->flush();
+    }
+
+    /**
+     * @return Attachment[]
+     */
+    public function getOwnedBy(Ref $source): array
+    {
+        return $this->attachmentRepository->findOwnedBy($source);
     }
 }

@@ -6,10 +6,10 @@ use App\Dto\Attachment\AttachmentDownloadResponseDto;
 use App\Dto\Attachment\AttachmentDto;
 use App\Dto\Attachment\AttachmentResponseDto;
 use App\Dto\Attachment\AttachmentUploadResponseDto;
+use App\Factory\Attachment\AttachmentDownloadResponseDtoFactory;
 use App\Factory\Attachment\AttachmentResponseDtoFactory;
 use App\Factory\Attachment\AttachmentUploadResponseDtoFactory;
 use App\Service\Attachment\AttachmentManager;
-use App\Service\Attachment\AttachmentUrlGenerator;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,7 +28,7 @@ final class AttachmentController extends AbstractController
         private readonly AttachmentManager $attachmentManager,
         private readonly AttachmentUploadResponseDtoFactory $attachmentUploadResponseDtoFactory,
         private readonly AttachmentResponseDtoFactory $responseDtoFactory,
-        private readonly AttachmentUrlGenerator $urlGenerator,
+        private readonly AttachmentDownloadResponseDtoFactory $downloadResponseDtoFactory,
     ) {
     }
 
@@ -176,9 +176,9 @@ final class AttachmentController extends AbstractController
     public function download(Uuid $id): JsonResponse
     {
         $attachment = $this->attachmentManager->get($id);
-        $downloadUrl = $this->urlGenerator->generateDownloadUrl($attachment);
+        $responseDto = $this->downloadResponseDtoFactory->create($attachment);
 
-        return $this->json(new AttachmentDownloadResponseDto($downloadUrl), context: [
+        return $this->json($responseDto, Response::HTTP_OK, context: [
             AbstractNormalizer::GROUPS => ['attachment:read'],
         ]);
     }
