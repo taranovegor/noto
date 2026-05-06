@@ -55,6 +55,14 @@ export function Sidebar() {
         >
           Notes
         </button>
+        <button
+          className={`${styles.navItem} ${isActive('/stashes') ? styles.navItemActive : ''}`}
+          onClick={() => navigate('/stashes')}
+          aria-label="Stashes"
+          aria-current={isActive('/stashes') ? 'page' : undefined}
+        >
+          Stashes
+        </button>
       </nav>
       {user && (
         <div className={styles.userSection}>

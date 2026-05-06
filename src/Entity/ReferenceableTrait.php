@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\Enum\RefType;
 use Doctrine\ORM\Mapping as ORM;
 
 trait ReferenceableTrait
@@ -18,9 +17,9 @@ trait ReferenceableTrait
         return $this->ref;
     }
 
-    private function initRef(RefType $type): void
+    private function initRef(): void
     {
-        $this->ref = new Ref($type);
+        $this->ref = new Ref($this::getRefType());
         $this->id = $this->ref->id;
     }
 }

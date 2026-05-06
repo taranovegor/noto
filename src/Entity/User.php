@@ -26,11 +26,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Referen
 
     public function __construct(string $email, string $password, UserPasswordHasherInterface $hasher)
     {
-        $this->initRef(RefType::User);
+        $this->initRef();
         $this->email = $email;
         $this->setPassword($password, $hasher);
         $this->createdAt = new \DateTimeImmutable();
         $this->touchUpdatedAt();
+    }
+
+    public static function getRefType(): RefType
+    {
+        return RefType::User;
     }
 
     public function getRoles(): array

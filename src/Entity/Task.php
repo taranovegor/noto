@@ -44,11 +44,16 @@ class Task implements ReferenceableInterface, HasUpdatedAtInterface
 
     public function __construct(string $name)
     {
-        $this->initRef(RefType::Task);
+        $this->initRef();
         $this->name = $name;
         $this->status = TaskStatus::Backlog;
         $this->createdAt = new \DateTimeImmutable();
         $this->touchUpdatedAt();
+    }
+
+    public static function getRefType(): RefType
+    {
+        return RefType::Task;
     }
 
     /**

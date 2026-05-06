@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Contract\HasUpdatedAtInterface;
 use App\Enum\RefType;
 use App\Enum\StashType;
 use App\Repository\StashRepository;
@@ -9,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: StashRepository::class)]
 #[ORM\Table(name: 'stashes')]
-class Stash implements ReferenceableInterface
+class Stash implements ReferenceableInterface, HasUpdatedAtInterface
 {
     use ReferenceableTrait;
     use HasCreatedAtTrait;
@@ -29,12 +30,17 @@ class Stash implements ReferenceableInterface
 
     public function __construct(StashType $type)
     {
-        $this->initRef(RefType::Stash);
+        $this->initRef();
         $this->type = $type;
         $this->content = null;
         $this->pinned = false;
         $this->expiresAt = null;
         $this->createdAt = new \DateTimeImmutable();
         $this->touchUpdatedAt();
+    }
+
+    public static function getRefType(): RefType
+    {
+        return RefType::Stash;
     }
 }

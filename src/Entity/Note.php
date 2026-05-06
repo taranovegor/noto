@@ -26,10 +26,15 @@ class Note implements ReferenceableInterface, HasUpdatedAtInterface
 
     public function __construct(string $title, string $content)
     {
-        $this->initRef(RefType::Note);
+        $this->initRef();
         $this->title = $title;
         $this->content = $content;
         $this->createdAt = new \DateTimeImmutable();
         $this->touchUpdatedAt();
+    }
+
+    public static function getRefType(): RefType
+    {
+        return RefType::Note;
     }
 }

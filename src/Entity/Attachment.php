@@ -31,8 +31,13 @@ class Attachment implements ReferenceableInterface
 
     public function __construct()
     {
-        $this->initRef(RefType::Attachment);
+        $this->initRef();
         $this->createdAt = new \DateTimeImmutable();
         $this->status = AttachmentStatus::Pending;
+    }
+
+    public static function getRefType(): RefType
+    {
+        return RefType::Attachment;
     }
 }

@@ -28,6 +28,13 @@
   outline: none;
 }
 
+.searchButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+}
+
 .clearButton {
   padding: var(--space-sm) var(--space-sm);
 }

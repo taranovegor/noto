@@ -280,13 +280,17 @@ abstract class AbstractSearchDtoResolver
      *
      * @return string|array<string>
      */
-    private function parseFilterValue(FilterOperator $operator, string $value): string|array
+    private function parseFilterValue(FilterOperator $operator, string $value): string|bool|array
     {
         return match ($operator) {
             FilterOperator::In, FilterOperator::NotIn => array_filter(
                 array_map('trim', explode(',', $value))
             ),
-            default => $value,
+            default => match ($value) {
+                'true' => true,
+                'false' => false,
+                default => $value,
+            },
         };
     }
 

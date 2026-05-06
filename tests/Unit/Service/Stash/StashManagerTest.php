@@ -90,4 +90,81 @@ class StashManagerTest extends TestCase
 
         $this->assertTrue($stash->pinned);
     }
+
+    public function testUpdatePinnedToTrueRemovesExpiration(): void
+    {
+        $manager = new StashManager(
+            $this->createStub(StashRepository::class),
+            $this->createStub(AttachmentManager::class),
+            $this->createStub(LinkRepository::class),
+            $this->createStub(Flusher::class),
+        );
+
+        $stash = new Stash(StashType::Text);
+        $stash->expiresAt = new \DateTimeImmutable()->modify('+1 day');
+
+        $manager->update($stash, new UpdateStashDto(pinned: true));
+
+        $this->assertNull($stash->expiresAt);
+    }
+
+    public function testUpdatePinnedToFalseAddsExpiration(): void
+    {
+        $ttl = new \DateInterval('P7D');
+        $manager = new StashManager(
+            $this->createStub(StashRepository::class),
+            $this->createStub(AttachmentManager::class),
+            $this->createStub(LinkRepository::class),
+            $this->createStub(Flusher::class),
+            $ttl,
+        );
+
+        $stash = new Stash(StashType::Text);
+        $stash->pinned = true;
+        $stash->expiresAt = null;
+
+        $beforeUpdate = new \DateTimeImmutable();
+        $manager->update($stash, new UpdateStashDto(pinned: false));
+        $afterUpdate = new \DateTimeImmutable();
+
+        $this->assertNotNull($stash->expiresAt);
+        $this->assertGreaterThanOrEqual($beforeUpdate->add($ttl), $stash->expiresAt);
+        $this->assertLessThanOrEqual($afterUpdate->add($ttl), $stash->expiresAt);
+    }
+
+    public function testUpdatePinnedWithSameValueDoesNotUpdate(): void
+    {
+        $manager = new StashManager(
+            $this->createStub(StashRepository::class),
+            $this->createStub(AttachmentManager::class),
+            $this->createStub(LinkRepository::class),
+            $this->createStub(Flusher::class),
+        );
+
+        $stash = new Stash(StashType::Text);
+        $originalExpiresAt = $stash->expiresAt;
+
+        $manager->update($stash, new UpdateStashDto(pinned: false));
+
+        $this->assertFalse($stash->pinned);
+        $this->assertEquals($originalExpiresAt, $stash->expiresAt);
+    }
+
+    public function testUpdatePinnedWithNullValueDoesNotUpdate(): void
+    {
+        $manager = new StashManager(
+            $this->createStub(StashRepository::class),
+            $this->createStub(AttachmentManager::class),
+            $this->createStub(LinkRepository::class),
+            $this->createStub(Flusher::class),
+        );
+
+        $stash = new Stash(StashType::Text);
+        $originalExpiresAt = $stash->expiresAt;
+
+        $manager->update($stash, new UpdateStashDto(pinned: null));
+
+        $this->assertFalse($stash->pinned);
+        $this->assertEquals($originalExpiresAt, $stash->expiresAt);
+    }
 }

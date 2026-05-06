@@ -12,6 +12,7 @@ import { ProtectedRoute } from './shared/components/ProtectedRoute';
 import { RouteErrorBoundary } from './shared/components/RouteErrorBoundary';
 import { TasksListShell } from './features/tasks/components/TasksListShell';
 import { NotesListShell } from './features/notes/components/NotesListShell';
+import { StashesListShell } from './features/stashes/components/StashesListShell';
 import { TaskPageSkeleton } from './features/tasks/components/TaskPageSkeleton';
 import { NotePageSkeleton } from './features/notes/components/NotePageSkeleton';
 import { LOGIN_ROUTE, TASKS_ROUTE } from './features/auth';
@@ -99,6 +100,10 @@ const router = createBrowserRouter([
             <NotePage />
           </Suspense>
         ),
+      },
+      {
+        path: 'stashes',
+        element: <StashesListShell />,
       },
     ],
   },

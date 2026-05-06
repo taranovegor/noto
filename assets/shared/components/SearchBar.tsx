@@ -1,4 +1,5 @@
 import React from 'react';
+import { Search } from 'lucide-react';
 import styles from './SearchBar.module.css';
 
 interface SearchBarProps {
@@ -31,8 +32,12 @@ export const SearchBar = React.memo(function SearchBar({
         className={styles.input}
         aria-label={placeholder ?? 'Search'}
       />
-      <button className="btn btn-primary" onClick={() => onSearch(value)}>
-        Search
+      <button
+        className={`btn btn-primary ${styles.searchButton}`}
+        onClick={() => onSearch(value)}
+        aria-label="Search"
+      >
+        <Search size={16} />
       </button>
       {hasActiveSearch && (
         <button

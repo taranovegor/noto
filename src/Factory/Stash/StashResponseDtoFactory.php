@@ -5,16 +5,17 @@ namespace App\Factory\Stash;
 use App\Dto\Stash\StashResponseDto;
 use App\Entity\Attachment;
 use App\Entity\Stash;
+use App\Enum\LinkKind;
 use App\Factory\Attachment\AttachmentResponseDtoFactory;
 use App\Factory\Attachment\AttachmentUploadResponseDtoFactory;
-use App\Service\Attachment\AttachmentManager;
+use App\Service\Link\LinkResolver;
 
 readonly class StashResponseDtoFactory
 {
     public function __construct(
         private AttachmentResponseDtoFactory $responseDtoFactory,
         private AttachmentUploadResponseDtoFactory $uploadResponseDtoFactory,
-        private AttachmentManager $attachmentManager,
+        private LinkResolver $linkResolver,
     ) {
     }
 
@@ -22,7 +23,7 @@ readonly class StashResponseDtoFactory
     {
         $attachments = array_map(
             fn (Attachment $a) => $this->responseDtoFactory->create($a),
-            $this->attachmentManager->getOwnedBy($stash->ref),
+            $this->linkResolver->resolve($stash, LinkKind::Ownership, Attachment::class),
         );
 
         return new StashResponseDto(
@@ -40,7 +41,7 @@ readonly class StashResponseDtoFactory
     {
         $attachments = array_map(
             fn (Attachment $a) => $this->uploadResponseDtoFactory->create($a),
-            $this->attachmentManager->getOwnedBy($stash->ref),
+            $this->linkResolver->resolve($stash, LinkKind::Ownership, Attachment::class),
         );
 
         return new StashResponseDto(

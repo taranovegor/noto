@@ -6,23 +6,24 @@ use App\Dto\Stash\StashResponseDto;
 use App\Entity\Attachment;
 use App\Entity\Stash;
 use App\Enum\AttachmentStatus;
+use App\Enum\LinkKind;
 use App\Enum\StashType;
 use App\Factory\Attachment\AttachmentResponseDtoFactory;
 use App\Factory\Attachment\AttachmentUploadResponseDtoFactory;
 use App\Factory\Stash\StashResponseDtoFactory;
-use App\Service\Attachment\AttachmentManager;
 use App\Service\Attachment\AttachmentUrlGenerator;
+use App\Service\Link\LinkResolver;
 use PHPUnit\Framework\TestCase;
 
 class StashResponseDtoFactoryTest extends TestCase
 {
     public function testCreateReturnsAttachmentsWithoutUploadUrls(): void
     {
-        $attachmentManager = $this->createMock(AttachmentManager::class);
+        $linkResolver = $this->createMock(LinkResolver::class);
         $factory = new StashResponseDtoFactory(
             new AttachmentResponseDtoFactory(),
             new AttachmentUploadResponseDtoFactory($this->createStub(AttachmentUrlGenerator::class)),
-            $attachmentManager,
+            $linkResolver,
         );
 
         $attachment = new Attachment();
@@ -32,9 +33,9 @@ class StashResponseDtoFactoryTest extends TestCase
 
         $stash = new Stash(StashType::File);
 
-        $attachmentManager->expects($this->once())
-            ->method('getOwnedBy')
-            ->with($stash->ref)
+        $linkResolver->expects($this->once())
+            ->method('resolve')
+            ->with($stash, LinkKind::Ownership, Attachment::class)
             ->willReturn([$attachment]);
 
         $dto = $factory->create($stash);
@@ -48,12 +49,12 @@ class StashResponseDtoFactoryTest extends TestCase
     public function testCreateWithUploadUrlsIncludesUploadUrl(): void
     {
         $urlGenerator = $this->createMock(AttachmentUrlGenerator::class);
-        $attachmentManager = $this->createMock(AttachmentManager::class);
+        $linkResolver = $this->createMock(LinkResolver::class);
 
         $factory = new StashResponseDtoFactory(
             new AttachmentResponseDtoFactory(),
             new AttachmentUploadResponseDtoFactory($urlGenerator),
-            $attachmentManager,
+            $linkResolver,
         );
 
         $attachment = new Attachment();
@@ -63,9 +64,9 @@ class StashResponseDtoFactoryTest extends TestCase
 
         $stash = new Stash(StashType::File);
 
-        $attachmentManager->expects($this->once())
-            ->method('getOwnedBy')
-            ->with($stash->ref)
+        $linkResolver->expects($this->once())
+            ->method('resolve')
+            ->with($stash, LinkKind::Ownership, Attachment::class)
             ->willReturn([$attachment]);
 
         $urlGenerator->expects($this->once())
@@ -80,17 +81,17 @@ class StashResponseDtoFactoryTest extends TestCase
 
     public function testCreateReturnsNullAttachmentsWhenEmpty(): void
     {
-        $attachmentManager = $this->createMock(AttachmentManager::class);
+        $linkResolver = $this->createMock(LinkResolver::class);
         $factory = new StashResponseDtoFactory(
             new AttachmentResponseDtoFactory(),
             new AttachmentUploadResponseDtoFactory($this->createStub(AttachmentUrlGenerator::class)),
-            $attachmentManager,
+            $linkResolver,
         );
 
         $stash = new Stash(StashType::Text);
 
-        $attachmentManager->expects($this->once())
-            ->method('getOwnedBy')
+        $linkResolver->expects($this->once())
+            ->method('resolve')
             ->willReturn([]);
 
         $dto = $factory->create($stash);

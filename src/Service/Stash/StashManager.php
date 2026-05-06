@@ -54,8 +54,13 @@ final readonly class StashManager
 
     public function update(Stash $stash, UpdateStashDto $dto): void
     {
-        if (null !== $dto->pinned) {
+        if (null !== $dto->pinned && $dto->pinned !== $stash->pinned) {
             $stash->pinned = $dto->pinned;
+            if ($dto->pinned) {
+                $stash->expiresAt = null;
+            } else {
+                $stash->expiresAt = new \DateTimeImmutable()->add($this->ttl);
+            }
         }
 
         $this->flusher->flush();

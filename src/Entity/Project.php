@@ -39,11 +39,16 @@ class Project implements ReferenceableInterface, HasUpdatedAtInterface
 
     public function __construct(string $name, string $prefix)
     {
-        $this->initRef(RefType::Project);
+        $this->initRef();
         $this->name = $name;
         $this->prefix = $prefix;
         $this->createdAt = new \DateTimeImmutable();
         $this->touchUpdatedAt();
         $this->tasks = new ArrayCollection();
+    }
+
+    public static function getRefType(): RefType
+    {
+        return RefType::Project;
     }
 }

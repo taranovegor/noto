@@ -2,9 +2,13 @@
 
 namespace App\Controller\Api;
 
+use App\Component\Searcher\Model\Pagination;
+use App\Component\Searcher\SearcherInterface;
 use App\Dto\Stash\CreateStashDto;
+use App\Dto\Stash\SearchStashDto;
 use App\Dto\Stash\StashResponseDto;
 use App\Dto\Stash\UpdateStashDto;
+use App\Entity\Stash;
 use App\Factory\Stash\StashResponseDtoFactory;
 use App\Service\Stash\StashManager;
 use Nelmio\ApiDocBundle\Attribute\Model;
@@ -23,8 +27,93 @@ final class StashController extends AbstractController
 {
     public function __construct(
         private readonly StashManager $stashManager,
+        /** @var SearcherInterface<Stash> */
+        private readonly SearcherInterface $searcher,
         private readonly StashResponseDtoFactory $responseDtoFactory,
     ) {
+    }
+
+    #[Route('', 'list', methods: ['GET'])]
+    #[OA\Get(
+        description: 'Lists stashes with support for filtering, sorting, and pagination.',
+        summary: 'List all stashes',
+        parameters: [
+            new OA\Parameter(
+                name: 'limit',
+                description: 'Number of records to return (max: 100)',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(type: 'integer', default: 20)
+            ),
+            new OA\Parameter(
+                name: 'offset',
+                description: 'Number of records to skip',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(type: 'integer', default: 0)
+            ),
+            new OA\Parameter(
+                name: 'sort',
+                description: 'Sort by field(s). Prefix with - for descending. Separate multiple with ;. Available: createdAt, updatedAt',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'filter[pinned]',
+                description: 'Filter by pinned status. Operators: eq',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'filter[expiresAt]',
+                description: 'Filter by expiration date. Operators: gt, gte, lt, lte',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: 'Stashes retrieved successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(ref: new Model(type: StashResponseDto::class, groups: ['pagination', 'stash:read', 'attachment:read']))
+                        ),
+                        new OA\Property(
+                            property: 'pagination',
+                            ref: new Model(type: Pagination::class),
+                            type: 'object',
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: Response::HTTP_BAD_REQUEST,
+                description: 'Bad request (invalid filter/sort field or operator)',
+                content: new OA\JsonContent(ref: '#/components/schemas/Error')
+            ),
+            new OA\Response(
+                response: Response::HTTP_INTERNAL_SERVER_ERROR,
+                description: 'Internal server error',
+                content: new OA\JsonContent(ref: '#/components/schemas/Error')
+            ),
+        ]
+    )]
+    public function list(SearchStashDto $criteria): JsonResponse
+    {
+        $searchResult = $this->searcher->search($criteria);
+
+        $searchResult = $searchResult->map(fn (Stash $stash) => $this->responseDtoFactory->create($stash));
+
+        return $this->json($searchResult, context: [
+            AbstractNormalizer::GROUPS => ['pagination', 'stash:read', 'attachment:read'],
+        ]);
     }
 
     #[Route('', 'create', methods: ['POST'])]
@@ -76,7 +165,7 @@ final class StashController extends AbstractController
             new OA\Response(
                 response: Response::HTTP_OK,
                 description: 'Stash retrieved',
-                content: new OA\JsonContent(ref: new Model(type: StashResponseDto::class, groups: ['stash:read']))
+                content: new OA\JsonContent(ref: new Model(type: StashResponseDto::class, groups: ['stash:read', 'attachment:read']))
             ),
             new OA\Response(
                 response: Response::HTTP_NOT_FOUND,

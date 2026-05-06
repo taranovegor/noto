@@ -6,7 +6,9 @@ use App\Component\Searcher\Enum\SortDirection;
 use App\Component\Searcher\Loader\SearchDefinitionLoader;
 use App\Component\Searcher\Model\SortInstruction;
 use App\Component\Searcher\Resolver\SearchDtoValueResolver;
+use App\Dto\Stash\SearchStashDto;
 use App\Dto\Task\SearchTaskDto;
+use App\Service\Stash\StashSearchDefinition;
 use App\Service\Task\TaskSearchDefinition;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -29,9 +31,11 @@ class SearchDtoValueResolverTest extends TestCase
         $container = $this->createStub(ContainerInterface::class);
         $container->method('has')->willReturnMap([
             [TaskSearchDefinition::class, true],
+            [StashSearchDefinition::class, true],
         ]);
         $container->method('get')->willReturnMap([
             [TaskSearchDefinition::class, new TaskSearchDefinition()],
+            [StashSearchDefinition::class, new StashSearchDefinition()],
         ]);
 
         $definitionLoader = new SearchDefinitionLoader($container);
@@ -296,6 +300,34 @@ class SearchDtoValueResolverTest extends TestCase
 
         // Empty filter value should be ignored
         $this->assertCount(0, $filters);
+    }
+
+    public function testResolveStringFalseIsCastToBoolFalse(): void
+    {
+        $request = Request::create('/?filter[active]=false');
+        $metadata = new ArgumentMetadata('criteria', SearchStashDto::class, false, false, null);
+
+        $result = iterator_to_array($this->resolver->resolve($request, $metadata));
+
+        $filters = $result[0]->getFilters();
+
+        $this->assertCount(1, $filters);
+        $this->assertEquals('active', $filters[0]->name);
+        $this->assertFalse($filters[0]->value);
+    }
+
+    public function testResolveStringTrueIsCastToBoolTrue(): void
+    {
+        $request = Request::create('/?filter[active]=true');
+        $metadata = new ArgumentMetadata('criteria', SearchStashDto::class, false, false, null);
+
+        $result = iterator_to_array($this->resolver->resolve($request, $metadata));
+
+        $filters = $result[0]->getFilters();
+
+        $this->assertCount(1, $filters);
+        $this->assertEquals('active', $filters[0]->name);
+        $this->assertTrue($filters[0]->value);
     }
 
     public function testResolveWithSemicolonSeparatedMultipleOperatorsForSameField(): void
