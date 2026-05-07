@@ -21,7 +21,7 @@ final readonly class StashManager
         private AttachmentManager $attachmentManager,
         private LinkRepository $linkRepository,
         private Flusher $flusher,
-        private \DateInterval $ttl = new \DateInterval('P1D'),
+        private \DateInterval $ttl = new \DateInterval('PT23H59M59S'),
     ) {
     }
 
@@ -63,6 +63,19 @@ final readonly class StashManager
             }
         }
 
+        $this->flusher->flush();
+    }
+
+    public function delete(Stash $stash): void
+    {
+        $this->stashRepository->remove($stash);
+        $this->flusher->flush();
+    }
+
+    public function expire(Stash $stash): void
+    {
+        $stash->pinned = false;
+        $stash->expiresAt = new \DateTimeImmutable('1 second ago');
         $this->flusher->flush();
     }
 }

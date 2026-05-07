@@ -2,28 +2,29 @@
 
 namespace App\Tests\Unit\Factory\Attachment;
 
+use App\Component\Storage\ObjectStorage;
 use App\Dto\Attachment\AttachmentDownloadResponseDto;
 use App\Entity\Attachment;
 use App\Enum\AttachmentStatus;
 use App\Factory\Attachment\AttachmentDownloadResponseDtoFactory;
-use App\Service\Attachment\AttachmentUrlGenerator;
 use PHPUnit\Framework\TestCase;
 
 class AttachmentDownloadResponseDtoFactoryTest extends TestCase
 {
     public function testCreateIncludesDownloadUrl(): void
     {
-        $urlGenerator = $this->createMock(AttachmentUrlGenerator::class);
+        $urlGenerator = $this->createMock(ObjectStorage::class);
         $factory = new AttachmentDownloadResponseDtoFactory($urlGenerator);
 
         $attachment = new Attachment();
         $attachment->originFilename = 'report.pdf';
         $attachment->mimeType = 'application/pdf';
         $attachment->size = 2048;
+        $attachment->path = 'attachments/report.pdf';
 
         $urlGenerator->expects($this->once())
-            ->method('generateDownloadUrl')
-            ->with($attachment)
+            ->method('downloadUrl')
+            ->with($attachment->path, $attachment->originFilename)
             ->willReturn('https://r2.example.com/download/report.pdf');
 
         $dto = $factory->create($attachment);

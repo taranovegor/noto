@@ -69,7 +69,7 @@ services:
             $httpClient: '@http_client'
             $logger: '@monolog.logger.s3'
 
-    App\Service\Attachment\AttachmentUrlGenerator:
+    App\Component\Storage\ObjectStorage:
         arguments:
             $s3Client: '@cloudflare_r2_client'
             $bucket: '%env(CLOUDFLARE_R2_BUCKET)%'

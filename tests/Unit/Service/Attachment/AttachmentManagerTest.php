@@ -2,13 +2,13 @@
 
 namespace App\Tests\Unit\Service\Attachment;
 
+use App\Component\Storage\ObjectStorage;
 use App\Dto\Attachment\AttachmentDto;
 use App\Entity\Attachment;
 use App\Enum\AttachmentStatus;
 use App\Repository\AttachmentRepository;
 use App\Service\Attachment\AttachmentManager;
 use App\Service\Attachment\AttachmentPathGenerator;
-use App\Service\Attachment\AttachmentUrlGenerator;
 use App\Service\Flusher;
 use PHPUnit\Framework\TestCase;
 
@@ -19,7 +19,7 @@ class AttachmentManagerTest extends TestCase
         $attachmentRepository = $this->createMock(AttachmentRepository::class);
         $flusher = $this->createMock(Flusher::class);
         $pathGenerator = new AttachmentPathGenerator();
-        $urlGenerator = $this->createStub(AttachmentUrlGenerator::class);
+        $urlGenerator = $this->createStub(ObjectStorage::class);
 
         $manager = new AttachmentManager($attachmentRepository, $flusher, $pathGenerator, $urlGenerator);
 

@@ -20,4 +20,23 @@ class StashRepository extends ServiceEntityRepository
     {
         $this->getEntityManager()->persist($stash);
     }
+
+    public function remove(Stash $stash): void
+    {
+        $this->getEntityManager()->remove($stash);
+    }
+
+    /**
+     * @return Stash[]
+     */
+    public function findExpired(\DateTimeImmutable $cutoff): array
+    {
+        return $this->createQueryBuilder('s')
+            ->where('s.pinned = false')
+            ->andWhere('s.expiresAt IS NOT NULL')
+            ->andWhere('s.expiresAt < :cutoff')
+            ->setParameter('cutoff', $cutoff)
+            ->getQuery()
+            ->getResult();
+    }
 }

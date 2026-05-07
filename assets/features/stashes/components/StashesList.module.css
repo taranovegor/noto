@@ -33,6 +33,9 @@
   padding: var(--space-2xl) var(--space-xl);
   text-align: center;
   color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
 }
 
 .emptyState p {

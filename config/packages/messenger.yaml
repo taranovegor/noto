@@ -11,6 +11,7 @@ framework:
 
         routing:
             App\Component\Ai\Store\Message\IndexObject: async
+            App\Message\Attachment\DeleteFile: async
 
 when@test:
     framework:

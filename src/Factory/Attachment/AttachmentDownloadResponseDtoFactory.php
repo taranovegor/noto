@@ -2,20 +2,20 @@
 
 namespace App\Factory\Attachment;
 
+use App\Component\Storage\ObjectStorage;
 use App\Dto\Attachment\AttachmentDownloadResponseDto;
 use App\Entity\Attachment;
-use App\Service\Attachment\AttachmentUrlGenerator;
 
 readonly class AttachmentDownloadResponseDtoFactory
 {
     public function __construct(
-        private AttachmentUrlGenerator $urlGenerator,
+        private ObjectStorage $storage,
     ) {
     }
 
     public function create(Attachment $attachment): AttachmentDownloadResponseDto
     {
-        $downloadUrl = $this->urlGenerator->generateDownloadUrl($attachment);
+        $downloadUrl = $this->storage->downloadUrl($attachment->path, $attachment->originFilename);
 
         return new AttachmentDownloadResponseDto(
             $attachment->id,

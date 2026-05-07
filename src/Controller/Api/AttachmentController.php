@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Dto\Attachment\AttachmentDownloadResponseDto;
 use App\Dto\Attachment\AttachmentDto;
 use App\Dto\Attachment\AttachmentResponseDto;
+use App\Dto\Attachment\AttachmentsBatchDownloadDto;
 use App\Dto\Attachment\AttachmentUploadResponseDto;
 use App\Factory\Attachment\AttachmentDownloadResponseDtoFactory;
 use App\Factory\Attachment\AttachmentResponseDtoFactory;
@@ -179,6 +180,45 @@ final class AttachmentController extends AbstractController
         $responseDto = $this->downloadResponseDtoFactory->create($attachment);
 
         return $this->json($responseDto, Response::HTTP_OK, context: [
+            AbstractNormalizer::GROUPS => ['attachment:read'],
+        ]);
+    }
+
+    #[Route('/download', 'batch_download', methods: ['POST'])]
+    #[OA\Post(
+        description: 'Returns pre-signed download URLs for multiple attachments by their IDs.',
+        summary: 'Batch download URLs',
+        requestBody: new OA\RequestBody(
+            description: 'Attachment IDs to generate download URLs for',
+            required: true,
+            content: new OA\JsonContent(ref: new Model(type: AttachmentsBatchDownloadDto::class))
+        ),
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: 'Download URLs generated',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: new Model(type: AttachmentDownloadResponseDto::class, groups: ['attachment:read']))
+                )
+            ),
+            new OA\Response(
+                response: Response::HTTP_UNPROCESSABLE_ENTITY,
+                description: 'Validation failed',
+                content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')
+            ),
+        ]
+    )]
+    public function batchDownload(#[MapRequestPayload] AttachmentsBatchDownloadDto $dto): JsonResponse
+    {
+        $attachments = $this->attachmentManager->getByIds($dto->ids);
+
+        $dtos = array_map(
+            $this->downloadResponseDtoFactory->create(...),
+            $attachments,
+        );
+
+        return $this->json($dtos, context: [
             AbstractNormalizer::GROUPS => ['attachment:read'],
         ]);
     }

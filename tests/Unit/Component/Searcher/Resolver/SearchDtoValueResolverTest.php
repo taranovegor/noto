@@ -6,7 +6,6 @@ use App\Component\Searcher\Enum\SortDirection;
 use App\Component\Searcher\Loader\SearchDefinitionLoader;
 use App\Component\Searcher\Model\SortInstruction;
 use App\Component\Searcher\Resolver\SearchDtoValueResolver;
-use App\Dto\Stash\SearchStashDto;
 use App\Dto\Task\SearchTaskDto;
 use App\Service\Stash\StashSearchDefinition;
 use App\Service\Task\TaskSearchDefinition;
@@ -304,30 +303,30 @@ class SearchDtoValueResolverTest extends TestCase
 
     public function testResolveStringFalseIsCastToBoolFalse(): void
     {
-        $request = Request::create('/?filter[active]=false');
-        $metadata = new ArgumentMetadata('criteria', SearchStashDto::class, false, false, null);
+        $request = Request::create('/?filter[status]=in:todo');
+        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
         $filters = $result[0]->getFilters();
 
         $this->assertCount(1, $filters);
-        $this->assertEquals('active', $filters[0]->name);
-        $this->assertFalse($filters[0]->value);
+        $this->assertEquals('status', $filters[0]->name);
+        $this->assertEquals(['todo'], $filters[0]->value);
     }
 
     public function testResolveStringTrueIsCastToBoolTrue(): void
     {
-        $request = Request::create('/?filter[active]=true');
-        $metadata = new ArgumentMetadata('criteria', SearchStashDto::class, false, false, null);
+        $request = Request::create('/?filter[status]=neq:done');
+        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
         $filters = $result[0]->getFilters();
 
         $this->assertCount(1, $filters);
-        $this->assertEquals('active', $filters[0]->name);
-        $this->assertTrue($filters[0]->value);
+        $this->assertEquals('status', $filters[0]->name);
+        $this->assertEquals('done', $filters[0]->value);
     }
 
     public function testResolveWithSemicolonSeparatedMultipleOperatorsForSameField(): void

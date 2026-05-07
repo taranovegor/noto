@@ -10,6 +10,10 @@
   --color-fg-inverse: #f5f5f4;
   --color-link: #1f6c9f;
 
+  --color-danger: #dc2626;
+  --color-success: #16a34a;
+  --color-warning: #92400e;
+
   --font-sans: sans-serif;
   --font-serif: serif;
   --font-mono: monospace;

@@ -12,19 +12,19 @@ const stashesApi = api.injectEndpoints({
     getStashes: builder.query<
       { data: StashResponseDto[]; pagination: { limit: number; offset: number; total: number } },
       {
-        filterActive?: boolean;
+        filterExpired?: boolean;
         limit?: number;
         offset?: number;
       }
     >({
       query: (params) => {
         const searchParams = new URLSearchParams();
-        if (params.filterActive !== undefined) {
-          searchParams.append('filter[active]', params.filterActive ? 'true' : 'false');
+        if (params.filterExpired !== undefined) {
+          searchParams.append('filter[expired]', params.filterExpired ? 'true' : 'false');
         }
-        searchParams.append('limit', String(params.limit ?? 100));
+        searchParams.append('limit', String(params.limit ?? 200));
         searchParams.append('offset', String(params.offset ?? 0));
-        searchParams.append('sort', '-pinned;-updatedAt');
+        searchParams.append('sort', '-pinned;-expiresAt;-updatedAt');
 
         return `/stashes?${searchParams.toString()}`;
       },
@@ -52,7 +52,20 @@ const stashesApi = api.injectEndpoints({
       }),
       invalidatesTags: (_, __, { id }) => [{ type: 'Stashes', id }, 'Stashes'],
     }),
+
+    deleteStash: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/stashes/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Stashes'],
+    }),
   }),
 });
 
-export const { useGetStashesQuery, useCreateStashMutation, useUpdateStashMutation } = stashesApi;
+export const {
+  useGetStashesQuery,
+  useCreateStashMutation,
+  useUpdateStashMutation,
+  useDeleteStashMutation,
+} = stashesApi;

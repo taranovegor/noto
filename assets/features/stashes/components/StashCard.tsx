@@ -1,18 +1,59 @@
-import { useState } from 'react';
-import { FileText, Files, Pin, Download, Copy } from 'lucide-react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import {
+  FileText,
+  Files,
+  Bookmark,
+  BookmarkCheck,
+  Download,
+  Copy,
+  Check,
+  Archive,
+  Trash,
+  Loader2,
+} from 'lucide-react';
 import { getMimeTypeIcon, type StashResponseDto } from '../index';
-import { formatRelative } from '../../../shared/utils';
+import { RelativeTime } from '../../../shared/components';
 import styles from './StashCard.module.css';
 
 interface StashCardProps {
   stash: StashResponseDto;
-  onDownload?: (attachmentId: string) => void;
+  onDownload?: (attachmentIds: string[]) => void;
   onCopy?: (stash: StashResponseDto) => void;
   onPin?: (stash: StashResponseDto) => void;
+  onDelete?: (stash: StashResponseDto) => void;
+  isDeleting?: boolean;
+  isExpired?: boolean;
 }
 
-export function StashCard({ stash, onDownload, onCopy, onPin }: StashCardProps) {
+export function StashCard({
+  stash,
+  onDownload,
+  onCopy,
+  onPin,
+  onDelete,
+  isDeleting,
+  isExpired,
+}: StashCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
+
+  const handleCopy = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onCopy?.(stash);
+      setCopied(true);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 1500);
+    },
+    [onCopy, stash],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    };
+  }, []);
 
   const isFileStash = stash.type === 'file';
   const hasAttachments = stash.attachments && stash.attachments.length > 0;
@@ -62,11 +103,12 @@ export function StashCard({ stash, onDownload, onCopy, onPin }: StashCardProps) 
         </div>
 
         <div className={styles.meta}>
-          <span className={styles.date}>{formatRelative(stash.createdAt)}</span>
+          <span className={styles.date}>
+            <RelativeTime date={stash.createdAt} />
+          </span>
           {stash.expiresAt && (
             <span className={styles.expires}>
-              {new Date(stash.expiresAt) < new Date() ? 'expired' : 'expires'}{' '}
-              {formatRelative(stash.expiresAt)}
+              {isExpired ? 'expired' : 'expires'} <RelativeTime date={stash.expiresAt} />
             </span>
           )}
         </div>
@@ -77,36 +119,51 @@ export function StashCard({ stash, onDownload, onCopy, onPin }: StashCardProps) 
               className={`btn btn-ghost ${styles.actionBtn}`}
               onClick={(e) => {
                 e.stopPropagation();
-                onDownload?.(stash.attachments![0].id);
+                onDownload?.(stash.attachments!.map((a) => a.id));
               }}
-              title="Download all"
-              aria-label="Download all"
+              title={isMultiFile ? 'Download all' : 'Download'}
+              aria-label={isMultiFile ? 'Download all' : 'Download'}
             >
               <Download size={15} />
             </button>
           ) : (
             <button
-              className={`btn btn-ghost ${styles.actionBtn}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onCopy?.(stash);
-              }}
+              className={`btn btn-ghost ${styles.actionBtn} ${copied ? styles.copySuccess : ''}`}
+              onClick={handleCopy}
               title="Copy"
               aria-label="Copy"
             >
-              <Copy size={15} />
+              {copied ? <Check size={15} /> : <Copy size={15} />}
             </button>
           )}
           <button
-            className={`${styles.pinButton} ${stash.pinned ? styles.pinned : ''}`}
+            className={`${styles.bookmarkButton} ${stash.pinned ? styles.bookmarked : ''}`}
             onClick={(e) => {
               e.stopPropagation();
               onPin?.(stash);
             }}
-            title={stash.pinned ? 'Unpin' : 'Pin'}
-            aria-label={stash.pinned ? 'Unpin' : 'Pin'}
+            title={stash.pinned ? 'Unbookmark' : 'Bookmark'}
+            aria-label={stash.pinned ? 'Unbookmark' : 'Bookmark'}
           >
-            <Pin size={15} />
+            {stash.pinned ? <BookmarkCheck size={15} /> : <Bookmark size={15} />}
+          </button>
+          <button
+            className={`btn btn-ghost ${isExpired ? styles.deleteBtn : styles.archiveBtn}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete?.(stash);
+            }}
+            disabled={isDeleting}
+            title={isExpired ? 'Delete' : 'Archive'}
+            aria-label={isExpired ? 'Delete' : 'Archive'}
+          >
+            {isDeleting ? (
+              <Loader2 size={15} className={styles.deleteSpinner} />
+            ) : isExpired ? (
+              <Trash size={15} />
+            ) : (
+              <Archive size={15} />
+            )}
           </button>
         </div>
       </div>
@@ -123,7 +180,7 @@ export function StashCard({ stash, onDownload, onCopy, onPin }: StashCardProps) 
                 <span className={styles.fileRowName}>{attachment.originFilename}</span>
                 <button
                   className={`btn btn-ghost ${styles.fileRowAction}`}
-                  onClick={() => onDownload?.(attachment.id)}
+                  onClick={() => onDownload?.([attachment.id])}
                   title={`Download ${attachment.originFilename}`}
                   aria-label={`Download ${attachment.originFilename}`}
                 >

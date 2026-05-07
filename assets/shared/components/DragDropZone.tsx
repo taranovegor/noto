@@ -112,6 +112,9 @@ export function DragDropZone({ onDrop, disabled = false, uploading = false }: Dr
             </div>
             <div className={styles.text}>
               <p className={styles.primary}>Uploading...</p>
+              <p className={styles.secondary} aria-hidden="true">
+                &nbsp;
+              </p>
             </div>
           </div>
         ) : (

@@ -9,4 +9,5 @@ export {
   useConfirmAttachmentUploadMutation,
   useGetAttachmentDownloadUrlQuery,
   useLazyGetAttachmentDownloadUrlQuery,
+  useGetBatchAttachmentDownloadUrlMutation,
 } from './store/api';

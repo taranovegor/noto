@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Factory\Stash;
 
+use App\Component\Storage\ObjectStorage;
 use App\Dto\Stash\StashResponseDto;
 use App\Entity\Attachment;
 use App\Entity\Stash;
@@ -11,7 +12,6 @@ use App\Enum\StashType;
 use App\Factory\Attachment\AttachmentResponseDtoFactory;
 use App\Factory\Attachment\AttachmentUploadResponseDtoFactory;
 use App\Factory\Stash\StashResponseDtoFactory;
-use App\Service\Attachment\AttachmentUrlGenerator;
 use App\Service\Link\LinkResolver;
 use PHPUnit\Framework\TestCase;
 
@@ -22,7 +22,7 @@ class StashResponseDtoFactoryTest extends TestCase
         $linkResolver = $this->createMock(LinkResolver::class);
         $factory = new StashResponseDtoFactory(
             new AttachmentResponseDtoFactory(),
-            new AttachmentUploadResponseDtoFactory($this->createStub(AttachmentUrlGenerator::class)),
+            new AttachmentUploadResponseDtoFactory($this->createStub(ObjectStorage::class)),
             $linkResolver,
         );
 
@@ -30,6 +30,7 @@ class StashResponseDtoFactoryTest extends TestCase
         $attachment->originFilename = 'doc.pdf';
         $attachment->mimeType = 'application/pdf';
         $attachment->size = 512;
+        $attachment->path = 'attachments/doc.pdf';
 
         $stash = new Stash(StashType::File);
 
@@ -48,7 +49,7 @@ class StashResponseDtoFactoryTest extends TestCase
 
     public function testCreateWithUploadUrlsIncludesUploadUrl(): void
     {
-        $urlGenerator = $this->createMock(AttachmentUrlGenerator::class);
+        $urlGenerator = $this->createMock(ObjectStorage::class);
         $linkResolver = $this->createMock(LinkResolver::class);
 
         $factory = new StashResponseDtoFactory(
@@ -61,6 +62,7 @@ class StashResponseDtoFactoryTest extends TestCase
         $attachment->originFilename = 'doc.pdf';
         $attachment->mimeType = 'application/pdf';
         $attachment->size = 512;
+        $attachment->path = 'attachments/doc.pdf';
 
         $stash = new Stash(StashType::File);
 
@@ -70,7 +72,7 @@ class StashResponseDtoFactoryTest extends TestCase
             ->willReturn([$attachment]);
 
         $urlGenerator->expects($this->once())
-            ->method('generateUploadUrl')
+            ->method('uploadUrl')
             ->willReturn('https://r2.example.com/upload');
 
         $dto = $factory->createWithUploadUrls($stash);
@@ -84,7 +86,7 @@ class StashResponseDtoFactoryTest extends TestCase
         $linkResolver = $this->createMock(LinkResolver::class);
         $factory = new StashResponseDtoFactory(
             new AttachmentResponseDtoFactory(),
-            new AttachmentUploadResponseDtoFactory($this->createStub(AttachmentUrlGenerator::class)),
+            new AttachmentUploadResponseDtoFactory($this->createStub(ObjectStorage::class)),
             $linkResolver,
         );
 

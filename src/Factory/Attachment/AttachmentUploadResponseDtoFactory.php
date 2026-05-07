@@ -2,20 +2,20 @@
 
 namespace App\Factory\Attachment;
 
+use App\Component\Storage\ObjectStorage;
 use App\Dto\Attachment\AttachmentUploadResponseDto;
 use App\Entity\Attachment;
-use App\Service\Attachment\AttachmentUrlGenerator;
 
 readonly class AttachmentUploadResponseDtoFactory
 {
     public function __construct(
-        private AttachmentUrlGenerator $urlGenerator,
+        private ObjectStorage $storage,
     ) {
     }
 
     public function create(Attachment $attachment): AttachmentUploadResponseDto
     {
-        $uploadUrl = $this->urlGenerator->generateUploadUrl($attachment);
+        $uploadUrl = $this->storage->uploadUrl($attachment->path, $attachment->mimeType, $attachment->size);
 
         return new AttachmentUploadResponseDto(
             $attachment->id,

@@ -27,17 +27,22 @@ export function useCreateStash() {
           }).unwrap();
 
           if (stash.attachments) {
+            const fileByName = new Map(files.map((f) => [f.name, f]));
+
             await Promise.all(
-              stash.attachments.map(async (attachment, i) => {
-                if (!attachment.uploadUrl) return;
+              stash.attachments.map(async (attachment) => {
+                const file = fileByName.get(attachment.originFilename);
+                if (!attachment.uploadUrl || !file) return;
 
                 const response = await fetch(attachment.uploadUrl, {
                   method: 'PUT',
-                  body: files[i],
-                  headers: { 'Content-Type': files[i].type || 'application/octet-stream' },
+                  body: file,
+                  headers: { 'Content-Type': file.type || 'application/octet-stream' },
                 });
 
-                if (!response.ok) throw new Error(`Failed to upload ${files[i].name}`);
+                if (!response.ok) {
+                  throw new Error(`Failed to upload ${file.name}`);
+                }
                 await confirmUpload(attachment.id).unwrap();
               }),
             );

@@ -2,6 +2,7 @@
 
 namespace App\Service\Attachment;
 
+use App\Component\Storage\ObjectStorage;
 use App\Dto\Attachment\AttachmentDto;
 use App\Entity\Attachment;
 use App\Enum\AttachmentStatus;
@@ -16,7 +17,7 @@ readonly class AttachmentManager
         private AttachmentRepository $attachmentRepository,
         private Flusher $flusher,
         private AttachmentPathGenerator $pathGenerator,
-        private AttachmentUrlGenerator $urlGenerator,
+        private ObjectStorage $storage,
     ) {
     }
 
@@ -39,13 +40,23 @@ readonly class AttachmentManager
         return $this->attachmentRepository->find($id) ?? throw new EntityNotFoundException(Attachment::class, $id);
     }
 
+    /**
+     * @param Uuid[] $ids
+     *
+     * @return Attachment[]
+     */
+    public function getByIds(array $ids): array
+    {
+        return $this->attachmentRepository->findByIds($ids);
+    }
+
     public function confirm(Attachment $attachment): void
     {
         if (AttachmentStatus::Uploaded === $attachment->status) {
             return;
         }
 
-        if (!$this->urlGenerator->objectExists($attachment)) {
+        if (!$this->storage->exists($attachment->path)) {
             throw new \RuntimeException('File not found in storage.');
         }
 

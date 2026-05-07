@@ -1,57 +1,47 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { parseError } from '../../../shared/utils';
-import { useLazyGetAttachmentDownloadUrlQuery } from '../../attachments';
+import { useGetBatchAttachmentDownloadUrlMutation } from '../../attachments';
 import { StashCard } from './StashCard';
 import { StashesListSkeleton } from './StashesListSkeleton';
-import { useGetStashesQuery, useUpdateStashMutation } from '../store/api';
+import { useGetStashesQuery, useUpdateStashMutation, useDeleteStashMutation } from '../store/api';
 import type { StashResponseDto } from '../types';
 import styles from './StashesList.module.css';
 
-function copyViaExecCommand(text: string) {
-  const el = document.createElement('textarea');
-  el.value = text;
-  el.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
-  document.body.appendChild(el);
-  el.focus();
-  el.select();
-  document.execCommand('copy');
-  document.body.removeChild(el);
+function downloadUrls(results: { downloadUrl: string }[]) {
+  for (const { downloadUrl } of results) {
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = downloadUrl;
+    document.body.appendChild(iframe);
+    setTimeout(() => document.body.removeChild(iframe), 2000);
+  }
 }
 
 export function StashesList() {
-  const {
-    data: activeData,
-    isLoading: activeLoading,
-    error: activeError,
-  } = useGetStashesQuery({
-    filterActive: true,
-    limit: 100,
-  });
-
-  const {
-    data: expiredData,
-    isLoading: expiredLoading,
-    error: expiredError,
-  } = useGetStashesQuery({
-    filterActive: false,
-    limit: 100,
+  const { data, isLoading, error } = useGetStashesQuery({
+    limit: 200,
   });
 
   const [updateStash] = useUpdateStashMutation();
-  const [fetchDownloadUrl] = useLazyGetAttachmentDownloadUrlQuery();
+  const [deleteStash] = useDeleteStashMutation();
+  const [fetchBatchDownloadUrl] = useGetBatchAttachmentDownloadUrlMutation();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const activeStashes = activeData?.data ?? [];
+  const all = data?.data ?? [];
+  const now = Date.now();
+  const activeStashes = all.filter((s) => !s.expiresAt || Date.parse(s.expiresAt) >= now);
+  const expiredStashes = all.filter((s) => s.expiresAt && Date.parse(s.expiresAt) < now);
 
   const handleDownload = useCallback(
-    async (attachmentId: string) => {
+    async (attachmentIds: string[]) => {
       try {
-        const { downloadUrl } = await fetchDownloadUrl(attachmentId).unwrap();
-        window.location.href = downloadUrl;
-      } catch (err) {
-        console.error('Failed to get download URL:', err);
+        const results = await fetchBatchDownloadUrl({ ids: attachmentIds }).unwrap();
+        downloadUrls(results);
+      } catch {
+        // Download URL fetch failed — silent, user retries implicitly
       }
     },
-    [fetchDownloadUrl],
+    [fetchBatchDownloadUrl],
   );
 
   const handleCopy = useCallback((stash: StashResponseDto) => {
@@ -59,40 +49,58 @@ export function StashesList() {
 
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(stash.content).catch(() => {
-        copyViaExecCommand(stash.content!);
+        // Fallback via deprecated execCommand — only used when Clipboard API fails
+        const el = document.createElement('textarea');
+        el.value = stash.content!;
+        el.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
       });
     } else {
-      copyViaExecCommand(stash.content);
+      const el = document.createElement('textarea');
+      el.value = stash.content;
+      el.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
     }
   }, []);
 
   const handlePin = useCallback(
     (stash: StashResponseDto) => {
-      void updateStash({
-        id: stash.id,
-        body: { pinned: !stash.pinned },
-      });
+      updateStash({ id: stash.id, body: { pinned: !stash.pinned } });
     },
     [updateStash],
   );
 
-  const activeError_ = activeError ? parseError(activeError).message : null;
-  const expiredError_ = expiredError ? parseError(expiredError).message : null;
+  const handleDelete = useCallback(
+    async (stash: StashResponseDto) => {
+      setDeletingId(stash.id);
+      try {
+        await deleteStash(stash.id).unwrap();
+      } catch {
+        // Delete failed — button returns to normal, user can retry
+      } finally {
+        setDeletingId(null);
+      }
+    },
+    [deleteStash],
+  );
 
-  if (activeLoading || expiredLoading) {
+  const errorMessage = error ? parseError(error).message : null;
+
+  if (isLoading) {
     return <StashesListSkeleton />;
   }
 
   return (
     <div className={styles.container}>
-      {activeError_ && (
+      {errorMessage && (
         <div className="error-message" role="alert">
-          {activeError_}
-        </div>
-      )}
-      {expiredError_ && (
-        <div className="error-message" role="alert">
-          {expiredError_}
+          {errorMessage}
         </div>
       )}
 
@@ -108,6 +116,9 @@ export function StashesList() {
                   onDownload={handleDownload}
                   onCopy={handleCopy}
                   onPin={handlePin}
+                  onDelete={handleDelete}
+                  isDeleting={deletingId === stash.id}
+                  isExpired={false}
                 />
               </div>
             ))}
@@ -120,17 +131,20 @@ export function StashesList() {
       </section>
 
       {/* Expired Section */}
-      {(expiredData?.data ?? []).length > 0 && (
+      {expiredStashes.length > 0 && (
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Expired</h2>
           <div className={styles.grid} role="list">
-            {(expiredData?.data ?? []).map((stash) => (
+            {expiredStashes.map((stash) => (
               <div key={stash.id} role="listitem">
                 <StashCard
                   stash={stash}
                   onDownload={handleDownload}
                   onCopy={handleCopy}
                   onPin={handlePin}
+                  onDelete={handleDelete}
+                  isDeleting={deletingId === stash.id}
+                  isExpired={true}
                 />
               </div>
             ))}

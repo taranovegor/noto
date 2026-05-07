@@ -225,4 +225,43 @@ final class StashController extends AbstractController
             AbstractNormalizer::GROUPS => ['stash:read', 'attachment:read'],
         ]);
     }
+
+    #[Route('/{id}', 'delete', methods: ['DELETE'])]
+    #[OA\Delete(
+        description: 'Deletes a stash and all its owned attachments (via Ownership links). Files in R2 are also deleted.',
+        summary: 'Delete a stash',
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                description: 'Stash UUID',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'string', format: 'uuid')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_NO_CONTENT,
+                description: 'Stash successfully deleted',
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: 'Stash not found',
+                content: new OA\JsonContent(ref: '#/components/schemas/Error')
+            ),
+        ]
+    )]
+    public function delete(Uuid $id): JsonResponse
+    {
+        $stash = $this->stashManager->get($id);
+        $now = new \DateTimeImmutable();
+
+        if (null !== $stash->expiresAt && $stash->expiresAt < $now) {
+            $this->stashManager->delete($stash);
+        } else {
+            $this->stashManager->expire($stash);
+        }
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
 }
