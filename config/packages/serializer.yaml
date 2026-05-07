@@ -2,4 +2,4 @@ framework:
     serializer:
         name_converter: 'serializer.name_converter.snake_case_to_camel_case'
         default_context:
-            datetime_format: 'Y-m-d H:i:s'
+            datetime_format: 'c'
