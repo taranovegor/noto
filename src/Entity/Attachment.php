@@ -20,7 +20,7 @@ class Attachment implements ReferenceableInterface
     #[ORM\Column(length: 255)]
     public string $mimeType;
 
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'bigint')]
     public int $size;
 
     #[ORM\Column(length: 255)]
