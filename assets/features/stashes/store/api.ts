@@ -63,6 +63,7 @@ const stashesApi = api.injectEndpoints({
   }),
 });
 
+export { stashesApi };
 export const {
   useGetStashesQuery,
   useCreateStashMutation,

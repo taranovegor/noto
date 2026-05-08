@@ -23,7 +23,7 @@ final readonly class BroadcastNormalizer
     {
         foreach ($this->normalizers as $normalizer) {
             if ($normalizer->supports($event, $entity)) {
-                return $normalizer->normalize($entity);
+                return $normalizer->normalize($event, $entity);
             }
         }
 

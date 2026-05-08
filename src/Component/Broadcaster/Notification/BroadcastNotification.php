@@ -2,6 +2,7 @@
 
 namespace App\Component\Broadcaster\Notification;
 
+use App\Component\Broadcaster\Enum\BroadcastEvent;
 use App\Component\WebSocket\Message\WebSocketOptions;
 use App\Component\WebSocket\Recipient\WebSocketRecipientInterface;
 use Symfony\Component\Notifier\Message\ChatMessage;
@@ -16,6 +17,7 @@ class BroadcastNotification extends Notification implements ChatNotificationInte
      */
     public function __construct(
         private readonly array $data,
+        private readonly BroadcastEvent $event,
     ) {
         parent::__construct(channels: ['chat']);
     }
@@ -26,6 +28,9 @@ class BroadcastNotification extends Notification implements ChatNotificationInte
             return null;
         }
 
-        return new ChatMessage($this->getSubject(), new WebSocketOptions($recipient->getChannel(), $this->data));
+        return new ChatMessage(
+            $this->getSubject(),
+            new WebSocketOptions($recipient->getChannel(), $this->data, $this->event->value),
+        );
     }
 }

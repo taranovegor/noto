@@ -136,4 +136,18 @@ class WebSocketOptionsTest extends TestCase
         $this->assertEquals('', $options->getChannel());
         $this->assertEquals('', $options->getRecipientId());
     }
+
+    public function testEventDefaultsToNull(): void
+    {
+        $options = new WebSocketOptions('channel');
+
+        $this->assertNull($options->getEvent());
+    }
+
+    public function testConstructorStoresEvent(): void
+    {
+        $options = new WebSocketOptions('channel', [], 'created');
+
+        $this->assertSame('created', $options->getEvent());
+    }
 }

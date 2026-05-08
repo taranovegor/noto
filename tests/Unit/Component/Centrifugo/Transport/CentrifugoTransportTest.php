@@ -177,6 +177,26 @@ class CentrifugoTransportTest extends TestCase
         $transport->send($message);
     }
 
+    public function testDoSendIncludesEventInMetaWhenSet(): void
+    {
+        $centrifugo = $this->createMock(CentrifugoInterface::class);
+        $transport = new CentrifugoTransport($centrifugo);
+
+        $options = new WebSocketOptions('channel', ['existing' => 'data'], 'deleted');
+        $message = new ChatMessage('Message Subject', $options);
+
+        $centrifugo->expects($this->once())
+            ->method('publish')
+            ->with(
+                'channel',
+                $this->callback(function ($data) {
+                    return isset($data['meta']['event']) && 'deleted' === $data['meta']['event'];
+                })
+            );
+
+        $transport->send($message);
+    }
+
     public function testDoSendMergesSubjectAndIdWithOptionsData(): void
     {
         $centrifugo = $this->createMock(CentrifugoInterface::class);

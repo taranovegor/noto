@@ -3,9 +3,16 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface CentrifugoConfig {
+  userId: string;
+  token: string;
+  url: string;
+}
+
 export interface LoginResponse {
   token: string;
   refresh_token: string;
+  centrifugo?: CentrifugoConfig;
 }
 
 export interface RefreshRequest {

@@ -1,11 +1,20 @@
 import { useCallback, useState } from 'react';
 import { parseError } from '../../../shared/utils';
+import { useAppDispatch } from '../../../shared/store/hooks';
 import { useGetBatchAttachmentDownloadUrlMutation } from '../../attachments';
+import { useRealtimeEvents } from '../../../shared/websocket';
 import { StashCard } from './StashCard';
 import { StashesListSkeleton } from './StashesListSkeleton';
-import { useGetStashesQuery, useUpdateStashMutation, useDeleteStashMutation } from '../store/api';
+import {
+  stashesApi,
+  useGetStashesQuery,
+  useUpdateStashMutation,
+  useDeleteStashMutation,
+} from '../store/api';
 import type { StashResponseDto } from '../types';
 import styles from './StashesList.module.css';
+
+const STASHES_QUERY_PARAMS = { limit: 200 };
 
 function downloadUrls(results: { downloadUrl: string }[]) {
   for (const { downloadUrl } of results) {
@@ -18,14 +27,36 @@ function downloadUrls(results: { downloadUrl: string }[]) {
 }
 
 export function StashesList() {
-  const { data, isLoading, error } = useGetStashesQuery({
-    limit: 200,
-  });
+  const { data, isLoading, error } = useGetStashesQuery(STASHES_QUERY_PARAMS);
 
+  const dispatch = useAppDispatch();
   const [updateStash] = useUpdateStashMutation();
   const [deleteStash] = useDeleteStashMutation();
   const [fetchBatchDownloadUrl] = useGetBatchAttachmentDownloadUrlMutation();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  useRealtimeEvents('stashes', {
+    onCreated: useCallback(() => {
+      dispatch(stashesApi.util.invalidateTags(['Stashes']));
+    }, [dispatch]),
+    onUpdated: useCallback(() => {
+      dispatch(stashesApi.util.invalidateTags(['Stashes']));
+    }, [dispatch]),
+    onDeleted: useCallback(
+      (data: Record<string, unknown>) => {
+        const id = data.id as string;
+        if (!id) return;
+
+        dispatch(
+          stashesApi.util.updateQueryData('getStashes', STASHES_QUERY_PARAMS, (draft) => {
+            draft.data = draft.data.filter((s) => s.id !== id);
+            draft.pagination.total = Math.max(0, draft.pagination.total - 1);
+          }),
+        );
+      },
+      [dispatch],
+    ),
+  });
 
   const all = data?.data ?? [];
   const now = Date.now();

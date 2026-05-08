@@ -2,9 +2,9 @@
 
 namespace App\Component\Broadcaster\Enum;
 
-enum BroadcastEvent
+enum BroadcastEvent: string
 {
-    case Created;
-    case Updated;
-    case Deleted;
+    case Created = 'created';
+    case Updated = 'updated';
+    case Deleted = 'deleted';
 }

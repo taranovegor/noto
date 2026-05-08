@@ -13,5 +13,5 @@ interface BroadcastNormalizerInterface
     /**
      * @return array<string, mixed>
      */
-    public function normalize(object $entity): array;
+    public function normalize(BroadcastEvent $event, object $entity): array;
 }

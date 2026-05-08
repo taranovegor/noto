@@ -12,6 +12,7 @@ class WebSocketOptions implements MessageOptionsInterface
     public function __construct(
         private readonly string $channel,
         private array $data = [],
+        private ?string $event = null,
     ) {
     }
 
@@ -31,6 +32,11 @@ class WebSocketOptions implements MessageOptionsInterface
     public function getChannel(): string
     {
         return $this->channel;
+    }
+
+    public function getEvent(): ?string
+    {
+        return $this->event;
     }
 
     /**

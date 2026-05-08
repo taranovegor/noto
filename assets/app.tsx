@@ -10,6 +10,7 @@ import { App } from './layout/App';
 import { LoginPage } from './features/auth/components/LoginPage';
 import { ProtectedRoute } from './shared/components/ProtectedRoute';
 import { RouteErrorBoundary } from './shared/components/RouteErrorBoundary';
+import { CentrifugoProvider } from './shared/websocket';
 import { TasksListShell } from './features/tasks/components/TasksListShell';
 import { NotesListShell } from './features/notes/components/NotesListShell';
 import { StashesListShell } from './features/stashes/components/StashesListShell';
@@ -70,7 +71,9 @@ const router = createBrowserRouter([
       <>
         <AuthInitializer />
         <ProtectedRoute>
-          <App />
+          <CentrifugoProvider>
+            <App />
+          </CentrifugoProvider>
         </ProtectedRoute>
       </>
     ),

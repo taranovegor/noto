@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../../shared/store/hooks';
-import { setUser, setTokens, setIsLoading } from '../../../shared/store/authSlice';
+import {
+  setUser,
+  setTokens,
+  setIsLoading,
+  setCentrifugoConfig,
+} from '../../../shared/store/authSlice';
 import { useLoginMutation, authApi } from '../store/api';
 import { TASKS_ROUTE } from '../constants';
 import { parseError } from '../../../shared/utils';
@@ -36,6 +41,10 @@ export function LoginPage() {
           rememberMe,
         }),
       );
+
+      if (response.centrifugo) {
+        dispatch(setCentrifugoConfig(response.centrifugo));
+      }
 
       try {
         const user = await dispatch(authApi.endpoints.getCurrentUser.initiate()).unwrap();

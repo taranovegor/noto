@@ -21,7 +21,7 @@ class BroadcastNormalizerTest extends TestCase
             ->willReturn(true);
         $mockNormalizer->expects($this->once())
             ->method('normalize')
-            ->with($entity)
+            ->with(BroadcastEvent::Created, $entity)
             ->willReturn($expectedData);
 
         $normalizer = new BroadcastNormalizer([$mockNormalizer]);

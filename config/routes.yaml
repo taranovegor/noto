@@ -4,6 +4,12 @@ api_controllers:
     prefix: /api
     name_prefix: api_
 
+centrifugo_controllers:
+    resource: '../src/Component/Centrifugo/Controller/'
+    type: attribute
+    prefix: /api/centrifugo
+    name_prefix: api_centrifugo_
+
 api_auth_login:
     path: /api/auth/login
     methods: [ POST ]

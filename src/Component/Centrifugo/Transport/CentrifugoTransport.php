@@ -37,15 +37,22 @@ final class CentrifugoTransport extends AbstractTransport
             throw new UnsupportedMessageTypeException(__CLASS__, ChatMessage::class, $message);
         }
 
+        $options = $message->getOptions();
+        $meta = [
+            'id' => $id = Uuid::v7()->toRfc4122(),
+            'subject' => $message->getSubject(),
+        ];
+
+        if ($options instanceof WebSocketOptions && null !== $options->getEvent()) {
+            $meta['event'] = $options->getEvent();
+        }
+
         try {
             $this->centrifugo->publish(
                 $message->getRecipientId(),
                 [
-                    'meta' => [
-                        'id' => $id = Uuid::v7()->toRfc4122(),
-                        'subject' => $message->getSubject(),
-                    ],
-                    'data' => $message->getOptions()?->toArray() ?? [],
+                    'meta' => $meta,
+                    'data' => $options?->toArray() ?? [],
                 ],
             );
         } catch (\Throwable $e) {

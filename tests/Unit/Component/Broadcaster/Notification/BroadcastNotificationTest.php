@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Component\Broadcaster\Notification;
 
+use App\Component\Broadcaster\Enum\BroadcastEvent;
 use App\Component\Broadcaster\Notification\BroadcastNotification;
 use App\Component\WebSocket\Recipient\WebSocketRecipient;
 use App\Component\WebSocket\Recipient\WebSocketRecipientInterface;
@@ -14,7 +15,7 @@ class BroadcastNotificationTest extends TestCase
     public function testAsChatMessageReturnsChatMessage(): void
     {
         $data = ['id' => '123', 'title' => 'Test'];
-        $notification = new BroadcastNotification($data);
+        $notification = new BroadcastNotification($data, BroadcastEvent::Created);
         $recipient = new WebSocketRecipient('noto-notes:events');
 
         $chatMessage = $notification->asChatMessage($recipient);
@@ -25,7 +26,7 @@ class BroadcastNotificationTest extends TestCase
     public function testChatMessageContainsChannelAndData(): void
     {
         $data = ['id' => '123', 'title' => 'Test'];
-        $notification = new BroadcastNotification($data);
+        $notification = new BroadcastNotification($data, BroadcastEvent::Updated);
         $recipient = new WebSocketRecipient('noto-notes:events');
 
         $chatMessage = $notification->asChatMessage($recipient);
@@ -37,7 +38,7 @@ class BroadcastNotificationTest extends TestCase
 
     public function testAsChatMessageReturnsNullForNonWebSocketRecipient(): void
     {
-        $notification = new BroadcastNotification(['test' => 'data']);
+        $notification = new BroadcastNotification(['test' => 'data'], BroadcastEvent::Created);
         $recipient = $this->createStub(RecipientInterface::class);
 
         $this->assertNull($notification->asChatMessage($recipient));
@@ -45,7 +46,7 @@ class BroadcastNotificationTest extends TestCase
 
     public function testAsChatMessageDoesNotReturnNullForWebSocketRecipientInterface(): void
     {
-        $notification = new BroadcastNotification([]);
+        $notification = new BroadcastNotification([], BroadcastEvent::Created);
         $recipient = $this->createStub(WebSocketRecipientInterface::class);
         $recipient->method('getChannel')->willReturn('chan');
 
@@ -56,7 +57,7 @@ class BroadcastNotificationTest extends TestCase
 
     public function testAsChatMessageDoesNotReturnNullForWebSocketRecipient(): void
     {
-        $notification = new BroadcastNotification([]);
+        $notification = new BroadcastNotification([], BroadcastEvent::Created);
         $recipient = new WebSocketRecipient('chan');
 
         $chatMessage = $notification->asChatMessage($recipient);

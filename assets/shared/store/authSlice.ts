@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { User } from '../../features/auth';
+import type { User, CentrifugoConfig } from '../../features/auth';
 import { tokenStorage } from '../utils/tokenStorage';
 
 export type { User };
@@ -12,6 +12,7 @@ export interface AuthState {
   isLoading: boolean;
   error: string | null;
   isInitialized: boolean;
+  centrifugoConfig: CentrifugoConfig | null;
 }
 
 const initialState: AuthState = {
@@ -22,6 +23,7 @@ const initialState: AuthState = {
   isLoading: false,
   error: null,
   isInitialized: false,
+  centrifugoConfig: tokenStorage.getCentrifugoConfig(),
 };
 
 const authSlice = createSlice({
@@ -59,7 +61,14 @@ const authSlice = createSlice({
       state.refreshToken = null;
       state.rememberMe = false;
       state.error = null;
+      state.centrifugoConfig = null;
       tokenStorage.clearAll();
+    },
+    setCentrifugoConfig: (state, action: PayloadAction<CentrifugoConfig | null>) => {
+      state.centrifugoConfig = action.payload;
+      if (action.payload) {
+        tokenStorage.saveCentrifugoConfig(action.payload);
+      }
     },
     setIsInitialized: (state, action: PayloadAction<boolean>) => {
       state.isInitialized = action.payload;
@@ -75,5 +84,6 @@ export const {
   setIsLoading,
   setError,
   logout,
+  setCentrifugoConfig,
   setIsInitialized,
 } = authSlice.actions;

@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class StashBroadcastNormalizerTest extends TestCase
 {
-    public function testSupportsReturnsTrueForStash(): void
+    public function testSupportsReturnsTrueForStashCreated(): void
     {
         $normalizer = new StashBroadcastNormalizer(
             $this->createStub(StashResponseDtoFactory::class),
@@ -23,7 +23,28 @@ class StashBroadcastNormalizerTest extends TestCase
         $stash = new Stash(StashType::Text);
 
         $this->assertTrue($normalizer->supports(BroadcastEvent::Created, $stash));
+    }
+
+    public function testSupportsReturnsTrueForStashUpdated(): void
+    {
+        $normalizer = new StashBroadcastNormalizer(
+            $this->createStub(StashResponseDtoFactory::class),
+            $this->createStub(NormalizerInterface::class),
+        );
+        $stash = new Stash(StashType::Text);
+
         $this->assertTrue($normalizer->supports(BroadcastEvent::Updated, $stash));
+    }
+
+    public function testSupportsReturnsFalseForStashDeleted(): void
+    {
+        $normalizer = new StashBroadcastNormalizer(
+            $this->createStub(StashResponseDtoFactory::class),
+            $this->createStub(NormalizerInterface::class),
+        );
+        $stash = new Stash(StashType::Text);
+
+        $this->assertFalse($normalizer->supports(BroadcastEvent::Deleted, $stash));
     }
 
     public function testSupportsReturnsFalseForOtherEntity(): void
@@ -57,11 +78,11 @@ class StashBroadcastNormalizerTest extends TestCase
         $serializer->expects($this->once())
             ->method('normalize')
             ->with($dto)
-            ->willReturn($expected = ['id' => 'uuid', 'type' => 'note', 'content' => null]);
+            ->willReturn($expected = ['id' => 'uuid', 'type' => 'text', 'content' => null]);
 
         $normalizer = new StashBroadcastNormalizer($factory, $serializer);
 
-        $this->assertSame($expected, $normalizer->normalize($stash));
+        $this->assertSame($expected, $normalizer->normalize(BroadcastEvent::Created, $stash));
     }
 
     public function testImplementsInterface(): void

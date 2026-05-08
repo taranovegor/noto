@@ -4,6 +4,7 @@ namespace App\Tests\Unit\Component\Broadcaster;
 
 use App\Component\Broadcaster\Broadcaster;
 use App\Component\Broadcaster\BroadcasterInterface;
+use App\Component\Broadcaster\Enum\BroadcastEvent;
 use App\Component\Broadcaster\Notification\BroadcastNotification;
 use App\Component\Centrifugo\Builder\CentrifugoChannelBuilder;
 use App\Component\WebSocket\Recipient\WebSocketRecipient;
@@ -26,7 +27,7 @@ class BroadcasterTest extends TestCase
                 }),
             );
 
-        $broadcaster->broadcast('notes', 'events', ['id' => '123']);
+        $broadcaster->broadcast('notes', 'events', ['id' => '123'], BroadcastEvent::Created);
     }
 
     public function testBroadcastSendsNotificationWithData(): void
@@ -47,7 +48,7 @@ class BroadcasterTest extends TestCase
                 $this->isInstanceOf(WebSocketRecipient::class),
             );
 
-        $broadcaster->broadcast('notes', 'events', $data);
+        $broadcaster->broadcast('notes', 'events', $data, BroadcastEvent::Created);
     }
 
     public function testBroadcastBuildsChannelWithNamespacePrefix(): void
@@ -64,7 +65,7 @@ class BroadcasterTest extends TestCase
                 }),
             );
 
-        $broadcaster->broadcast('tasks', 'events', []);
+        $broadcaster->broadcast('tasks', 'events', [], BroadcastEvent::Created);
     }
 
     public function testImplementsInterface(): void

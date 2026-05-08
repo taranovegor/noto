@@ -18,10 +18,10 @@ final readonly class StashBroadcastNormalizer implements BroadcastNormalizerInte
 
     public function supports(BroadcastEvent $event, object $entity): bool
     {
-        return $entity instanceof Stash;
+        return BroadcastEvent::Deleted !== $event && $entity instanceof Stash;
     }
 
-    public function normalize(object $entity): array
+    public function normalize(BroadcastEvent $event, object $entity): array
     {
         return (array) $this->normalizer->normalize($this->factory->create($entity));
     }
