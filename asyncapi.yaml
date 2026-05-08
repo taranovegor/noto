@@ -1,9 +1,9 @@
-asyncapi: 3.0.0
+asyncapi: 3.1.0
 info:
     title: Noto — Centrifugo WebSocket
     version: 'latest'
     description: |
-        Realtime entity create/update notifications.
+        Realtime entity create/update/delete notifications.
         Transport — Centrifugo (WebSocket), server-side publish only.
 
 defaultContentType: application/json
@@ -15,49 +15,29 @@ servers:
         description: Dev Centrifugo
 
 channels:
-    'noto-notes:events':
-        address: 'noto-notes:events'
-        description: Note events — only Note entities
+    'noto-stashes:events':
+        address: 'noto-stashes:events'
+        description: Stash lifecycle events
         messages:
-            noteEvent:
-                $ref: '#/components/messages/noteEvent'
-
-    'noto-tasks:events':
-        address: 'noto-tasks:events'
-        description: Task events — only Task entities
-        messages:
-            taskEvent:
-                $ref: '#/components/messages/taskEvent'
-
+            stashEvent:
+                $ref: '#/components/messages/stashEvent'
 
 operations:
-    onNoteEvent:
+    onStashEvent:
         action: receive
         channel:
-            $ref: '#/channels/noto-notes:events'
-        summary: Receive Note event
-
-    onTaskEvent:
-        action: receive
-        channel:
-            $ref: '#/channels/noto-tasks:events'
-        summary: Receive Task event
-
+            $ref: '#/channels/noto-stashes:events'
+        summary: Receive Stash event (created, updated, or deleted)
 
 components:
     messages:
-        noteEvent:
-            summary: Note event
+        stashEvent:
+            summary: Stash lifecycle event
             payload:
-                $ref: '#/components/schemas/noteEnvelope'
-
-        taskEvent:
-            summary: Task event
-            payload:
-                $ref: '#/components/schemas/taskEnvelope'
+                $ref: '#/components/schemas/stashEnvelope'
 
     schemas:
-        noteEnvelope:
+        stashEnvelope:
             required:
                 - meta
                 - data
@@ -65,17 +45,16 @@ components:
                 meta:
                     $ref: '#/components/schemas/meta'
                 data:
-                    $ref: '#/components/schemas/note'
-
-        taskEnvelope:
-            required:
-                - meta
-                - data
-            properties:
-                meta:
-                    $ref: '#/components/schemas/meta'
-                data:
-                    $ref: '#/components/schemas/task'
+                    oneOf:
+                        - $ref: '#/components/schemas/stash'
+                        - $ref: '#/components/schemas/deletionPayload'
+                    description: |
+                        Full Stash DTO for created and updated events.
+                        Only `{id}` for deleted events.
+                        Discriminate by `meta.event`:
+                        - created → Stash DTO
+                        - updated → Stash DTO
+                        - deleted → deletionPayload
 
         meta:
             required:
@@ -86,53 +65,75 @@ components:
                     type: string
                     format: uuid
                     description: Message UUID v7
+                subject:
+                    type: string
+                    description: Human-readable summary text (reserved for push notifications)
                 event:
                     type: string
                     enum: ['created', 'updated', 'deleted']
                     description: Event type
 
-        note:
+        deletionPayload:
+            required:
+                - id
             properties:
                 id:
                     type: string
                     format: uuid
-                title:
+                    description: ID of the deleted entity
+
+        stash:
+            required:
+                - id
+                - type
+                - createdAt
+                - pinned
+            properties:
+                id:
                     type: string
+                    format: uuid
+                type:
+                    type: string
+                    enum: ['text', 'file']
                 content:
                     type: string
+                    nullable: true
                 createdAt:
                     type: string
                     format: date-time
-                updatedAt:
+                expiresAt:
                     type: string
                     format: date-time
+                    nullable: true
+                pinned:
+                    type: boolean
+                attachments:
+                    type: array
+                    nullable: true
+                    items:
+                        $ref: '#/components/schemas/attachment'
 
-        task:
+        attachment:
+            required:
+                - id
+                - originFilename
+                - mimeType
+                - size
+                - status
+                - createdAt
             properties:
                 id:
                     type: string
                     format: uuid
-                projectId:
+                originFilename:
                     type: string
-                    format: uuid
-                code:
+                mimeType:
                     type: string
-                name:
-                    type: string
+                size:
+                    type: integer
                 status:
                     type: string
-                    enum: ['backlog', 'todo', 'in_progress', 'done']
-                priority:
-                    type: string
-                    enum: ['low', 'medium', 'high']
-                deadline:
-                    type: string
-                    format: date-time
-                note:
-                    type: string
+                    enum: ['uploaded', 'pending']
                 createdAt:
-                    type: string
-                    format: date-time
-                updatedAt:
                     type: string
                     format: date-time
