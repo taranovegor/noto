@@ -95,6 +95,6 @@ const authenticatedQuery: BaseQueryFn<FetchArgs | string, unknown, FetchBaseQuer
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: authenticatedQuery,
-  tagTypes: ['Tasks', 'Notes', 'Projects', 'Stashes', 'Attachments'],
+  tagTypes: ['Tasks', 'Notes', 'Projects', 'Stashes', 'Attachments', 'Pushes'],
   endpoints: () => ({}),
 });

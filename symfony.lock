@@ -11,6 +11,9 @@
             "config/packages/baldinof_road_runner.yaml"
         ]
     },
+    "bentools/webpush-bundle": {
+        "version": "0.14.1"
+    },
     "doctrine/deprecations": {
         "version": "1.1",
         "recipe": {

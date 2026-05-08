@@ -19,6 +19,7 @@
   display: flex;
   flex-direction: row;
   width: 100%;
+  background-color: var(--color-bg);
 }
 
 .navItem {
@@ -116,6 +117,35 @@
 .logoutButton:active {
   transform: scale(0.95);
   transition: transform 100ms ease-out;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    overflow: visible;
+  }
+
+  .userSection {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-xl);
+    background: var(--color-bg);
+    border-top: 1px solid var(--color-border);
+
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    transform: translateY(100%);
+    transition: transform 200ms var(--ease-out);
+    z-index: -1;
+  }
+
+  .userSectionOpen {
+    transform: translateY(0);
+  }
 }
 
 @media (min-width: 769px) {

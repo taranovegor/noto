@@ -100,6 +100,45 @@ when@dev:
                                     url:
                                         type: string
                                         example: "ws://localhost:8000"
+                    PushKeys:
+                        type: object
+                        required:
+                            - p256dh
+                            - auth
+                        properties:
+                            p256dh:
+                                type: string
+                                description: Base64-encoded public key
+                                example: "BOrC6N0T3z..."
+                            auth:
+                                type: string
+                                description: Base64-encoded auth secret
+                                example: "aGVsbG8..."
+                    PushSubscriptionRequest:
+                        type: object
+                        required:
+                            - subscription
+                        properties:
+                            subscription:
+                                type: object
+                                required:
+                                    - endpoint
+                                properties:
+                                    endpoint:
+                                        type: string
+                                        format: uri
+                                        description: Push service endpoint URL
+                                        example: "https://fcm.googleapis.com/..."
+                                    keys:
+                                        $ref: '#/components/schemas/PushKeys'
+                                    content-encoding:
+                                        type: string
+                                        default: aesgcm
+                                        example: "aesgcm"
+                            options:
+                                type: object
+                                description: Optional subscription options
+                                example: {}
             paths:
                 /api/auth/login:
                     post:
@@ -195,6 +234,77 @@ when@dev:
                                             $ref: '#/components/schemas/Error'
                             '400':
                                 description: Invalid refresh token
+                                content:
+                                    application/json:
+                                        schema:
+                                            $ref: '#/components/schemas/Error'
+                /api/pushes:
+                    post:
+                        tags:
+                            - Pushes
+                        operationId: post_bentools_webpush.subscription
+                        summary: Register a push subscription
+                        description: Subscribe the authenticated user to push notifications
+                        security:
+                            - Bearer: []
+                        requestBody:
+                            required: true
+                            content:
+                                application/json:
+                                    schema:
+                                        $ref: '#/components/schemas/PushSubscriptionRequest'
+                        responses:
+                            '204':
+                                description: Subscription registered successfully
+                            '400':
+                                description: Invalid subscription object or malformed JSON
+                                content:
+                                    application/json:
+                                        schema:
+                                            $ref: '#/components/schemas/Error'
+                            '401':
+                                description: Missing or invalid JWT token
+                                content:
+                                    application/json:
+                                        schema:
+                                            $ref: '#/components/schemas/Error'
+                            '405':
+                                description: Method not allowed
+                                content:
+                                    application/json:
+                                        schema:
+                                            $ref: '#/components/schemas/Error'
+                    delete:
+                        tags:
+                            - Pushes
+                        operationId: delete_bentools_webpush.subscription
+                        summary: Unregister a push subscription
+                        description: Unsubscribe the authenticated user from push notifications
+                        security:
+                            - Bearer: []
+                        requestBody:
+                            required: true
+                            content:
+                                application/json:
+                                    schema:
+                                        $ref: '#/components/schemas/PushSubscriptionRequest'
+                        responses:
+                            '204':
+                                description: Subscription removed successfully
+                            '400':
+                                description: Subscription hash not found or malformed JSON
+                                content:
+                                    application/json:
+                                        schema:
+                                            $ref: '#/components/schemas/Error'
+                            '401':
+                                description: Missing or invalid JWT token
+                                content:
+                                    application/json:
+                                        schema:
+                                            $ref: '#/components/schemas/Error'
+                            '405':
+                                description: Method not allowed
                                 content:
                                     application/json:
                                         schema:

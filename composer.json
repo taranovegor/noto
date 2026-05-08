@@ -10,6 +10,7 @@
         "ext-iconv": "*",
         "ext-pdo": "*",
         "baldinof/roadrunner-bundle": "^3.3.2",
+        "bentools/webpush-bundle": "^0.14.1",
         "centrifugal/phpcent": "^6.0.3",
         "doctrine/doctrine-bundle": "^3.2.2",
         "doctrine/doctrine-migrations-bundle": "^4.0",
