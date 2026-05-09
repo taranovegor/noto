@@ -1,10 +1,10 @@
 import React from 'react';
+import { BellRing, BellOff } from 'lucide-react';
 import { usePushSubscription } from '../hooks/usePushSubscription';
 import styles from './PushToggle.module.css';
 
 export function PushToggle() {
-  const { isSupported, isSubscribed, isLoading, error, subscribe, unsubscribe } =
-    usePushSubscription();
+  const { isSupported, isSubscribed, isLoading, subscribe, unsubscribe } = usePushSubscription();
 
   if (!isSupported) return null;
 
@@ -16,20 +16,16 @@ export function PushToggle() {
     }
   };
 
-  const label = isSubscribed ? 'Push on' : 'Push off';
-
   return (
-    <div className={styles.wrapper}>
-      <span className={styles.label}>Push</span>
-      <button
-        type="button"
-        className={`${styles.toggle} ${isSubscribed ? styles.toggleOn : ''}`}
-        onClick={handleToggle}
-        disabled={isLoading}
-        aria-label={label}
-        aria-pressed={isSubscribed}
-      />
-      {error && <span className={styles.error}>{error}</span>}
-    </div>
+    <button
+      type="button"
+      className={`${styles.toggle} ${isSubscribed ? styles.toggleOn : ''}`}
+      onClick={handleToggle}
+      disabled={isLoading}
+      aria-label={isSubscribed ? 'Disable push notifications' : 'Enable push notifications'}
+      aria-pressed={isSubscribed}
+    >
+      {isSubscribed ? <BellRing size={16} /> : <BellOff size={16} />}
+    </button>
   );
 }

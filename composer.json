@@ -9,6 +9,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-pdo": "*",
+        "ext-mbstring": "*",
         "baldinof/roadrunner-bundle": "^3.3.2",
         "bentools/webpush-bundle": "^0.14.1",
         "centrifugal/phpcent": "^6.0.3",

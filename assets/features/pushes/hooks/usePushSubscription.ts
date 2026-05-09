@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { SW_PATH, VAPID_PUBLIC_KEY_META } from '../constants';
 import { useSubscribePushMutation, useUnsubscribePushMutation } from '../store/api';
+import { setSourceChecksum } from '../store/slice';
+import { endpointChecksum } from '../utils';
+import { useAppDispatch } from '../../../shared/store/hooks';
 import type { PushPermissionState, PushSubscriptionData } from '../types';
 
 function resolvePermission(state: NotificationPermission): PushPermissionState {
@@ -40,6 +43,7 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
   const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
   const applicationServerKeyRef = useRef<Uint8Array | null>(null);
 
+  const dispatch = useAppDispatch();
   const [subscribeMutation] = useSubscribePushMutation();
   const [unsubscribeMutation] = useUnsubscribePushMutation();
 
@@ -111,9 +115,10 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
       })
       .then((sub) => {
         setIsSubscribed(!!sub);
+        dispatch(setSourceChecksum(sub ? endpointChecksum(sub.endpoint) : null));
       })
       .catch(() => {});
-  }, []);
+  }, [dispatch]);
 
   const ensureServiceWorker = useCallback(async (): Promise<ServiceWorkerRegistration> => {
     if (registrationRef.current) return registrationRef.current;
@@ -147,6 +152,7 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
         throw new Error('Failed to register subscription on server');
       }
 
+      dispatch(setSourceChecksum(endpointChecksum(subscriptionJSON.endpoint)));
       setIsSubscribed(true);
       setPermission('granted');
     } catch (err) {
@@ -161,7 +167,7 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [ensureServiceWorker, subscribeMutation]);
+  }, [dispatch, ensureServiceWorker, subscribeMutation]);
 
   const unsubscribe = useCallback(async () => {
     setIsLoading(true);
@@ -177,13 +183,14 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
         await unsubscribeMutation({ subscription: subscriptionJSON }).unwrap();
       }
 
+      dispatch(setSourceChecksum(null));
       setIsSubscribed(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to unsubscribe');
     } finally {
       setIsLoading(false);
     }
-  }, [ensureServiceWorker, unsubscribeMutation]);
+  }, [dispatch, ensureServiceWorker, unsubscribeMutation]);
 
   return {
     isSupported,

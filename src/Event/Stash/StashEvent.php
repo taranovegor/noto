@@ -9,6 +9,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 final class StashEvent extends Event implements ReferenceableEventInterface
 {
+    public const string Created = 'entity.stash.created';
+
     public function __construct(
         public readonly Stash $stash,
     ) {

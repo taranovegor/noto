@@ -2,12 +2,14 @@ import { configureStore } from '@reduxjs/toolkit';
 import { api } from './api';
 import { authReducer } from './authSlice';
 import uiReducer from './uiSlice';
+import pushReducer from '../../features/pushes/store/slice';
 
 export const store = configureStore({
   reducer: {
     [api.reducerPath]: api.reducer,
     auth: authReducer,
     ui: uiReducer,
+    push: pushReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
 });
