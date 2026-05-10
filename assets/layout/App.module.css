@@ -1,7 +1,7 @@
 .layout {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: 100vh;
   overflow: hidden;
   background-color: var(--color-bg);
 }
@@ -12,12 +12,12 @@
   overflow-y: auto;
   outline: none;
   padding: calc(var(--space-lg) + env(safe-area-inset-top, 0px)) 0
-    calc(env(safe-area-inset-bottom, 0px) + 44px);
+    calc(env(safe-area-inset-bottom, 0px) + var(--action-bar-clearance));
 }
 
 .mainFixed {
   overflow: hidden;
-  padding: 0 0 calc(env(safe-area-inset-bottom, 0px) + 44px);
+  padding: env(safe-area-inset-top, 0px) 0 0;
   display: flex;
   flex-direction: column;
 }

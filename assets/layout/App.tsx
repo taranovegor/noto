@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { LayoutContext, type LayoutMode } from './LayoutContext';
+import { ActionBarProvider } from './ActionBarContext';
 import { useAppDispatch } from '../shared/store/hooks';
 import {
   setTasksActiveSearch,
@@ -43,20 +44,22 @@ export function App() {
   }, [location.pathname]);
 
   return (
-    <LayoutContext.Provider value={{ setLayoutMode }}>
-      <div className={styles.layout}>
-        <ScrollRestoration storageKey="layout-scroll-restoration" />
-        <Sidebar />
-        <main
-          ref={mainRef}
-          tabIndex={-1}
-          className={`${styles.main} ${layoutMode === 'fixed' ? styles.mainFixed : ''}`}
-        >
-          <div className="container">
-            <Outlet />
-          </div>
-        </main>
-      </div>
-    </LayoutContext.Provider>
+    <ActionBarProvider>
+      <LayoutContext.Provider value={{ setLayoutMode }}>
+        <div className={styles.layout}>
+          <ScrollRestoration storageKey="layout-scroll-restoration" />
+          <Sidebar />
+          <main
+            ref={mainRef}
+            tabIndex={-1}
+            className={`${styles.main} ${layoutMode === 'fixed' ? styles.mainFixed : ''}`}
+          >
+            <div className="container">
+              <Outlet />
+            </div>
+          </main>
+        </div>
+      </LayoutContext.Provider>
+    </ActionBarProvider>
   );
 }

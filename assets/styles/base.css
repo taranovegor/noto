@@ -93,9 +93,9 @@ code {
 .container {
   display: grid;
   grid-template-columns:
-    [full-start] minmax(24px, 1fr)
+    [full-start] minmax(var(--container-gutter), 1fr)
     [content-start] minmax(0, 64rem)
-    [content-end] minmax(24px, 1fr)
+    [content-end] minmax(var(--container-gutter), 1fr)
     [full-end];
   max-width: none;
   margin: 0;
@@ -110,6 +110,12 @@ code {
 /* Explicit full-bleed for direct children of .container */
 .full-bleed {
   grid-column: full;
+}
+
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
 }
 
 .hide-scrollbar {

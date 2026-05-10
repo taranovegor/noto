@@ -1,88 +1,22 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../shared/store/hooks';
-import { logout } from '../shared/store/authSlice';
+import { Menu, X, Settings } from 'lucide-react';
 import { useAuth } from '../features/auth/hooks/useAuth';
-import { useLogoutMutation } from '../features/auth/store/api';
-import { PushToggle } from '../features/pushes';
-import { LOGIN_ROUTE } from '../features/auth/constants';
+import { useActionBarConfig } from './ActionBarContext';
 import styles from './Sidebar.module.css';
 
-export function Sidebar() {
+// ─── Desktop sidebar ──────────────────────────────────────────────────────────
+
+function DesktopSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useAppDispatch();
   const { user } = useAuth();
-  const refreshToken = useAppSelector((state) => state.auth.refreshToken);
-  const [logoutApi] = useLogoutMutation();
   const currentPath = location.pathname;
-
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const sidebarRef = useRef<HTMLElement>(null);
-  const touchStartY = useRef(0);
-  const touchDeltaY = useRef(0);
 
   const isActive = (path: string) => currentPath === path || currentPath.startsWith(path + '/');
 
-  // Close drawer on route change
-  useEffect(() => {
-    setDrawerOpen(false);
-  }, [location.pathname]);
-
-  // Close drawer on click outside
-  useEffect(() => {
-    if (!drawerOpen) return;
-
-    const handleClick = (e: MouseEvent) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
-        setDrawerOpen(false);
-      }
-    };
-
-    document.addEventListener('click', handleClick, { capture: true });
-    return () => document.removeEventListener('click', handleClick, { capture: true });
-  }, [drawerOpen]);
-
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartY.current = e.touches[0].clientY;
-    touchDeltaY.current = 0;
-  }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    touchDeltaY.current = touchStartY.current - e.touches[0].clientY;
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    const delta = touchDeltaY.current;
-    if (delta > 40 && !drawerOpen) {
-      setDrawerOpen(true);
-    } else if (delta < -30 && drawerOpen) {
-      setDrawerOpen(false);
-    }
-    touchDeltaY.current = 0;
-  }, [drawerOpen]);
-
-  const handleLogout = async () => {
-    try {
-      if (refreshToken) {
-        await logoutApi({ refresh_token: refreshToken }).unwrap();
-      }
-    } catch (error) {
-      console.error('Logout failed:', error);
-    } finally {
-      dispatch(logout());
-      navigate(LOGIN_ROUTE, { replace: true });
-    }
-  };
-
   return (
-    <aside
-      ref={sidebarRef}
-      className={styles.sidebar}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-    >
+    <aside className={styles.sidebar}>
       <div className={styles.header}>
         <button onClick={() => navigate('/tasks')} className={styles.title} aria-label="Noto home">
           noto
@@ -92,7 +26,6 @@ export function Sidebar() {
         <button
           className={`${styles.navItem} ${isActive('/tasks') ? styles.navItemActive : ''}`}
           onClick={() => navigate('/tasks')}
-          aria-label="Tasks"
           aria-current={isActive('/tasks') ? 'page' : undefined}
         >
           Tasks
@@ -100,7 +33,6 @@ export function Sidebar() {
         <button
           className={`${styles.navItem} ${isActive('/notes') ? styles.navItemActive : ''}`}
           onClick={() => navigate('/notes')}
-          aria-label="Notes"
           aria-current={isActive('/notes') ? 'page' : undefined}
         >
           Notes
@@ -108,30 +40,193 @@ export function Sidebar() {
         <button
           className={`${styles.navItem} ${isActive('/stashes') ? styles.navItemActive : ''}`}
           onClick={() => navigate('/stashes')}
-          aria-label="Stashes"
           aria-current={isActive('/stashes') ? 'page' : undefined}
         >
           Stashes
         </button>
       </nav>
       {user && (
-        <div className={`${styles.userSection} ${drawerOpen ? styles.userSectionOpen : ''}`}>
-          <div className={styles.userInfo}>
-            <span className={styles.username} title={user.email}>
-              {user.email}
-            </span>
-          </div>
-          <PushToggle />
+        <div className={styles.userSection}>
+          <span className={styles.username} title={user.email}>
+            {user.email}
+          </span>
           <button
-            onClick={handleLogout}
-            className={styles.logoutButton}
-            aria-label="Logout"
-            title="Logout"
+            onClick={() => navigate('/settings')}
+            className={styles.settingsButton}
+            aria-label="Settings"
+            title="Settings"
           >
-            ⎋
+            <Settings size={14} strokeWidth={1.75} />
           </button>
         </div>
       )}
     </aside>
+  );
+}
+
+// ─── Mobile ActionBar ─────────────────────────────────────────────────────────
+
+const NAV_ITEMS = [
+  { path: '/tasks', label: 'Tasks' },
+  { path: '/notes', label: 'Notes' },
+  { path: '/stashes', label: 'Stashes' },
+  { path: '/settings', label: 'Settings' },
+];
+
+function MobileActionBar() {
+  const config = useActionBarConfig();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const actionBarRef = useRef<HTMLDivElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  const isHidden = config === null;
+
+  const isInputOpen = !!config?.input;
+  const isExpanded = isMenuOpen || isInputOpen;
+
+  // Keep ActionBar above iOS keyboard
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => {
+      const el = wrapRef.current;
+      if (!el) return;
+      const offset = Math.max(0, window.innerHeight - vv.offsetTop - vv.height);
+      el.style.transform = offset > 0 ? `translateY(${-offset}px)` : '';
+    };
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+    return () => {
+      vv.removeEventListener('resize', update);
+      vv.removeEventListener('scroll', update);
+    };
+  }, []);
+
+  // Close menu on route change
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
+  // Close menu on outside click
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (actionBarRef.current && !actionBarRef.current.contains(e.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isMenuOpen]);
+
+  const activeSection = location.pathname.split('/')[1];
+  const isActive = (path: string) => path.split('/')[1] === activeSection;
+
+  return (
+    <div
+      ref={wrapRef}
+      className={`${styles.actionBarWrap} ${isHidden ? styles.actionBarHidden : ''}`}
+    >
+      <div
+        ref={actionBarRef}
+        className={`${styles.actionBar} ${isExpanded ? styles.actionBarExpanded : ''}`}
+      >
+        {/* Menu button — hidden when expanded */}
+        {!isExpanded && (
+          <button
+            className={styles.actionBarBtn}
+            onClick={() => setIsMenuOpen(true)}
+            aria-label="Navigation menu"
+          >
+            <Menu size={20} strokeWidth={1.75} />
+          </button>
+        )}
+
+        {/* Nav list — shown when menu is open */}
+        {isMenuOpen && (
+          <>
+            <nav className={styles.actionBarList}>
+              {NAV_ITEMS.map(({ path, label }) => (
+                <button
+                  key={path}
+                  className={`${styles.actionBarItem} ${isActive(path) ? styles.actionBarItemActive : ''}`}
+                  onClick={() => {
+                    navigate(path);
+                    setIsMenuOpen(false);
+                  }}
+                  aria-current={isActive(path) ? 'page' : undefined}
+                >
+                  {label}
+                </button>
+              ))}
+            </nav>
+            <button
+              className={styles.actionBarCloseBtn}
+              onClick={() => setIsMenuOpen(false)}
+              aria-label="Close"
+            >
+              <X size={16} strokeWidth={1.75} />
+            </button>
+          </>
+        )}
+
+        {/* Feature buttons — shown when not expanded */}
+        {!isMenuOpen &&
+          !isInputOpen &&
+          config?.buttons.map((btn) => (
+            <button
+              key={btn.label}
+              className={`${styles.actionBarBtn} ${btn.primary ? styles.actionBarBtnPrimary : ''}`}
+              onClick={btn.onPress}
+              disabled={btn.disabled}
+              aria-label={btn.label}
+            >
+              <btn.icon size={20} strokeWidth={1.75} />
+            </button>
+          ))}
+
+        {/* Input form — always in DOM so focus() works on iOS after flushSync */}
+        <form
+          className={styles.actionBarSearch}
+          style={{ display: isInputOpen && !isMenuOpen ? 'flex' : 'none' }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            config?.input?.onSubmit();
+          }}
+        >
+          <input
+            ref={config?.input?.ref}
+            className={styles.actionBarSearchInput}
+            value={config?.input?.value ?? ''}
+            placeholder={config?.input?.placeholder}
+            disabled={config?.input?.disabled}
+            onChange={(e) => config?.input?.onChange(e.target.value)}
+            aria-label={config?.input?.placeholder ?? 'Input'}
+          />
+          <button
+            type="button"
+            className={styles.actionBarBtn}
+            onClick={config?.input?.onClose}
+            aria-label="Close"
+          >
+            <X size={18} strokeWidth={1.75} />
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ─── Export ───────────────────────────────────────────────────────────────────
+
+export function Sidebar() {
+  return (
+    <>
+      <DesktopSidebar />
+      <MobileActionBar />
+    </>
   );
 }

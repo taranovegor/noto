@@ -1,201 +1,282 @@
+/* ─── Desktop sidebar ─────────────────────────────────────────────────────── */
+
 .sidebar {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  padding: 0;
-  border-right: none;
-  border-top: 1px solid var(--color-border);
-  position: fixed;
-  bottom: 0;
-  z-index: 100;
-  background-color: var(--color-bg);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-.header {
   display: none;
-}
-
-.nav {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  background-color: var(--color-bg);
-}
-
-.navItem {
-  flex: 1;
-  text-align: center;
-  padding: 0 8px;
-  min-height: 44px;
-  font-size: var(--text-sm);
-  background: none;
-  border: none;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: all 150ms var(--ease-out);
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.navItem:hover {
-  color: var(--color-text);
-  background-color: var(--color-hover);
-}
-
-.navItem:active {
-  transform: scale(0.99);
-  transition: transform 100ms ease-out;
-}
-
-.navItemActive {
-  color: var(--color-text);
-  font-weight: var(--weight-semibold);
-  background-color: var(--color-surface);
-}
-
-.title {
-  background: none;
-  border: none;
-  padding: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  font-weight: var(--weight-semibold);
-  line-height: var(--leading-tight);
-  letter-spacing: -0.02em;
-  color: var(--color-text);
-  cursor: pointer;
-  transition: color 200ms var(--ease-out);
-}
-
-.title:hover {
-  color: var(--color-text-secondary);
-}
-
-.userSection {
-  display: none;
-}
-
-.userInfo {
-  flex: 1;
-  min-width: 0;
-}
-
-.username {
-  display: block;
-  font-size: var(--text-xs);
-  color: var(--color-text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.logoutButton {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  background: none;
-  border: none;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  font-size: 18px;
-  line-height: 1;
-  transition: color 150ms ease;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.logoutButton:hover {
-  color: var(--color-text);
-  background-color: var(--color-hover);
-}
-
-.logoutButton:active {
-  transform: scale(0.95);
-  transition: transform 100ms ease-out;
-}
-
-@media (max-width: 768px) {
-  .sidebar {
-    overflow: visible;
-  }
-
-  .userSection {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-sm);
-    padding: var(--space-sm) var(--space-xl);
-    background: var(--color-bg);
-    border-top: 1px solid var(--color-border);
-
-    position: absolute;
-    bottom: 100%;
-    left: 0;
-    right: 0;
-    transform: translateY(100%);
-    transition: transform 200ms var(--ease-out);
-    z-index: -1;
-  }
-
-  .userSectionOpen {
-    transform: translateY(0);
-  }
 }
 
 @media (min-width: 769px) {
   .sidebar {
-    width: 200px;
+    display: flex;
     flex-direction: column;
-    padding: var(--space-xl) 0;
+    width: 200px;
+    flex-shrink: 0;
+    padding: var(--space-xl) 0 0;
     border-right: 1px solid var(--color-border);
-    border-top: none;
-    position: static;
-    z-index: auto;
-    padding-bottom: 0;
+    background-color: var(--color-bg);
     overflow-y: auto;
   }
 
   .header {
-    display: block;
     padding: 0 var(--space-xl) var(--space-xl);
     border-bottom: 1px solid var(--color-border);
     flex-shrink: 0;
   }
 
   .nav {
+    display: flex;
     flex-direction: column;
-    width: auto;
     flex: 1;
   }
 
   .navItem {
-    flex: none;
     text-align: left;
     padding: var(--space-md) var(--space-xl);
-    min-height: auto;
     font-size: var(--text-sm);
-    justify-content: flex-start;
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition:
+      color 150ms var(--ease-out),
+      background-color 150ms var(--ease-out);
+  }
+
+  .navItem:hover {
+    color: var(--color-text);
+    background-color: var(--color-hover);
   }
 
   .navItemActive {
+    color: var(--color-text);
     font-weight: var(--weight-medium);
+  }
+
+  .title {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-tight);
+    letter-spacing: -0.02em;
+    color: var(--color-text);
+    cursor: pointer;
+    transition: color 200ms var(--ease-out);
+  }
+
+  .title:hover {
+    color: var(--color-text-secondary);
   }
 
   .userSection {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: var(--space-sm);
     padding: var(--space-md) var(--space-xl);
     border-top: 1px solid var(--color-border);
-    border-bottom: 1px solid var(--color-border);
     flex-shrink: 0;
+  }
+
+  .username {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .settingsButton {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition:
+      color 150ms var(--ease-out),
+      background-color 150ms var(--ease-out);
+  }
+
+  .settingsButton:hover {
+    color: var(--color-text);
+    background-color: var(--color-hover);
+  }
+}
+
+/* ─── Mobile actionBar ──────────────────────────────────────────────────────── */
+
+.actionBarWrap {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px);
+  pointer-events: none;
+  z-index: 100;
+}
+
+.actionBarHidden {
+  display: none;
+}
+
+.actionBar {
+  display: flex;
+  align-items: center;
+  height: 52px;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.06),
+    0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  pointer-events: auto;
+  /* todo: hardcoded for 3 buttons (3 × 52px + 2px border) — make dynamic */
+  width: 158px;
+  transition: width 320ms var(--ease-out);
+}
+
+.actionBarExpanded {
+  width: calc(100vw - 2 * var(--container-gutter));
+}
+
+.actionBarBtn {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition:
+    color 150ms var(--ease-out),
+    background-color 150ms var(--ease-out);
+}
+
+@media (hover: hover) {
+  .actionBarBtn:hover {
+    color: var(--color-text);
+    background-color: var(--color-hover);
+  }
+}
+
+.actionBarBtnPrimary {
+  color: var(--color-text);
+}
+
+.actionBarCloseBtn {
+  flex-shrink: 0;
+  width: 44px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-left: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition:
+    color 150ms var(--ease-out),
+    background-color 150ms var(--ease-out);
+}
+
+@media (hover: hover) {
+  .actionBarCloseBtn:hover {
+    color: var(--color-text);
+    background-color: var(--color-hover);
+  }
+}
+
+.actionBarList {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  padding: 0 var(--space-sm);
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.actionBarList::-webkit-scrollbar {
+  display: none;
+}
+
+.actionBarItem {
+  flex-shrink: 0;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: 9999px;
+  background: none;
+  border: none;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition:
+    color 150ms var(--ease-out),
+    background-color 150ms var(--ease-out);
+}
+
+@media (hover: hover) {
+  .actionBarItem:hover {
+    background-color: var(--color-hover);
+    color: var(--color-text);
+  }
+}
+
+.actionBarItemActive {
+  color: var(--color-text);
+  font-weight: var(--weight-medium);
+  background-color: var(--color-surface);
+}
+
+.actionBarSearch {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding-left: var(--space-lg);
+}
+
+.actionBarSearchInput {
+  flex: 1;
+  height: 52px;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+.actionBarSearchInput::placeholder {
+  color: var(--color-text-secondary);
+}
+
+@media (min-width: 769px) {
+  .actionBarWrap {
+    display: none;
   }
 }

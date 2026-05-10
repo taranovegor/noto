@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
-import { ArrowUp, FolderOpen } from 'lucide-react';
+import { useRef, useState, useCallback, useEffect } from 'react';
+import { flushSync } from 'react-dom';
+import { ClipboardPaste, FolderOpen } from 'lucide-react';
 import { DragDropZone } from '../../../shared/components/DragDropZone';
 import { StashesList } from './StashesList';
 import { useCreateStash } from '../hooks/useCreateStash';
+import { useActionBar } from '../../../layout/ActionBarContext';
 import styles from './StashesListShell.module.css';
 
 function parseClipboardItems(items: DataTransferItemList): {
@@ -26,24 +28,29 @@ function parseClipboardItems(items: DataTransferItemList): {
 }
 
 export function StashesListShell() {
-  const [textInput, setTextInput] = useState('');
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
   const { create, isLoading, error } = useCreateStash();
 
-  const hasContent = !!textInput.trim() || !!pendingFile;
+  // Mobile ActionBar: text input fallback
+  const textInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [textOpen, setTextOpen] = useState(false);
+  const [textValue, setTextValue] = useState('');
 
-  const handleDrop = useCallback(
-    async (files: File[], text?: string) => {
-      try {
-        await create(files, text);
-      } catch {
-        // Error is surfaced via useCreateStash().error
+  const handleClipboardPaste = useCallback(async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text.trim()) {
+        await create([], text.trim());
+        return;
       }
-    },
-    [create],
-  );
+    } catch {
+      // permission denied or not supported
+    }
+    flushSync(() => setTextOpen(true));
+    textInputRef.current?.focus();
+  }, [create]);
 
-  const handleFileInputChange = useCallback(
+  const handleFileSelect = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(e.target.files ?? []);
       if (files.length > 0) await create(files);
@@ -52,26 +59,49 @@ export function StashesListShell() {
     [create],
   );
 
-  const handleInputPaste = useCallback((e: React.ClipboardEvent<HTMLInputElement>) => {
-    const { files } = parseClipboardItems(e.clipboardData.items);
-    if (files.length > 0) {
-      e.preventDefault();
-      setPendingFile(files[0]);
-      setTextInput(files[0].name);
-    }
+  const handleTextSubmit = useCallback(async () => {
+    const text = textValue.trim();
+    if (!text || isLoading) return;
+    await create([], text);
+    setTextValue('');
+    setTextOpen(false);
+  }, [textValue, isLoading, create]);
+
+  const handleTextClose = useCallback(() => {
+    setTextValue('');
+    setTextOpen(false);
   }, []);
 
-  const handleSubmit = useCallback(async () => {
-    if (!hasContent || isLoading) return;
-    if (pendingFile) {
-      await create([pendingFile]);
-    } else {
-      await create([], textInput.trim());
-    }
-    setTextInput('');
-    setPendingFile(null);
-  }, [hasContent, isLoading, pendingFile, textInput, create]);
+  useActionBar({
+    buttons: [
+      {
+        icon: ClipboardPaste,
+        label: 'Paste',
+        primary: true,
+        disabled: isLoading,
+        onPress: handleClipboardPaste,
+      },
+      {
+        icon: FolderOpen,
+        label: 'Choose file',
+        disabled: isLoading,
+        onPress: () => fileInputRef.current?.click(),
+      },
+    ],
+    input: textOpen
+      ? {
+          ref: textInputRef,
+          value: textValue,
+          placeholder: 'Type and press Enter…',
+          disabled: isLoading,
+          onChange: setTextValue,
+          onSubmit: handleTextSubmit,
+          onClose: handleTextClose,
+        }
+      : null,
+  });
 
+  // Desktop: global paste listener
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
       const target = e.target as HTMLElement;
@@ -94,8 +124,27 @@ export function StashesListShell() {
     return () => window.removeEventListener('paste', handlePaste);
   }, [create]);
 
+  const handleDrop = useCallback(
+    async (files: File[], text?: string) => {
+      try {
+        await create(files, text);
+      } catch {
+        // Error is surfaced via useCreateStash().error
+      }
+    },
+    [create],
+  );
+
   return (
     <div>
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        onChange={handleFileSelect}
+        style={{ display: 'none' }}
+      />
+
       <div className={styles.header}>
         <h2 className={styles.headerTitle}>Stashes</h2>
       </div>
@@ -107,46 +156,6 @@ export function StashesListShell() {
           {error}
         </div>
       )}
-
-      <div className={styles.mobileActions}>
-        <div className={styles.textInputRow}>
-          <input
-            className={styles.textInput}
-            type="text"
-            placeholder="Paste or type text..."
-            value={textInput}
-            onChange={(e) => {
-              setTextInput(e.target.value);
-              setPendingFile(null);
-            }}
-            onPaste={handleInputPaste}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') void handleSubmit();
-            }}
-            disabled={isLoading}
-          />
-          {hasContent ? (
-            <button
-              className={`btn btn-primary ${styles.actionBtn}`}
-              onClick={handleSubmit}
-              disabled={isLoading}
-              aria-label="Upload"
-            >
-              <ArrowUp size={16} />
-            </button>
-          ) : (
-            <label className={`btn btn-primary ${styles.actionBtn}`} aria-label="Choose file">
-              <FolderOpen size={16} />
-              <input
-                type="file"
-                multiple
-                onChange={handleFileInputChange}
-                style={{ display: 'none' }}
-              />
-            </label>
-          )}
-        </div>
-      </div>
 
       <StashesList />
     </div>

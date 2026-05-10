@@ -20,7 +20,13 @@
   flex-direction: column;
   gap: var(--space-md);
   overflow-y: auto;
-  padding-bottom: var(--space-sm);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--action-bar-clearance));
+}
+
+@media (min-width: 769px) {
+  .column {
+    padding-bottom: var(--space-sm);
+  }
 }
 
 /* Cards */
@@ -78,6 +84,5 @@
 }
 
 .sentinel {
-  height: 20px;
-  margin-top: var(--space-sm);
+  height: 1px;
 }

@@ -1,8 +1,13 @@
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: var(--space-xl);
+}
+
+.headerBtn {
+  padding: var(--space-sm);
+  line-height: 0;
 }
 
 .headerTitle {
@@ -59,8 +64,7 @@
 }
 
 .observerSentinel {
-  height: 20px;
-  margin-top: var(--space-xl);
+  height: 1px;
 }
 
 @keyframes fadeIn {

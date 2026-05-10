@@ -9,6 +9,7 @@ interface SearchBarProps {
   onClear: () => void;
   placeholder?: string;
   hasActiveSearch: boolean;
+  className?: string;
 }
 
 export const SearchBar = React.memo(function SearchBar({
@@ -18,9 +19,10 @@ export const SearchBar = React.memo(function SearchBar({
   onClear,
   placeholder,
   hasActiveSearch,
+  className,
 }: SearchBarProps) {
   return (
-    <div className={styles.wrapper} role="search">
+    <div className={`${styles.wrapper}${className ? ` ${className}` : ''}`} role="search">
       <input
         type="text"
         placeholder={placeholder ?? 'Search...'}

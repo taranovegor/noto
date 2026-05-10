@@ -14,6 +14,7 @@ import { CentrifugoProvider } from './shared/websocket';
 import { TasksListShell } from './features/tasks/components/TasksListShell';
 import { NotesListShell } from './features/notes/components/NotesListShell';
 import { StashesListShell } from './features/stashes/components/StashesListShell';
+import { SettingsPage } from './features/settings/components/SettingsPage';
 import { TaskPageSkeleton } from './features/tasks/components/TaskPageSkeleton';
 import { NotePageSkeleton } from './features/notes/components/NotePageSkeleton';
 import { LOGIN_ROUTE, TASKS_ROUTE } from './features/auth';
@@ -107,6 +108,10 @@ const router = createBrowserRouter([
       {
         path: 'stashes',
         element: <StashesListShell />,
+      },
+      {
+        path: 'settings',
+        element: <SettingsPage />,
       },
     ],
   },

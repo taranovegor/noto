@@ -6,3 +6,4 @@ export { useDraftRestore } from './useDraftRestore';
 export { useFormDirty } from './useFormDirty';
 export { useInfiniteScroll } from './useInfiniteScroll';
 export { useStaggerStyles } from './useStaggerStyles';
+export { useMobileSearch } from './useMobileSearch';
