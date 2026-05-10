@@ -29,11 +29,19 @@ self.addEventListener('notificationclick', (event) => {
 
   event.waitUntil(
     clients.matchAll({ type: 'window' }).then((windowClients) => {
+      // Focus a window already on the target URL
       for (const client of windowClients) {
         if (client.url === targetUrl && 'focus' in client) {
           return client.focus();
         }
       }
+      // Navigate an existing window to the target URL
+      for (const client of windowClients) {
+        if ('navigate' in client) {
+          return client.navigate(targetUrl).then((c) => c?.focus());
+        }
+      }
+      // Fallback: open a new window
       if (clients.openWindow) {
         return clients.openWindow(targetUrl);
       }
