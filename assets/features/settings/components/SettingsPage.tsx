@@ -7,6 +7,7 @@ import { useAuth } from '../../auth/hooks/useAuth';
 import { PushToggle } from '../../pushes';
 import { LOGIN_ROUTE } from '../../auth/constants';
 import { usePushSubscription } from '../../pushes/hooks/usePushSubscription';
+import { PageShell } from '../../../shared/components/PageShell';
 import styles from './SettingsPage.module.css';
 
 export function SettingsPage() {
@@ -31,9 +32,7 @@ export function SettingsPage() {
   };
 
   return (
-    <div className={styles.page}>
-      <h2 className={styles.title}>Settings</h2>
-
+    <PageShell title="Settings">
       <div className={styles.section}>
         {user && (
           <div className={styles.row}>
@@ -56,6 +55,6 @@ export function SettingsPage() {
           Log out
         </button>
       </div>
-    </div>
+    </PageShell>
   );
 }

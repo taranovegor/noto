@@ -186,6 +186,11 @@ button.card {
   animation: pulse 1.5s ease-in-out infinite;
 }
 
+.btn-icon {
+  padding: var(--space-sm);
+  line-height: 0;
+}
+
 .btn-ghost {
   background: none;
   border: none;

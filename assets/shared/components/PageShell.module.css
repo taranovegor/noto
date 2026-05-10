@@ -1,0 +1,32 @@
+.shell {
+  padding-top: var(--space-lg);
+  padding-bottom: var(--action-bar-clearance);
+}
+
+@media (min-width: 769px) {
+  .shell {
+    padding-top: var(--space-3xl);
+    padding-bottom: var(--space-3xl);
+  }
+}
+
+.noPadBottom {
+  padding-bottom: 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xl);
+}
+
+.title {
+  margin-bottom: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}

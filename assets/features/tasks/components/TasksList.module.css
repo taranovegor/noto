@@ -1,17 +1,7 @@
-.header {
+.shell {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-xl);
-}
-
-.headerBtn {
-  padding: var(--space-sm);
-  line-height: 0;
-}
-
-.headerTitle {
-  margin-bottom: 0;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .shellSearch {
@@ -24,26 +14,11 @@
   min-height: auto;
 }
 
-/* Full-height shell — layout mode is set via useLayoutMode('fixed') in TasksListShell */
-
-.shell {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  padding: var(--space-lg) 0 0;
-}
-
 .content {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-}
-
-@media (min-width: 769px) {
-  .shell {
-    padding: var(--space-3xl) 0 0;
-  }
 }
 
 .observerSentinel {

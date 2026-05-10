@@ -2,10 +2,10 @@ import { useRef, useState, useCallback, useEffect } from 'react';
 import { flushSync } from 'react-dom';
 import { ClipboardPaste, FolderOpen } from 'lucide-react';
 import { DragDropZone } from '../../../shared/components/DragDropZone';
+import { PageShell } from '../../../shared/components/PageShell';
 import { StashesList } from './StashesList';
 import { useCreateStash } from '../hooks/useCreateStash';
 import { useActionBar } from '../../../layout/ActionBarContext';
-import styles from './StashesListShell.module.css';
 
 function parseClipboardItems(items: DataTransferItemList): {
   files: File[];
@@ -136,7 +136,7 @@ export function StashesListShell() {
   );
 
   return (
-    <div>
+    <PageShell title="Stashes">
       <input
         ref={fileInputRef}
         type="file"
@@ -144,10 +144,6 @@ export function StashesListShell() {
         onChange={handleFileSelect}
         style={{ display: 'none' }}
       />
-
-      <div className={styles.header}>
-        <h2 className={styles.headerTitle}>Stashes</h2>
-      </div>
 
       <DragDropZone onDrop={handleDrop} disabled={isLoading} uploading={isLoading} />
 
@@ -158,6 +154,6 @@ export function StashesListShell() {
       )}
 
       <StashesList />
-    </div>
+    </PageShell>
   );
 }

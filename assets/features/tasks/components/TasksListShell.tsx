@@ -3,6 +3,7 @@ import { SquarePen, Search } from 'lucide-react';
 import { useAppSelector } from '../../../shared/store/hooks';
 import { setTasksActiveSearch } from '../../../shared/store/uiSlice';
 import { SearchBar } from '../../../shared/components';
+import { PageShell } from '../../../shared/components/PageShell';
 import { useSearchState, useMobileSearch } from '../../../shared/hooks';
 import { useLayoutMode } from '../../../layout/LayoutContext';
 import { useActionBar } from '../../../layout/ActionBarContext';
@@ -51,18 +52,20 @@ export function TasksListShell() {
   });
 
   return (
-    <div className={isSearchActive ? styles.shellSearch : styles.shell}>
-      <div className={styles.header}>
-        <h2 className={styles.headerTitle}>Tasks</h2>
+    <PageShell
+      title="Tasks"
+      actions={
         <button
-          className={`btn btn-primary hide-on-mobile ${styles.headerBtn}`}
+          className="btn btn-primary btn-icon hide-on-mobile"
           onClick={() => navigate('/tasks/new')}
           aria-label="New task"
         >
           <SquarePen size={16} strokeWidth={1.75} />
         </button>
-      </div>
-
+      }
+      className={isSearchActive ? styles.shellSearch : styles.shell}
+      padBottom={isSearchActive}
+    >
       <SearchBar
         className="hide-on-mobile"
         value={searchInput}
@@ -76,6 +79,6 @@ export function TasksListShell() {
       <div className={styles.content}>
         <TasksList />
       </div>
-    </div>
+    </PageShell>
   );
 }

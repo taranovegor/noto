@@ -11,13 +11,10 @@
   min-height: 0;
   overflow-y: auto;
   outline: none;
-  padding: calc(var(--space-lg) + env(safe-area-inset-top, 0px)) 0
-    calc(env(safe-area-inset-bottom, 0px) + var(--action-bar-clearance));
 }
 
 .mainFixed {
   overflow: hidden;
-  padding: env(safe-area-inset-top, 0px) 0 0;
   display: flex;
   flex-direction: column;
 }
@@ -31,13 +28,5 @@
 @media (min-width: 769px) {
   .layout {
     flex-direction: row;
-  }
-
-  .main {
-    padding: 40px 0;
-  }
-
-  .mainFixed {
-    padding: 0;
   }
 }

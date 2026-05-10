@@ -93,7 +93,7 @@
   .skeletonBackBtn {
     position: absolute;
     left: -2.75rem;
-    top: 0;
+    top: var(--space-3xl);
     background: none;
     border: none;
     font-size: var(--text-lg);

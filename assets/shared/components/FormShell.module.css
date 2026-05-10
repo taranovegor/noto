@@ -1,6 +1,15 @@
 .form {
   max-width: 64rem;
   position: relative;
+  padding-top: var(--space-lg);
+  padding-bottom: var(--action-bar-clearance);
+}
+
+@media (min-width: 769px) {
+  .form {
+    padding-top: var(--space-3xl);
+    padding-bottom: var(--space-3xl);
+  }
 }
 
 .backBtn {
@@ -11,7 +20,7 @@
   .backBtn {
     position: absolute;
     left: -2.75rem;
-    top: 0;
+    top: var(--space-3xl);
     background: none;
     border: none;
     font-size: var(--text-lg);

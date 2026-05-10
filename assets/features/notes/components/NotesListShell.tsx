@@ -5,8 +5,8 @@ import { setNotesActiveSearch } from '../../../shared/store/uiSlice';
 import { SearchBar } from '../../../shared/components';
 import { useSearchState, useMobileSearch } from '../../../shared/hooks';
 import { useActionBar } from '../../../layout/ActionBarContext';
+import { PageShell } from '../../../shared/components/PageShell';
 import { NotesList } from './NotesList';
-import styles from './NotesList.module.css';
 
 export function NotesListShell() {
   const navigate = useNavigate();
@@ -47,18 +47,18 @@ export function NotesListShell() {
   });
 
   return (
-    <div>
-      <div className={styles.header}>
-        <h2 className={styles.headerTitle}>Notes</h2>
+    <PageShell
+      title="Notes"
+      actions={
         <button
-          className={`btn btn-primary hide-on-mobile ${styles.headerBtn}`}
+          className="btn btn-primary btn-icon hide-on-mobile"
           onClick={() => navigate('/notes/new')}
           aria-label="New note"
         >
           <SquarePen size={16} strokeWidth={1.75} />
         </button>
-      </div>
-
+      }
+    >
       <SearchBar
         className="hide-on-mobile"
         value={searchInput}
@@ -70,6 +70,6 @@ export function NotesListShell() {
       />
 
       <NotesList />
-    </div>
+    </PageShell>
   );
 }
