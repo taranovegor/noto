@@ -2,7 +2,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useReducer,
@@ -78,6 +77,6 @@ export function useActionBar(config: ActionBarConfig) {
 export function useActionBarConfig(): ActionBarConfig | null {
   const { configRef, subscribe } = useContext(ActionBarContext);
   const [, forceUpdate] = useReducer((n: number) => n + 1, 0);
-  useEffect(() => subscribe(forceUpdate), [subscribe]);
+  useLayoutEffect(() => subscribe(forceUpdate), [subscribe]);
   return configRef.current;
 }
