@@ -112,21 +112,6 @@ code {
   grid-column: full;
 }
 
-.main-content {
-  flex: 1;
-  padding: calc(40px + env(safe-area-inset-top, 0px)) 0
-    calc(40px + env(safe-area-inset-bottom, 0px)) 0;
-  overflow-y: auto;
-  outline: none;
-}
-
-@media (max-width: 768px) {
-  .main-content {
-    padding: calc(var(--space-lg) + env(safe-area-inset-top, 0px)) 0
-      calc(env(safe-area-inset-bottom, 0px) + 44px);
-  }
-}
-
 .hide-scrollbar {
   scrollbar-width: none;
 }

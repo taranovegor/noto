@@ -19,21 +19,13 @@
   min-height: auto;
 }
 
-/* Full-height shell */
-
-:global(html):has(.shell),
-:global(body):has(.shell) {
-  overflow: hidden;
-}
+/* Full-height shell — layout mode is set via useLayoutMode('fixed') in TasksListShell */
 
 .shell {
   display: flex;
   flex-direction: column;
-  /* todo: refactor */
-  height: calc(
-    100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - var(--space-lg) -
-      44px
-  );
+  min-height: 0;
+  padding: calc(var(--space-lg) + env(safe-area-inset-top, 0px)) 0 0;
 }
 
 .content {
@@ -44,13 +36,8 @@
 }
 
 @media (min-width: 769px) {
-  :global(html):has(.shell),
-  :global(body):has(.shell) {
-    overflow: visible;
-  }
-
   .shell {
-    height: calc(100vh - 80px);
+    padding: 40px 0;
   }
 }
 

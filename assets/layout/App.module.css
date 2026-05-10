@@ -1,16 +1,31 @@
 .layout {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   background-color: var(--color-bg);
 }
 
 .main {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  outline: none;
+  padding: calc(var(--space-lg) + env(safe-area-inset-top, 0px)) 0
+    calc(env(safe-area-inset-bottom, 0px) + 44px);
+}
+
+.mainFixed {
+  overflow: hidden;
+  padding: 0 0 calc(env(safe-area-inset-bottom, 0px) + 44px);
   display: flex;
   flex-direction: column;
-  /*padding-bottom: var(--space-4xl);*/
-  /*padding-bottom: calc(var(--space-4xl) + env(safe-area-inset-bottom, 0px));*/
+}
+
+.mainFixed :global(.container) {
+  flex: 1;
+  min-height: 0;
+  grid-template-rows: 1fr;
 }
 
 @media (min-width: 769px) {
@@ -19,7 +34,10 @@
   }
 
   .main {
-    padding-top: 0;
-    padding-bottom: 0;
+    padding: 40px 0;
+  }
+
+  .mainFixed {
+    padding: 0;
   }
 }

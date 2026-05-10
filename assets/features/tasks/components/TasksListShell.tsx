@@ -3,6 +3,7 @@ import { useAppSelector } from '../../../shared/store/hooks';
 import { setTasksActiveSearch } from '../../../shared/store/uiSlice';
 import { SearchBar } from '../../../shared/components';
 import { useSearchState } from '../../../shared/hooks';
+import { useLayoutMode } from '../../../layout/LayoutContext';
 import { TasksList } from './TasksList';
 import styles from './TasksList.module.css';
 
@@ -17,6 +18,7 @@ export function TasksListShell() {
   } = useSearchState(activeSearch, setTasksActiveSearch);
 
   const isSearchActive = activeSearch !== null;
+  useLayoutMode(isSearchActive ? 'scroll' : 'fixed');
 
   return (
     <div className={isSearchActive ? styles.shellSearch : styles.shell}>

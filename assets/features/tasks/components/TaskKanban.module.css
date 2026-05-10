@@ -125,11 +125,3 @@
     display: none;
   }
 }
-
-/*:global(.container):has(.mobilePage) {*/
-/*  height: 100%;*/
-/*}*/
-
-/*:global(.main-content):has(.mobilePage) {*/
-/*  overflow: hidden !important;*/
-/*}*/
