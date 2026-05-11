@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatDateTime, parseError, shouldShowSkeleton } from '../../../shared/utils';
 import { useAppSelector } from '../../../shared/store/hooks';
 import { useNotes } from '../store/api';
-import { useInfiniteScroll } from '../../../shared/hooks';
+import { useInfiniteScroll, useIsDataStale } from '../../../shared/hooks';
 import { NotesListSkeleton } from './NotesListSkeleton';
 import { NotesLoadingMoreSkeleton } from './NotesLoadingMoreSkeleton';
 
@@ -15,6 +15,8 @@ export function NotesList() {
   const { data, isLoading, isFetching, isFetchingNextPage, hasNextPage, fetchNextPage, error } =
     useNotes(activeSearch);
 
+  const isDataStale = useIsDataStale(activeSearch, isFetching);
+
   const notes = data?.pages.flatMap((p) => p.notes) ?? [];
 
   const { sentinelRef } = useInfiniteScroll(
@@ -23,17 +25,17 @@ export function NotesList() {
     fetchNextPage,
   );
 
-  const errMsg = error ? parseError(error).message : null;
+  const errorMessage = error ? parseError(error).message : null;
 
   return (
     <>
-      {errMsg && (
+      {errorMessage && (
         <div className="error-message" role="alert">
-          {errMsg}
+          {errorMessage}
         </div>
       )}
 
-      {shouldShowSkeleton(isLoading, isFetching, isFetchingNextPage, !!data) ? (
+      {shouldShowSkeleton(isLoading, isFetching, isFetchingNextPage, !!data && !isDataStale) ? (
         <NotesListSkeleton />
       ) : notes.length > 0 ? (
         <div className={styles.list} role="list">

@@ -49,7 +49,7 @@ function KanbanColumnInner({ status, projectId, onTaskClick }: KanbanColumnProps
 
   const label = STATUS_LABEL_MAP.get(status) ?? status;
 
-  const showSkeleton = !data && (isLoading || (isFetching && !isFetchingNextPage));
+  const showSkeleton = isLoading || (!data && isFetching && !isFetchingNextPage);
 
   useScrollRestoration(columnRef, scrollKey, { popOnly: false, ready: !showSkeleton });
 

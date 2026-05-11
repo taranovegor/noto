@@ -4,7 +4,7 @@ import { useAppSelector, useAppDispatch } from '../../../shared/store/hooks';
 import { setTasksSelectedProjectId } from '../../../shared/store/uiSlice';
 import { useTasks } from '../store/api';
 import { useProjects } from '../../projects/hooks/useProjects';
-import { useInfiniteScroll } from '../../../shared/hooks';
+import { useInfiniteScroll, useIsDataStale } from '../../../shared/hooks';
 import { parseError, shouldShowSkeleton } from '../../../shared/utils';
 import { TaskKanban } from './TaskKanban';
 import { TaskSearchResults } from './TaskSearchResults';
@@ -22,13 +22,19 @@ export function TasksList() {
 
   const {
     data,
-    isLoading: tasksLoading,
+    isLoading,
     isFetching,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
     error: tasksError,
   } = useTasks({ search: activeSearch, projectId: selectedProjectId }, { skip: !isSearching });
+
+  // Both activeSearch and selectedProjectId affect the query args.
+  const isDataStale = useIsDataStale(
+    isSearching ? `${activeSearch}:${selectedProjectId ?? 'all'}` : null,
+    isFetching,
+  );
 
   const { data: projects = [], isLoading: projectsLoading } = useProjects();
 
@@ -44,7 +50,7 @@ export function TasksList() {
     fetchNextPage,
   );
 
-  const error = tasksError ? parseError(tasksError).message : null;
+  const errorMessage = tasksError ? parseError(tasksError).message : null;
 
   const handleTaskClick = (id: string) => navigate(`/tasks/${id}`);
   const handleProjectClick = (id: string) =>
@@ -52,9 +58,9 @@ export function TasksList() {
 
   return (
     <>
-      {error && (
+      {errorMessage && (
         <div className="error-message" role="alert">
-          {error}
+          {errorMessage}
         </div>
       )}
 
@@ -67,7 +73,7 @@ export function TasksList() {
 
       {isSearching ? (
         <>
-          {shouldShowSkeleton(tasksLoading, isFetching, isFetchingNextPage, !!data) ? (
+          {shouldShowSkeleton(isLoading, isFetching, isFetchingNextPage, !!data && !isDataStale) ? (
             <TasksSearchSkeleton />
           ) : tasks.length === 0 ? (
             <div className="empty-state">

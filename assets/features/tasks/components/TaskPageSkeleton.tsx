@@ -1,9 +1,10 @@
 import React from 'react';
+import formStyles from '../../../shared/components/FormShell.module.css';
 import styles from './TaskPage.module.css';
 
 export function TaskPageSkeleton() {
   return (
-    <div className={styles.skeletonForm}>
+    <div className={`${formStyles.form} ${styles.skeletonForm}`}>
       <button type="button" disabled className={styles.skeletonBackBtn} aria-hidden>
         ←
       </button>

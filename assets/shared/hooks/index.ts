@@ -5,6 +5,6 @@ export { useDraftSave } from './useDraftSave';
 export { useDraftRestore } from './useDraftRestore';
 export { useFormDirty } from './useFormDirty';
 export { useInfiniteScroll } from './useInfiniteScroll';
-
+export { useIsDataStale } from './useIsDataStale';
 export { useScrollRestoration, clearScrollKeys, createScrollKey } from './useScrollRestoration';
 export { useMobileSearch } from './useMobileSearch';

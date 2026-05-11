@@ -1,9 +1,10 @@
 import React from 'react';
+import formStyles from '../../../shared/components/FormShell.module.css';
 import styles from './NotePage.module.css';
 
 export function NotePageSkeleton() {
   return (
-    <div className={styles.skeletonForm}>
+    <div className={`${formStyles.form} ${styles.skeletonForm}`}>
       <div className={styles.skeletonTitle}>
         <div className="skeleton skeleton-text" style={{ height: '2rem', width: '70%' }} />
       </div>
