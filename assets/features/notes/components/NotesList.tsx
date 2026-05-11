@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatDateTime, parseError, isInitialOrRefetch } from '../../../shared/utils';
 import { useAppSelector } from '../../../shared/store/hooks';
 import { useNotes } from '../store/api';
-import { useInfiniteScroll, useStaggerStyles } from '../../../shared/hooks';
+import { useInfiniteScroll } from '../../../shared/hooks';
 import { NotesListSkeleton } from './NotesListSkeleton';
 import { NotesLoadingMoreSkeleton } from './NotesLoadingMoreSkeleton';
 
@@ -25,8 +25,6 @@ export function NotesList() {
 
   const errMsg = error ? parseError(error).message : null;
 
-  const staggerStyles = useStaggerStyles(notes.length);
-
   return (
     <>
       {errMsg && (
@@ -39,12 +37,11 @@ export function NotesList() {
         <NotesListSkeleton />
       ) : notes.length > 0 ? (
         <div className={styles.list} role="list">
-          {notes.map((note, index) => (
+          {notes.map((note) => (
             <button
               key={note.id}
               className={`card ${styles.card}`}
               onClick={() => navigate(`/notes/${note.id}`)}
-              style={staggerStyles[index]}
               role="listitem"
             >
               <div className={styles.cardTitle}>{note.title}</div>

@@ -531,12 +531,6 @@ button.card {
   margin-bottom: 0;
 }
 
-.animate-card-enter {
-  animation: fadeIn 300ms var(--ease-out) forwards;
-  opacity: 0;
-  animation-delay: var(--stagger-delay, 0ms);
-}
-
 .skeleton-form-row {
   display: flex;
   gap: var(--space-lg);

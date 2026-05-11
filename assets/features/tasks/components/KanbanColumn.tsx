@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useCallback } from 'react';
 import { TaskStatus, TaskPriority } from '../types';
 import { STATUS_LABEL_MAP, PRIORITY_OPTIONS } from '../constants';
 import { formatDateShort } from '../../../shared/utils/date';
-import { useInfiniteScroll, useStaggerStyles } from '../../../shared/hooks';
+import { useInfiniteScroll } from '../../../shared/hooks';
 import { useTasks } from '../store/api';
 
 import styles from './KanbanColumn.module.css';
@@ -62,8 +62,6 @@ function KanbanColumnInner({ status, projectId, onTaskClick }: KanbanColumnProps
     fetchNextPage,
   );
 
-  const staggerStyles = useStaggerStyles(tasks.length);
-
   const label = STATUS_LABEL_MAP.get(status) ?? status;
 
   const showSkeleton = isLoading || (isFetching && !isFetchingNextPage);
@@ -76,12 +74,11 @@ function KanbanColumnInner({ status, projectId, onTaskClick }: KanbanColumnProps
       <div ref={columnRef} onScroll={handleScroll} className={`hide-scrollbar ${styles.column}`}>
         {showSkeleton
           ? Array.from({ length: 3 }).map((_, i) => <KanbanCardSkeleton key={i} />)
-          : tasks.map((task, index) => (
+          : tasks.map((task) => (
               <button
                 key={task.id}
-                className={`card ${styles.card} animate-card-enter`}
+                className={`card ${styles.card}`}
                 onClick={() => onTaskClick(task.id)}
-                style={staggerStyles[index]}
               >
                 <div className={styles.cardTitle}>
                   {task.priority && (

@@ -7,7 +7,6 @@ import {
   PRIORITY_LABEL_MAP,
 } from '../constants';
 import { formatDateShort } from '../../../shared/utils/date';
-import { useStaggerStyles } from '../../../shared/hooks';
 
 import styles from './TaskSearchResults.module.css';
 
@@ -25,20 +24,17 @@ const priorityStyleMap = new Map(
   PRIORITY_OPTIONS.map((o) => [o.value, { '--badge-bg': o.bg, '--badge-text': o.text }]),
 );
 function TaskSearchResultsInner({ tasks, onTaskClick }: TaskSearchResultsProps) {
-  const staggerStyles = useStaggerStyles(tasks.length);
-
   return (
     <div className={styles.searchResults}>
-      {tasks.map((task, index) => {
+      {tasks.map((task) => {
         const priLabel = task.priority ? PRIORITY_LABEL_MAP.get(task.priority) : null;
         const statStyle = statusStyleMap.get(task.status) ?? fallbackStatusStyle;
         const statLabel = STATUS_LABEL_MAP.get(task.status) ?? task.status;
         return (
           <button
             key={task.id}
-            className={`card ${styles.searchCard} animate-card-enter`}
+            className={`card ${styles.searchCard}`}
             onClick={() => onTaskClick(task.id)}
-            style={staggerStyles[index]}
           >
             <div className={styles.searchCardTitle}>{task.name}</div>
             <div className={styles.searchCardMeta}>
