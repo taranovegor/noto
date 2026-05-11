@@ -18,6 +18,7 @@ const tasksApi = api.injectEndpoints({
           return lastPageParam + PAGE_SIZE;
         },
       },
+      keepUnusedDataFor: 1800,
       query: ({ queryArg = {}, pageParam: offset }) => {
         const { search, projectId, status } = queryArg;
         const filters: string[] = [];

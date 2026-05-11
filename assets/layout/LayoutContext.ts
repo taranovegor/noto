@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from 'react';
+import { createContext, useContext, useLayoutEffect } from 'react';
 
 export type LayoutMode = 'scroll' | 'fixed';
 
@@ -8,7 +8,8 @@ export const LayoutContext = createContext<{
 
 export function useLayoutMode(mode: LayoutMode) {
   const { setLayoutMode } = useContext(LayoutContext);
-  useEffect(() => {
+
+  useLayoutEffect(() => {
     setLayoutMode(mode);
     return () => setLayoutMode('scroll');
   }, [mode, setLayoutMode]);

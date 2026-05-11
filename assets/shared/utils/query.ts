@@ -1,7 +1,8 @@
-export function isInitialOrRefetch(
-  loading: boolean,
-  fetching: boolean,
-  fetchingNext: boolean,
+export function shouldShowSkeleton(
+  isLoading: boolean,
+  isFetching: boolean,
+  isFetchingNextPage: boolean,
+  hasData: boolean,
 ): boolean {
-  return loading || (fetching && !fetchingNext);
+  return !hasData && (isLoading || (isFetching && !isFetchingNextPage));
 }

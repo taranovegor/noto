@@ -1,7 +1,7 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { useAppSelector } from '../../../shared/store/hooks';
 import { STATUS_OPTIONS } from '../constants';
-import { useMediaQuery } from '../../../shared/hooks';
+import { useMediaQuery, useScrollRestoration, createScrollKey } from '../../../shared/hooks';
 import { KanbanColumn } from './KanbanColumn';
 
 import styles from './TaskKanban.module.css';
@@ -15,6 +15,15 @@ function TaskKanbanInner({ onTaskClick }: TaskKanbanProps) {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [activeCol, setActiveCol] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useScrollRestoration(
+    scrollRef,
+    createScrollKey('tasks', 'kanban-carousel', selectedProjectId ?? 'all'),
+    {
+      popOnly: false,
+      direction: 'horizontal',
+    },
+  );
 
   const handleCarouselScroll = useCallback(() => {
     if (!scrollRef.current) return;

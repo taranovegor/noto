@@ -1,8 +1,8 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef } from 'react';
 import { TaskStatus, TaskPriority } from '../types';
 import { STATUS_LABEL_MAP, PRIORITY_OPTIONS } from '../constants';
 import { formatDateShort } from '../../../shared/utils/date';
-import { useInfiniteScroll } from '../../../shared/hooks';
+import { useInfiniteScroll, useScrollRestoration, createScrollKey } from '../../../shared/hooks';
 import { useTasks } from '../store/api';
 
 import styles from './KanbanColumn.module.css';
@@ -32,22 +32,7 @@ function KanbanCardSkeleton() {
 
 function KanbanColumnInner({ status, projectId, onTaskClick }: KanbanColumnProps) {
   const columnRef = useRef<HTMLDivElement>(null);
-  const scrollKey = `kanban-scroll-${status}-${projectId ?? 'all'}`;
-
-  useEffect(() => {
-    const el = columnRef.current;
-    if (!el) return;
-    const saved = sessionStorage.getItem(scrollKey);
-    if (saved !== null) {
-      el.scrollTop = parseInt(saved, 10);
-    }
-  }, [scrollKey]);
-
-  const handleScroll = useCallback(() => {
-    const el = columnRef.current;
-    if (!el) return;
-    sessionStorage.setItem(scrollKey, String(el.scrollTop));
-  }, [scrollKey]);
+  const scrollKey = createScrollKey('tasks', 'kanban-column', status, projectId ?? 'all');
 
   const { data, isLoading, isFetching, isFetchingNextPage, hasNextPage, fetchNextPage } = useTasks({
     status,
@@ -64,14 +49,16 @@ function KanbanColumnInner({ status, projectId, onTaskClick }: KanbanColumnProps
 
   const label = STATUS_LABEL_MAP.get(status) ?? status;
 
-  const showSkeleton = isLoading || (isFetching && !isFetchingNextPage);
+  const showSkeleton = !data && (isLoading || (isFetching && !isFetchingNextPage));
+
+  useScrollRestoration(columnRef, scrollKey, { popOnly: false, ready: !showSkeleton });
 
   return (
     <div className={styles.colWrapper}>
       <div className={styles.columnHeader}>
         <span className={styles.columnLabel}>{label}</span>
       </div>
-      <div ref={columnRef} onScroll={handleScroll} className={`hide-scrollbar ${styles.column}`}>
+      <div ref={columnRef} className={`hide-scrollbar ${styles.column}`}>
         {showSkeleton
           ? Array.from({ length: 3 }).map((_, i) => <KanbanCardSkeleton key={i} />)
           : tasks.map((task) => (

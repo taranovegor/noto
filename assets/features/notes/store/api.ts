@@ -19,6 +19,7 @@ const notesApi = api.injectEndpoints({
           return nextOffset;
         },
       },
+      keepUnusedDataFor: 1800,
       query: ({ queryArg: search, pageParam: offset }) => {
         const params = search
           ? `?filter[query]=${encodeURIComponent(search)}&limit=${PAGE_SIZE}&offset=${offset}&sort=-updatedAt`

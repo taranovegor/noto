@@ -5,7 +5,7 @@ import { setTasksSelectedProjectId } from '../../../shared/store/uiSlice';
 import { useTasks } from '../store/api';
 import { useProjects } from '../../projects/hooks/useProjects';
 import { useInfiniteScroll } from '../../../shared/hooks';
-import { parseError, isInitialOrRefetch } from '../../../shared/utils';
+import { parseError, shouldShowSkeleton } from '../../../shared/utils';
 import { TaskKanban } from './TaskKanban';
 import { TaskSearchResults } from './TaskSearchResults';
 import { TasksSearchSkeleton } from './TasksSearchSkeleton';
@@ -67,7 +67,7 @@ export function TasksList() {
 
       {isSearching ? (
         <>
-          {isInitialOrRefetch(tasksLoading, isFetching, isFetchingNextPage) ? (
+          {shouldShowSkeleton(tasksLoading, isFetching, isFetchingNextPage, !!data) ? (
             <TasksSearchSkeleton />
           ) : tasks.length === 0 ? (
             <div className="empty-state">

@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { LayoutContext, type LayoutMode } from './LayoutContext';
 import { ActionBarProvider } from './ActionBarContext';
 import { useAppDispatch } from '../shared/store/hooks';
+import { useScrollRestoration, clearScrollKeys, createScrollKey } from '../shared/hooks';
 import {
   setTasksActiveSearch,
   setNotesActiveSearch,
@@ -20,6 +21,8 @@ export function App() {
   const mainRef = useRef<HTMLElement>(null);
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('scroll');
 
+  useScrollRestoration(mainRef, createScrollKey('main', location.pathname, location.search));
+
   useEffect(() => {
     const isTasksTab = currentPath.startsWith('/tasks');
     const isNotesTab = currentPath.startsWith('/notes');
@@ -27,15 +30,11 @@ export function App() {
     if (!isTasksTab) {
       dispatch(setTasksActiveSearch(null));
       dispatch(setTasksSelectedProjectId(null));
-      for (let i = sessionStorage.length - 1; i >= 0; i--) {
-        const key = sessionStorage.key(i);
-        if (key?.startsWith('kanban-scroll-')) {
-          sessionStorage.removeItem(key);
-        }
-      }
+      clearScrollKeys('tasks');
     }
     if (!isNotesTab) {
       dispatch(setNotesActiveSearch(null));
+      clearScrollKeys('notes');
     }
   }, [currentPath, dispatch]);
 
@@ -47,7 +46,6 @@ export function App() {
     <ActionBarProvider>
       <LayoutContext.Provider value={{ setLayoutMode }}>
         <div className={styles.layout}>
-          <ScrollRestoration storageKey="layout-scroll-restoration" />
           <Sidebar />
           <main
             ref={mainRef}

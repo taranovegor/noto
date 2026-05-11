@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { formatDateTime, parseError, isInitialOrRefetch } from '../../../shared/utils';
+import { formatDateTime, parseError, shouldShowSkeleton } from '../../../shared/utils';
 import { useAppSelector } from '../../../shared/store/hooks';
 import { useNotes } from '../store/api';
 import { useInfiniteScroll } from '../../../shared/hooks';
@@ -33,7 +33,7 @@ export function NotesList() {
         </div>
       )}
 
-      {isInitialOrRefetch(isLoading, isFetching, isFetchingNextPage) ? (
+      {shouldShowSkeleton(isLoading, isFetching, isFetchingNextPage, !!data) ? (
         <NotesListSkeleton />
       ) : notes.length > 0 ? (
         <div className={styles.list} role="list">
