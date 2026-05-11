@@ -11,6 +11,7 @@
   min-height: 0;
   overflow-y: auto;
   outline: none;
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 .mainFixed {
