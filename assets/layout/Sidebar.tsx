@@ -134,16 +134,25 @@ function MobileActionBar() {
         ref={actionBarRef}
         className={`${styles.actionBar} ${isExpanded ? styles.actionBarExpanded : ''}`}
       >
-        {/* Menu button — hidden when expanded */}
-        {!isExpanded && (
-          <button
-            className={styles.actionBarBtn}
-            onClick={() => setIsMenuOpen(true)}
-            aria-label="Navigation menu"
-          >
-            <Menu size={20} strokeWidth={1.75} />
-          </button>
-        )}
+        {/* Left button: back (editor mode) or menu (default) */}
+        {!isExpanded &&
+          (config?.backButton ? (
+            <button
+              className={styles.actionBarBtn}
+              onClick={config.backButton.onPress}
+              aria-label={config.backButton.label}
+            >
+              <config.backButton.icon size={20} strokeWidth={1.75} />
+            </button>
+          ) : (
+            <button
+              className={styles.actionBarBtn}
+              onClick={() => setIsMenuOpen(true)}
+              aria-label="Navigation menu"
+            >
+              <Menu size={20} strokeWidth={1.75} />
+            </button>
+          ))}
 
         {/* Nav list — shown when menu is open */}
         {isMenuOpen && (

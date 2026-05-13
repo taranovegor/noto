@@ -2,12 +2,16 @@
 
 namespace App\Service\Task;
 
+use App\Dto\Task\AttachTaskAttachmentsDto;
 use App\Dto\Task\CreateTaskDto;
 use App\Dto\Task\UpdateTaskDto;
+use App\Entity\Attachment;
 use App\Entity\Task;
+use App\Enum\LinkKind;
 use App\Exception\EntityNotFoundException;
 use App\Repository\TaskRepository;
 use App\Service\Flusher;
+use App\Service\Link\LinkerInterface;
 use App\Service\Project\ProjectManager;
 use Symfony\Component\Uid\Uuid;
 
@@ -17,6 +21,7 @@ final readonly class TaskManager
         private TaskRepository $taskRepository,
         private ProjectManager $projectManager,
         private TaskCodeGenerator $codeGenerator,
+        private LinkerInterface $linker,
         private Flusher $flusher,
     ) {
     }
@@ -35,6 +40,10 @@ final readonly class TaskManager
         $task->note = $dto->note;
 
         $this->taskRepository->add($task);
+
+        foreach ($dto->attachments ?? [] as $attachment) {
+            $this->linker->link($task, $attachment, LinkKind::Ownership);
+        }
 
         $this->flusher->flush();
 
@@ -74,6 +83,20 @@ final readonly class TaskManager
             $task->note = $dto->note;
         }
 
+        $this->flusher->flush();
+    }
+
+    public function attach(Task $task, AttachTaskAttachmentsDto $dto): void
+    {
+        foreach ($dto->attachments as $attachment) {
+            $this->linker->link($task, $attachment, LinkKind::Ownership);
+        }
+        $this->flusher->flush();
+    }
+
+    public function detach(Task $task, Attachment $attachment): void
+    {
+        $this->linker->unlink($task, $attachment, LinkKind::Ownership);
         $this->flusher->flush();
     }
 }

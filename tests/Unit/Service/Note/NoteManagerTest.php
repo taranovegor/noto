@@ -2,130 +2,153 @@
 
 namespace App\Tests\Unit\Service\Note;
 
+use App\Dto\Note\AttachNoteAttachmentsDto;
 use App\Dto\Note\CreateNoteDto;
 use App\Dto\Note\UpdateNoteDto;
+use App\Entity\Attachment;
 use App\Entity\Note;
+use App\Enum\LinkKind;
 use App\Exception\EntityNotFoundException;
+use App\Exception\LinkNotFoundException;
 use App\Repository\NoteRepository;
 use App\Service\Flusher;
+use App\Service\Link\LinkerInterface;
 use App\Service\Note\NoteManager;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
 
 class NoteManagerTest extends TestCase
 {
-    private NoteRepository&MockObject $noteRepository;
-    private Flusher&MockObject $flusher;
-    private NoteManager $noteManager;
-
-    protected function setUp(): void
-    {
-        $this->noteRepository = $this->createMock(NoteRepository::class);
-        $this->flusher = $this->createMock(Flusher::class);
-
-        $this->noteManager = new NoteManager(
-            $this->noteRepository,
-            $this->flusher,
+    private function makeManager(
+        ?NoteRepository $repo = null,
+        ?LinkerInterface $linker = null,
+        ?Flusher $flusher = null,
+    ): NoteManager {
+        return new NoteManager(
+            $repo ?? $this->createStub(NoteRepository::class),
+            $linker ?? $this->createStub(LinkerInterface::class),
+            $flusher ?? $this->createStub(Flusher::class),
         );
     }
 
-    public function testCreateNoteWithValidData(): void
+    public function testCreateNoteWithNoAttachments(): void
     {
-        $content = 'This is a test note content';
-        $dto = new CreateNoteDto(
-            content: $content,
-        );
+        $repo = $this->createMock(NoteRepository::class);
+        $linker = $this->createMock(LinkerInterface::class);
+        $flusher = $this->createMock(Flusher::class);
 
-        $this->noteRepository->expects($this->once())
-            ->method('add')
-            ->with($this->callback(function (Note $note) use ($content) {
-                return $content === $note->content;
-            }));
-        $this->flusher->expects($this->once())->method('flush');
+        $repo->expects($this->once())->method('add');
+        $linker->expects($this->never())->method('link');
+        $flusher->expects($this->once())->method('flush');
 
-        $note = $this->noteManager->create($dto);
+        $note = $this->makeManager($repo, $linker, $flusher)->create(new CreateNoteDto(content: '# Note'));
 
         $this->assertInstanceOf(Note::class, $note);
-        $this->assertEquals($content, $note->content);
+        $this->assertEquals('# Note', $note->content);
+    }
+
+    public function testCreateNoteWithAttachmentsLinksOwnership(): void
+    {
+        $repo = $this->createMock(NoteRepository::class);
+        $linker = $this->createMock(LinkerInterface::class);
+        $flusher = $this->createMock(Flusher::class);
+
+        $a1 = new Attachment();
+        $a2 = new Attachment();
+
+        $repo->expects($this->once())->method('add');
+        $linker->expects($this->exactly(2))->method('link')
+            ->with($this->isInstanceOf(Note::class), $this->isInstanceOf(Attachment::class), LinkKind::Ownership);
+        $flusher->expects($this->once())->method('flush');
+
+        $this->makeManager($repo, $linker, $flusher)->create(
+            new CreateNoteDto(content: '# Note', attachments: [$a1, $a2]),
+        );
     }
 
     public function testGetNoteReturnsNote(): void
     {
-        $id = Uuid::v7();
         $note = new Note('Content');
+        $repo = $this->createMock(NoteRepository::class);
+        $repo->expects($this->once())->method('find')->willReturn($note);
 
-        $this->noteRepository->expects($this->once())
-            ->method('find')
-            ->with($id)
-            ->willReturn($note);
-        $this->flusher->expects($this->never())->method('flush');
-
-        $result = $this->noteManager->get($id);
-
-        $this->assertEquals($note, $result);
+        $this->assertSame($note, $this->makeManager(repo: $repo)->get(Uuid::v7()));
     }
 
-    public function testGetNoteThrowsEntityNotFoundExceptionWhenNotFound(): void
+    public function testGetNoteThrowsWhenNotFound(): void
     {
-        $id = Uuid::v7();
-
-        $this->noteRepository->expects($this->once())
-            ->method('find')
-            ->with($id)
-            ->willReturn(null);
-        $this->flusher->expects($this->never())->method('flush');
+        $repo = $this->createMock(NoteRepository::class);
+        $repo->expects($this->once())->method('find')->willReturn(null);
 
         $this->expectException(EntityNotFoundException::class);
 
-        $this->noteManager->get($id);
+        $this->makeManager(repo: $repo)->get(Uuid::v7());
     }
 
-    public function testUpdateNotePartially(): void
+    public function testUpdateNoteContent(): void
     {
-        $note = new Note('Old Content');
+        $flusher = $this->createMock(Flusher::class);
+        $flusher->expects($this->once())->method('flush');
 
-        $dto = new UpdateNoteDto(
-            content: null,
-        );
+        $note = new Note('Old');
+        $this->makeManager(flusher: $flusher)->update($note, new UpdateNoteDto(content: 'New'));
 
-        $this->noteRepository->expects($this->never())->method('add');
-        $this->flusher->expects($this->once())->method('flush');
-
-        $this->noteManager->update($note, $dto);
-
-        $this->assertEquals('Old Content', $note->content);
+        $this->assertEquals('New', $note->content);
     }
 
-    public function testUpdateNoteAllFields(): void
+    public function testUpdateNoteSkipsNullContent(): void
     {
-        $note = new Note('Old Content');
+        $flusher = $this->createMock(Flusher::class);
+        $flusher->expects($this->once())->method('flush');
 
-        $dto = new UpdateNoteDto(
-            content: 'New Content',
-        );
+        $note = new Note('Original');
+        $this->makeManager(flusher: $flusher)->update($note, new UpdateNoteDto(content: null));
 
-        $this->noteRepository->expects($this->never())->method('add');
-        $this->flusher->expects($this->once())->method('flush');
-
-        $this->noteManager->update($note, $dto);
-
-        $this->assertEquals('New Content', $note->content);
+        $this->assertEquals('Original', $note->content);
     }
 
-    public function testUpdateNoteNoChanges(): void
+    public function testAttachLinksEachAttachment(): void
     {
-        $note = new Note('Content');
+        $note = new Note('# Note');
+        $a1 = new Attachment();
+        $a2 = new Attachment();
+        $linker = $this->createMock(LinkerInterface::class);
+        $flusher = $this->createMock(Flusher::class);
 
-        $dto = new UpdateNoteDto(
-            content: null,
-        );
+        $linker->expects($this->exactly(2))->method('link')
+            ->with($note, $this->isInstanceOf(Attachment::class), LinkKind::Ownership);
+        $flusher->expects($this->once())->method('flush');
 
-        $this->noteRepository->expects($this->never())->method('add');
-        $this->flusher->expects($this->once())->method('flush');
+        $this->makeManager(linker: $linker, flusher: $flusher)
+            ->attach($note, new AttachNoteAttachmentsDto(attachments: [$a1, $a2]));
+    }
 
-        $this->noteManager->update($note, $dto);
+    public function testDetachCallsUnlink(): void
+    {
+        $note = new Note('# Note');
+        $attachment = new Attachment();
+        $linker = $this->createMock(LinkerInterface::class);
+        $flusher = $this->createMock(Flusher::class);
 
-        $this->assertEquals('Content', $note->content);
+        $linker->expects($this->once())->method('unlink')->with($note, $attachment, LinkKind::Ownership);
+        $flusher->expects($this->once())->method('flush');
+
+        $this->makeManager(linker: $linker, flusher: $flusher)->detach($note, $attachment);
+    }
+
+    public function testDetachPropagatesLinkNotFoundException(): void
+    {
+        $note = new Note('# Note');
+        $attachment = new Attachment();
+        $linker = $this->createMock(LinkerInterface::class);
+        $flusher = $this->createMock(Flusher::class);
+
+        $linker->expects($this->once())->method('unlink')
+            ->willThrowException(new LinkNotFoundException($note, $attachment, LinkKind::Ownership));
+        $flusher->expects($this->never())->method('flush');
+
+        $this->expectException(LinkNotFoundException::class);
+
+        $this->makeManager(linker: $linker, flusher: $flusher)->detach($note, $attachment);
     }
 }

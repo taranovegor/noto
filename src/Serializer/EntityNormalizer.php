@@ -26,6 +26,9 @@ final readonly class EntityNormalizer implements NormalizerInterface, Denormaliz
         return is_object($data) && !$this->entityManager->getMetadataFactory()->isTransient($data::class);
     }
 
+    /**
+     * @return int|string|array<int|string, mixed>
+     */
     public function normalize(mixed $data, ?string $format = null, array $context = []): int|string|array
     {
         $ids = $this->entityManager->getClassMetadata($data::class)->getIdentifierValues($data);

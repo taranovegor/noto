@@ -2,20 +2,22 @@
 
 namespace App\Dto\Stash;
 
-use App\Dto\Attachment\AttachmentDto;
+use App\Entity\Attachment;
 use App\Enum\StashType;
+use App\Validator\RefNotOwned;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 final readonly class CreateStashDto
 {
     /**
-     * @param AttachmentDto[]|null $attachments
+     * @param Attachment[]|null $attachments
      */
     public function __construct(
         public StashType $type,
         #[Assert\Length(max: 65535)]
         public ?string $content = null,
+        #[Assert\All([new RefNotOwned()])]
         public ?array $attachments = null,
     ) {
     }

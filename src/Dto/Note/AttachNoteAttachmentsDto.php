@@ -6,17 +6,16 @@ use App\Entity\Attachment;
 use App\Validator\RefNotOwned;
 use Symfony\Component\Validator\Constraints as Assert;
 
-final readonly class CreateNoteDto
+final readonly class AttachNoteAttachmentsDto
 {
     /**
-     * @param Attachment[]|null $attachments
+     * @param Attachment[] $attachments
      */
     public function __construct(
         #[Assert\NotBlank]
-        #[Assert\Length(max: 65535)]
-        public string $content,
+        #[Assert\Count(min: 1)]
         #[Assert\All([new RefNotOwned()])]
-        public ?array $attachments = null,
+        public array $attachments,
     ) {
     }
 }

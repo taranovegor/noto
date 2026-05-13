@@ -15,14 +15,14 @@ class Link
 {
     use UidTrait;
 
-    #[ORM\ManyToOne(targetEntity: Ref::class, inversedBy: 'linksAsSource')]
+    #[ORM\ManyToOne(targetEntity: Ref::class, cascade: ['persist'], inversedBy: 'linksAsSource')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     public private(set) Ref $source;
 
     #[ORM\Column(length: 50, enumType: RefType::class, index: true)]
     public private(set) RefType $sourceType;
 
-    #[ORM\ManyToOne(targetEntity: Ref::class, inversedBy: 'linksAsTarget')]
+    #[ORM\ManyToOne(targetEntity: Ref::class, cascade: ['persist'], inversedBy: 'linksAsTarget')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     public private(set) Ref $target;
 

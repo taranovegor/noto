@@ -74,99 +74,105 @@ export function StashCard({
     if (stash.content.length > 80) title += '...';
   }
 
+  const rowContent = (
+    <>
+      <div className={styles.icon}>
+        <IconComponent size={18} />
+      </div>
+
+      <div className={styles.titleBlock}>
+        <span className={styles.title}>{title || 'n/a'}</span>
+        {isMultiFile && <span className={styles.badge}>{attachmentCount}</span>}
+      </div>
+
+      <div className={styles.meta}>
+        <span className={styles.date}>
+          <RelativeTime date={stash.createdAt} />
+        </span>
+        {stash.expiresAt && (
+          <span className={styles.expires}>
+            {isExpired ? 'expired' : 'expires'} <RelativeTime date={stash.expiresAt} />
+          </span>
+        )}
+      </div>
+
+      <div className={styles.actions}>
+        {isFileStash && hasAttachments ? (
+          <button
+            className={`btn btn-ghost ${styles.actionBtn}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDownload?.(stash.attachments!.map((a) => a.id));
+            }}
+            title={isMultiFile ? 'Download all' : 'Download'}
+            aria-label={isMultiFile ? 'Download all' : 'Download'}
+          >
+            <Download size={15} />
+          </button>
+        ) : (
+          <button
+            className={`btn btn-ghost ${styles.actionBtn} ${copied ? styles.copySuccess : ''}`}
+            onClick={handleCopy}
+            title="Copy"
+            aria-label="Copy"
+          >
+            {copied ? <Check size={15} /> : <Copy size={15} />}
+          </button>
+        )}
+        <button
+          className={`${styles.bookmarkButton} ${stash.pinned ? styles.bookmarked : ''}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onPin?.(stash);
+          }}
+          title={stash.pinned ? 'Unbookmark' : 'Bookmark'}
+          aria-label={stash.pinned ? 'Unbookmark' : 'Bookmark'}
+        >
+          {stash.pinned ? <BookmarkCheck size={15} /> : <Bookmark size={15} />}
+        </button>
+        <button
+          className={`btn btn-ghost ${isExpired ? styles.deleteBtn : styles.archiveBtn}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete?.(stash);
+          }}
+          disabled={isDeleting}
+          title={isExpired ? 'Delete' : 'Archive'}
+          aria-label={isExpired ? 'Delete' : 'Archive'}
+        >
+          {isDeleting ? (
+            <Loader2 size={15} className={styles.deleteSpinner} />
+          ) : isExpired ? (
+            <Trash size={15} />
+          ) : (
+            <Archive size={15} />
+          )}
+        </button>
+      </div>
+    </>
+  );
+
   return (
     <div className={styles.card}>
-      <div
-        className={`${styles.mainRow} ${isMultiFile ? styles.mainRowClickable : ''}`}
-        onClick={isMultiFile ? () => setIsExpanded((v) => !v) : undefined}
-        role={isMultiFile ? 'button' : undefined}
-        tabIndex={isMultiFile ? 0 : undefined}
-        onKeyDown={
-          isMultiFile
-            ? (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setIsExpanded((v) => !v);
-                }
-              }
-            : undefined
-        }
-        aria-expanded={isMultiFile ? isExpanded : undefined}
-      >
-        <div className={styles.icon}>
-          <IconComponent size={18} />
+      {isMultiFile ? (
+        <div
+          className={`${styles.mainRow} ${styles.mainRowClickable}`}
+          onClick={() => setIsExpanded((v) => !v)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setIsExpanded((v) => !v);
+            }
+          }}
+          aria-expanded={isExpanded}
+        >
+          {rowContent}
         </div>
-
-        <div className={styles.titleBlock}>
-          <span className={styles.title}>{title || 'n/a'}</span>
-          {isMultiFile && <span className={styles.badge}>{attachmentCount}</span>}
-        </div>
-
-        <div className={styles.meta}>
-          <span className={styles.date}>
-            <RelativeTime date={stash.createdAt} />
-          </span>
-          {stash.expiresAt && (
-            <span className={styles.expires}>
-              {isExpired ? 'expired' : 'expires'} <RelativeTime date={stash.expiresAt} />
-            </span>
-          )}
-        </div>
-
-        <div className={styles.actions}>
-          {isFileStash && hasAttachments ? (
-            <button
-              className={`btn btn-ghost ${styles.actionBtn}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onDownload?.(stash.attachments!.map((a) => a.id));
-              }}
-              title={isMultiFile ? 'Download all' : 'Download'}
-              aria-label={isMultiFile ? 'Download all' : 'Download'}
-            >
-              <Download size={15} />
-            </button>
-          ) : (
-            <button
-              className={`btn btn-ghost ${styles.actionBtn} ${copied ? styles.copySuccess : ''}`}
-              onClick={handleCopy}
-              title="Copy"
-              aria-label="Copy"
-            >
-              {copied ? <Check size={15} /> : <Copy size={15} />}
-            </button>
-          )}
-          <button
-            className={`${styles.bookmarkButton} ${stash.pinned ? styles.bookmarked : ''}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              onPin?.(stash);
-            }}
-            title={stash.pinned ? 'Unbookmark' : 'Bookmark'}
-            aria-label={stash.pinned ? 'Unbookmark' : 'Bookmark'}
-          >
-            {stash.pinned ? <BookmarkCheck size={15} /> : <Bookmark size={15} />}
-          </button>
-          <button
-            className={`btn btn-ghost ${isExpired ? styles.deleteBtn : styles.archiveBtn}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete?.(stash);
-            }}
-            disabled={isDeleting}
-            title={isExpired ? 'Delete' : 'Archive'}
-            aria-label={isExpired ? 'Delete' : 'Archive'}
-          >
-            {isDeleting ? (
-              <Loader2 size={15} className={styles.deleteSpinner} />
-            ) : isExpired ? (
-              <Trash size={15} />
-            ) : (
-              <Archive size={15} />
-            )}
-          </button>
-        </div>
-      </div>
+      ) : (
+        <div className={styles.mainRow}>{rowContent}</div>
+      )}
 
       {isExpanded && (
         <div className={styles.fileList}>

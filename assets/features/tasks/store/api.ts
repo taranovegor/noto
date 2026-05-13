@@ -64,6 +64,25 @@ const tasksApi = api.injectEndpoints({
         }
       },
     }),
+
+    attachTaskAttachments: builder.mutation<TaskResponseDto, { id: string; attachments: string[] }>(
+      {
+        query: ({ id, attachments }) => ({
+          url: `/tasks/${id}/attachments`,
+          method: 'POST',
+          body: { attachments },
+        }),
+        invalidatesTags: (_, __, { id }) => [{ type: 'Tasks', id }],
+      },
+    ),
+
+    detachTaskAttachment: builder.mutation<void, { id: string; attachmentId: string }>({
+      query: ({ id, attachmentId }) => ({
+        url: `/tasks/${id}/attachments/${attachmentId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (_, __, { id }) => [{ type: 'Tasks', id }],
+    }),
   }),
 });
 
@@ -72,4 +91,6 @@ export const {
   useGetTaskQuery,
   useCreateTaskMutation,
   useUpdateTaskMutation,
+  useAttachTaskAttachmentsMutation,
+  useDetachTaskAttachmentMutation,
 } = tasksApi;

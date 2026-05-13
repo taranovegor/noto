@@ -4,12 +4,14 @@ namespace App\Controller\Api;
 
 use App\Component\Searcher\Model\Pagination;
 use App\Component\Searcher\SearcherInterface;
+use App\Dto\Task\AttachTaskAttachmentsDto;
 use App\Dto\Task\CreateTaskDto;
 use App\Dto\Task\SearchTaskDto;
 use App\Dto\Task\TaskResponseDto;
 use App\Dto\Task\UpdateTaskDto;
 use App\Entity\Task;
 use App\Factory\Task\TaskResponseDtoFactory;
+use App\Service\Attachment\AttachmentManager;
 use App\Service\Task\TaskManager;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -27,6 +29,7 @@ final class TaskController extends AbstractController
 {
     public function __construct(
         private readonly TaskManager $taskManager,
+        private readonly AttachmentManager $attachmentManager,
         /** @var SearcherInterface<Task> */
         private readonly SearcherInterface $searcher,
         private readonly TaskResponseDtoFactory $responseDtoFactory,
@@ -92,7 +95,7 @@ final class TaskController extends AbstractController
             new OA\Response(
                 response: Response::HTTP_CREATED,
                 description: 'Task successfully created',
-                content: new OA\JsonContent(ref: new Model(type: TaskResponseDto::class, groups: ['task:read']))
+                content: new OA\JsonContent(ref: new Model(type: TaskResponseDto::class, groups: ['task:read', 'attachment:read']))
             ),
             new OA\Response(
                 response: Response::HTTP_BAD_REQUEST,
@@ -117,7 +120,7 @@ final class TaskController extends AbstractController
         $responseDto = $this->responseDtoFactory->create($task);
 
         return $this->json($responseDto, Response::HTTP_CREATED, context: [
-            AbstractNormalizer::GROUPS => ['task:read'],
+            AbstractNormalizer::GROUPS => ['task:read', 'attachment:read'],
         ]);
     }
 
@@ -138,7 +141,7 @@ final class TaskController extends AbstractController
             new OA\Response(
                 response: Response::HTTP_OK,
                 description: 'Task retrieved successfully',
-                content: new OA\JsonContent(ref: new Model(type: TaskResponseDto::class, groups: ['task:read']))
+                content: new OA\JsonContent(ref: new Model(type: TaskResponseDto::class, groups: ['task:read', 'attachment:read']))
             ),
             new OA\Response(
                 response: Response::HTTP_BAD_REQUEST,
@@ -163,7 +166,7 @@ final class TaskController extends AbstractController
         $responseDto = $this->responseDtoFactory->create($task);
 
         return $this->json($responseDto, Response::HTTP_OK, context: [
-            AbstractNormalizer::GROUPS => ['task:read'],
+            AbstractNormalizer::GROUPS => ['task:read', 'attachment:read'],
         ]);
     }
 
@@ -189,11 +192,11 @@ final class TaskController extends AbstractController
             new OA\Response(
                 response: Response::HTTP_OK,
                 description: 'Task successfully updated',
-                content: new OA\JsonContent(ref: new Model(type: TaskResponseDto::class, groups: ['task:read']))
+                content: new OA\JsonContent(ref: new Model(type: TaskResponseDto::class, groups: ['task:read', 'attachment:read']))
             ),
             new OA\Response(
-                response: Response::HTTP_BAD_REQUEST,
-                description: 'Bad request',
+                response: Response::HTTP_NOT_FOUND,
+                description: 'Task not found',
                 content: new OA\JsonContent(ref: '#/components/schemas/Error')
             ),
             new OA\Response(
@@ -215,7 +218,105 @@ final class TaskController extends AbstractController
         $responseDto = $this->responseDtoFactory->create($task);
 
         return $this->json($responseDto, Response::HTTP_OK, context: [
-            AbstractNormalizer::GROUPS => ['task:read'],
+            AbstractNormalizer::GROUPS => ['task:read', 'attachment:read'],
         ]);
+    }
+
+    #[Route('/{id}/attachments', 'attach_attachments', methods: ['POST'])]
+    #[OA\Post(
+        description: 'Attaches one or more already-uploaded attachments to the task.',
+        summary: 'Attach files to a task',
+        requestBody: new OA\RequestBody(
+            description: 'Attachment IDs to attach',
+            required: true,
+            content: new OA\JsonContent(ref: new Model(type: AttachTaskAttachmentsDto::class))
+        ),
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                description: 'Task unique identifier (UUID)',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'string', format: 'uuid')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: 'Attachments linked, updated task returned',
+                content: new OA\JsonContent(ref: new Model(type: TaskResponseDto::class, groups: ['task:read', 'attachment:read']))
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: 'Task not found',
+                content: new OA\JsonContent(ref: '#/components/schemas/Error')
+            ),
+            new OA\Response(
+                response: Response::HTTP_UNPROCESSABLE_ENTITY,
+                description: 'Validation failed',
+                content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')
+            ),
+            new OA\Response(
+                response: Response::HTTP_INTERNAL_SERVER_ERROR,
+                description: 'Internal server error',
+                content: new OA\JsonContent(ref: '#/components/schemas/Error')
+            ),
+        ]
+    )]
+    public function attachAttachments(Uuid $id, #[MapRequestPayload] AttachTaskAttachmentsDto $dto): JsonResponse
+    {
+        $task = $this->taskManager->get($id);
+        $this->taskManager->attach($task, $dto);
+        $responseDto = $this->responseDtoFactory->create($task);
+
+        return $this->json($responseDto, Response::HTTP_OK, context: [
+            AbstractNormalizer::GROUPS => ['task:read', 'attachment:read'],
+        ]);
+    }
+
+    #[Route('/{id}/attachments/{attachmentId}', 'detach_attachment', methods: ['DELETE'])]
+    #[OA\Delete(
+        description: 'Removes the ownership link between the task and the attachment.',
+        summary: 'Detach a file from a task',
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                description: 'Task unique identifier (UUID)',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'string', format: 'uuid')
+            ),
+            new OA\Parameter(
+                name: 'attachmentId',
+                description: 'Attachment unique identifier (UUID)',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'string', format: 'uuid')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_NO_CONTENT,
+                description: 'Attachment detached'
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: 'Task or attachment not found',
+                content: new OA\JsonContent(ref: '#/components/schemas/Error')
+            ),
+            new OA\Response(
+                response: Response::HTTP_INTERNAL_SERVER_ERROR,
+                description: 'Internal server error',
+                content: new OA\JsonContent(ref: '#/components/schemas/Error')
+            ),
+        ]
+    )]
+    public function detachAttachment(Uuid $id, Uuid $attachmentId): JsonResponse
+    {
+        $task = $this->taskManager->get($id);
+        $attachment = $this->attachmentManager->get($attachmentId);
+        $this->taskManager->detach($task, $attachment);
+
+        return $this->json(null, Response::HTTP_NO_CONTENT);
     }
 }

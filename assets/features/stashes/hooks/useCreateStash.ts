@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useCreateStashMutation } from '../store/api';
-import { useConfirmAttachmentUploadMutation } from '../../attachments';
+import { useCreateAttachmentMutation, useConfirmAttachmentUploadMutation } from '../../attachments';
 
 interface CreateStashState {
   isLoading: boolean;
@@ -9,6 +9,7 @@ interface CreateStashState {
 
 export function useCreateStash() {
   const [createStash] = useCreateStashMutation();
+  const [createAttachment] = useCreateAttachmentMutation();
   const [confirmUpload] = useConfirmAttachmentUploadMutation();
   const [state, setState] = useState<CreateStashState>({ isLoading: false, error: null });
 
@@ -17,36 +18,30 @@ export function useCreateStash() {
       setState({ isLoading: true, error: null });
       try {
         if (files.length > 0) {
-          const stash = await createStash({
-            type: 'file',
-            attachments: files.map((f) => ({
-              originFilename: f.name,
-              mimeType: f.type || 'application/octet-stream',
-              size: f.size,
-            })),
-          }).unwrap();
+          const attachmentIds = await Promise.all(
+            files.map(async (file) => {
+              const attachment = await createAttachment({
+                originFilename: file.name,
+                mimeType: file.type || 'application/octet-stream',
+                size: file.size,
+              }).unwrap();
 
-          if (stash.attachments) {
-            const fileByName = new Map(files.map((f) => [f.name, f]));
+              const response = await fetch(attachment.uploadUrl, {
+                method: 'PUT',
+                body: file,
+                headers: { 'Content-Type': file.type || 'application/octet-stream' },
+              });
 
-            await Promise.all(
-              stash.attachments.map(async (attachment) => {
-                const file = fileByName.get(attachment.originFilename);
-                if (!attachment.uploadUrl || !file) return;
+              if (!response.ok) {
+                throw new Error(`Failed to upload ${file.name}`);
+              }
 
-                const response = await fetch(attachment.uploadUrl, {
-                  method: 'PUT',
-                  body: file,
-                  headers: { 'Content-Type': file.type || 'application/octet-stream' },
-                });
+              const confirmed = await confirmUpload(attachment.id).unwrap();
+              return confirmed.id;
+            }),
+          );
 
-                if (!response.ok) {
-                  throw new Error(`Failed to upload ${file.name}`);
-                }
-                await confirmUpload(attachment.id).unwrap();
-              }),
-            );
-          }
+          await createStash({ type: 'file', attachments: attachmentIds }).unwrap();
         } else if (text) {
           await createStash({ type: 'text', content: text }).unwrap();
         }
@@ -58,7 +53,7 @@ export function useCreateStash() {
         setState((s) => ({ ...s, isLoading: false }));
       }
     },
-    [createStash, confirmUpload],
+    [createStash, createAttachment, confirmUpload],
   );
 
   return { create, ...state };

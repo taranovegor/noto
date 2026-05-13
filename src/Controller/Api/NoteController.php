@@ -4,12 +4,14 @@ namespace App\Controller\Api;
 
 use App\Component\Searcher\Model\Pagination;
 use App\Component\Searcher\SearcherInterface;
+use App\Dto\Note\AttachNoteAttachmentsDto;
 use App\Dto\Note\CreateNoteDto;
 use App\Dto\Note\NoteResponseDto;
 use App\Dto\Note\SearchNoteDto;
 use App\Dto\Note\UpdateNoteDto;
 use App\Entity\Note;
 use App\Factory\Note\NoteResponseDtoFactory;
+use App\Service\Attachment\AttachmentManager;
 use App\Service\Note\NoteManager;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -27,6 +29,7 @@ final class NoteController extends AbstractController
 {
     public function __construct(
         private readonly NoteManager $noteManager,
+        private readonly AttachmentManager $attachmentManager,
         /** @var SearcherInterface<Note> */
         private readonly SearcherInterface $searcher,
         private readonly NoteResponseDtoFactory $responseDtoFactory,
@@ -92,7 +95,7 @@ final class NoteController extends AbstractController
             new OA\Response(
                 response: Response::HTTP_CREATED,
                 description: 'Note successfully created',
-                content: new OA\JsonContent(ref: new Model(type: NoteResponseDto::class, groups: ['note:read']))
+                content: new OA\JsonContent(ref: new Model(type: NoteResponseDto::class, groups: ['note:read', 'attachment:read']))
             ),
             new OA\Response(
                 response: Response::HTTP_BAD_REQUEST,
@@ -117,7 +120,7 @@ final class NoteController extends AbstractController
         $responseDto = $this->responseDtoFactory->create($note);
 
         return $this->json($responseDto, Response::HTTP_CREATED, context: [
-            AbstractNormalizer::GROUPS => ['note:read'],
+            AbstractNormalizer::GROUPS => ['note:read', 'attachment:read'],
         ]);
     }
 
@@ -138,17 +141,12 @@ final class NoteController extends AbstractController
             new OA\Response(
                 response: Response::HTTP_OK,
                 description: 'Note retrieved successfully',
-                content: new OA\JsonContent(ref: new Model(type: NoteResponseDto::class, groups: ['note:read']))
+                content: new OA\JsonContent(ref: new Model(type: NoteResponseDto::class, groups: ['note:read', 'attachment:read']))
             ),
             new OA\Response(
-                response: Response::HTTP_BAD_REQUEST,
-                description: 'Bad request',
+                response: Response::HTTP_NOT_FOUND,
+                description: 'Note not found',
                 content: new OA\JsonContent(ref: '#/components/schemas/Error')
-            ),
-            new OA\Response(
-                response: Response::HTTP_UNPROCESSABLE_ENTITY,
-                description: 'Validation failed',
-                content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')
             ),
             new OA\Response(
                 response: Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -163,7 +161,7 @@ final class NoteController extends AbstractController
         $responseDto = $this->responseDtoFactory->create($note);
 
         return $this->json($responseDto, Response::HTTP_OK, context: [
-            AbstractNormalizer::GROUPS => ['note:read'],
+            AbstractNormalizer::GROUPS => ['note:read', 'attachment:read'],
         ]);
     }
 
@@ -189,11 +187,11 @@ final class NoteController extends AbstractController
             new OA\Response(
                 response: Response::HTTP_OK,
                 description: 'Note successfully updated',
-                content: new OA\JsonContent(ref: new Model(type: NoteResponseDto::class, groups: ['note:read']))
+                content: new OA\JsonContent(ref: new Model(type: NoteResponseDto::class, groups: ['note:read', 'attachment:read']))
             ),
             new OA\Response(
-                response: Response::HTTP_BAD_REQUEST,
-                description: 'Bad request',
+                response: Response::HTTP_NOT_FOUND,
+                description: 'Note not found',
                 content: new OA\JsonContent(ref: '#/components/schemas/Error')
             ),
             new OA\Response(
@@ -215,7 +213,105 @@ final class NoteController extends AbstractController
         $responseDto = $this->responseDtoFactory->create($note);
 
         return $this->json($responseDto, Response::HTTP_OK, context: [
-            AbstractNormalizer::GROUPS => ['note:read'],
+            AbstractNormalizer::GROUPS => ['note:read', 'attachment:read'],
         ]);
+    }
+
+    #[Route('/{id}/attachments', 'attach_attachments', methods: ['POST'])]
+    #[OA\Post(
+        description: 'Attaches one or more already-uploaded attachments to the note.',
+        summary: 'Attach files to a note',
+        requestBody: new OA\RequestBody(
+            description: 'Attachment IDs to attach',
+            required: true,
+            content: new OA\JsonContent(ref: new Model(type: AttachNoteAttachmentsDto::class))
+        ),
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                description: 'Note unique identifier (UUID)',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'string', format: 'uuid')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: 'Attachments linked, updated note returned',
+                content: new OA\JsonContent(ref: new Model(type: NoteResponseDto::class, groups: ['note:read', 'attachment:read']))
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: 'Note not found',
+                content: new OA\JsonContent(ref: '#/components/schemas/Error')
+            ),
+            new OA\Response(
+                response: Response::HTTP_UNPROCESSABLE_ENTITY,
+                description: 'Validation failed',
+                content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')
+            ),
+            new OA\Response(
+                response: Response::HTTP_INTERNAL_SERVER_ERROR,
+                description: 'Internal server error',
+                content: new OA\JsonContent(ref: '#/components/schemas/Error')
+            ),
+        ]
+    )]
+    public function attachAttachments(Uuid $id, #[MapRequestPayload] AttachNoteAttachmentsDto $dto): JsonResponse
+    {
+        $note = $this->noteManager->get($id);
+        $this->noteManager->attach($note, $dto);
+        $responseDto = $this->responseDtoFactory->create($note);
+
+        return $this->json($responseDto, Response::HTTP_OK, context: [
+            AbstractNormalizer::GROUPS => ['note:read', 'attachment:read'],
+        ]);
+    }
+
+    #[Route('/{id}/attachments/{attachmentId}', 'detach_attachment', methods: ['DELETE'])]
+    #[OA\Delete(
+        description: 'Removes the ownership link between the note and the attachment.',
+        summary: 'Detach a file from a note',
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                description: 'Note unique identifier (UUID)',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'string', format: 'uuid')
+            ),
+            new OA\Parameter(
+                name: 'attachmentId',
+                description: 'Attachment unique identifier (UUID)',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'string', format: 'uuid')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_NO_CONTENT,
+                description: 'Attachment detached'
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: 'Note or attachment not found',
+                content: new OA\JsonContent(ref: '#/components/schemas/Error')
+            ),
+            new OA\Response(
+                response: Response::HTTP_INTERNAL_SERVER_ERROR,
+                description: 'Internal server error',
+                content: new OA\JsonContent(ref: '#/components/schemas/Error')
+            ),
+        ]
+    )]
+    public function detachAttachment(Uuid $id, Uuid $attachmentId): JsonResponse
+    {
+        $note = $this->noteManager->get($id);
+        $attachment = $this->attachmentManager->get($attachmentId);
+        $this->noteManager->detach($note, $attachment);
+
+        return $this->json(null, Response::HTTP_NO_CONTENT);
     }
 }

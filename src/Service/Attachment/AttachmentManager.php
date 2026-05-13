@@ -50,6 +50,15 @@ readonly class AttachmentManager
         return $this->attachmentRepository->findByIds($ids);
     }
 
+    public function delete(Attachment $attachment): void
+    {
+        if ($this->storage->exists($attachment->path)) {
+            $this->storage->delete($attachment->path);
+        }
+
+        $this->attachmentRepository->remove($attachment);
+    }
+
     public function confirm(Attachment $attachment): void
     {
         if (AttachmentStatus::Uploaded === $attachment->status) {

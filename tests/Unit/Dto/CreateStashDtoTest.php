@@ -2,8 +2,8 @@
 
 namespace App\Tests\Unit\Dto;
 
-use App\Dto\Attachment\AttachmentDto;
 use App\Dto\Stash\CreateStashDto;
+use App\Entity\Attachment;
 use App\Enum\StashType;
 use PHPUnit\Framework\TestCase;
 
@@ -23,11 +23,11 @@ class CreateStashDtoTest extends TestCase
 
     public function testFileStash(): void
     {
-        $file = new AttachmentDto('photo.png', 'image/png', 2048);
+        $attachment = new Attachment();
 
         $dto = new CreateStashDto(
             type: StashType::File,
-            attachments: [$file],
+            attachments: [$attachment],
         );
 
         $this->assertEquals(StashType::File, $dto->type);

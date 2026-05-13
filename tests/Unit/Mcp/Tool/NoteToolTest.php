@@ -7,6 +7,7 @@ use App\Factory\Note\NoteResponseDtoFactory;
 use App\Mcp\Tool\NoteTool;
 use App\Repository\NoteRepository;
 use App\Service\Flusher;
+use App\Service\Link\LinkerInterface;
 use App\Service\Note\NoteManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -24,7 +25,7 @@ class NoteToolTest extends TestCase
         $noteRepository = $this->createStub(NoteRepository::class);
         $flusher = $this->createStub(Flusher::class);
 
-        $this->noteManager = new NoteManager($noteRepository, $flusher);
+        $this->noteManager = new NoteManager($noteRepository, $this->createStub(LinkerInterface::class), $flusher);
         $this->factory = $this->createStub(NoteResponseDtoFactory::class);
         $this->searcher = $this->createStub(SearcherInterface::class);
         $this->container = $this->createStub(ContainerInterface::class);

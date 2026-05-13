@@ -7,6 +7,7 @@ use App\Mcp\Resource\TaskResource;
 use App\Repository\ProjectRepository;
 use App\Repository\TaskRepository;
 use App\Service\Flusher;
+use App\Service\Link\LinkerInterface;
 use App\Service\Project\ProjectManager;
 use App\Service\Task\TaskCodeGenerator;
 use App\Service\Task\TaskManager;
@@ -30,12 +31,14 @@ class TaskResourceTest extends TestCase
         $projectManager = new ProjectManager($projectRepository, $projectFlusher);
 
         $codeGenerator = $this->createStub(TaskCodeGenerator::class);
+        $linker = $this->createStub(LinkerInterface::class);
         $flusher = $this->createStub(Flusher::class);
 
         $this->taskManager = new TaskManager(
             $taskRepository,
             $projectManager,
             $codeGenerator,
+            $linker,
             $flusher,
         );
 

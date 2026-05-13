@@ -2,37 +2,44 @@
 
 namespace App\Tests\Unit\Service\Stash;
 
-use App\Dto\Attachment\AttachmentDto;
 use App\Dto\Stash\CreateStashDto;
 use App\Dto\Stash\UpdateStashDto;
 use App\Entity\Attachment;
 use App\Entity\Stash;
-use App\Enum\AttachmentStatus;
+use App\Enum\LinkKind;
 use App\Enum\StashType;
-use App\Repository\LinkRepository;
 use App\Repository\StashRepository;
-use App\Service\Attachment\AttachmentManager;
 use App\Service\Flusher;
+use App\Service\Link\LinkerInterface;
 use App\Service\Stash\StashManager;
 use PHPUnit\Framework\TestCase;
 
 class StashManagerTest extends TestCase
 {
+    private function makeManager(
+        ?StashRepository $repo = null,
+        ?LinkerInterface $linker = null,
+        ?Flusher $flusher = null,
+        ?\DateInterval $ttl = null,
+    ): StashManager {
+        return new StashManager(
+            $repo ?? $this->createStub(StashRepository::class),
+            $linker ?? $this->createStub(LinkerInterface::class),
+            $flusher ?? $this->createStub(Flusher::class),
+            $ttl ?? new \DateInterval('PT23H59M59S'),
+        );
+    }
+
     public function testCreateTextStash(): void
     {
-        $stashRepository = $this->createMock(StashRepository::class);
-        $attachmentManager = $this->createStub(AttachmentManager::class);
-        $linkRepository = $this->createStub(LinkRepository::class);
+        $repo = $this->createMock(StashRepository::class);
         $flusher = $this->createMock(Flusher::class);
 
-        $manager = new StashManager($stashRepository, $attachmentManager, $linkRepository, $flusher);
-
-        $dto = new CreateStashDto(type: StashType::Text, content: 'hello');
-
-        $stashRepository->expects($this->once())->method('add');
+        $repo->expects($this->once())->method('add');
         $flusher->expects($this->once())->method('flush');
 
-        $stash = $manager->create($dto);
+        $stash = $this->makeManager(repo: $repo, flusher: $flusher)
+            ->create(new CreateStashDto(type: StashType::Text, content: 'hello'));
 
         $this->assertInstanceOf(Stash::class, $stash);
         $this->assertEquals(StashType::Text, $stash->type);
@@ -40,70 +47,45 @@ class StashManagerTest extends TestCase
         $this->assertNotNull($stash->expiresAt);
     }
 
-    public function testCreateFileStashCreatesAttachmentsAndLinks(): void
+    public function testCreateFileStashLinksAttachments(): void
     {
-        $stashRepository = $this->createMock(StashRepository::class);
-        $attachmentManager = $this->createMock(AttachmentManager::class);
-        $linkRepository = $this->createMock(LinkRepository::class);
+        $repo = $this->createMock(StashRepository::class);
+        $linker = $this->createMock(LinkerInterface::class);
         $flusher = $this->createMock(Flusher::class);
 
-        $manager = new StashManager($stashRepository, $attachmentManager, $linkRepository, $flusher);
+        $a1 = new Attachment();
+        $a2 = new Attachment();
 
-        $attachmentDto = new AttachmentDto('file.pdf', 'application/pdf', 1024);
-        $dto = new CreateStashDto(type: StashType::File, attachments: [$attachmentDto]);
-
-        $attachment = new Attachment();
-        $attachment->originFilename = 'file.pdf';
-        $attachment->mimeType = 'application/pdf';
-        $attachment->size = 1024;
-        $attachment->path = 'attachments/uuid.pdf';
-        $attachment->status = AttachmentStatus::Pending;
-
-        $stashRepository->expects($this->once())->method('add');
-        $attachmentManager->expects($this->once())
-            ->method('create')
-            ->with($attachmentDto)
-            ->willReturn($attachment);
-        $linkRepository->expects($this->once())->method('add');
+        $repo->expects($this->once())->method('add');
+        $linker->expects($this->exactly(2))->method('link')
+            ->with($this->isInstanceOf(Stash::class), $this->isInstanceOf(Attachment::class), LinkKind::Ownership);
         $flusher->expects($this->once())->method('flush');
 
-        $stash = $manager->create($dto);
+        $stash = $this->makeManager(repo: $repo, linker: $linker, flusher: $flusher)
+            ->create(new CreateStashDto(type: StashType::File, attachments: [$a1, $a2]));
 
         $this->assertEquals(StashType::File, $stash->type);
     }
 
     public function testUpdatePinned(): void
     {
-        $manager = new StashManager(
-            $this->createStub(StashRepository::class),
-            $this->createStub(AttachmentManager::class),
-            $this->createStub(LinkRepository::class),
-            $flusher = $this->createMock(Flusher::class),
-        );
+        $flusher = $this->createMock(Flusher::class);
+        $flusher->expects($this->once())->method('flush');
 
         $stash = new Stash(StashType::Text);
         $this->assertFalse($stash->pinned);
 
-        $flusher->expects($this->once())->method('flush');
-
-        $manager->update($stash, new UpdateStashDto(pinned: true));
+        $this->makeManager(flusher: $flusher)->update($stash, new UpdateStashDto(pinned: true));
 
         $this->assertTrue($stash->pinned);
     }
 
     public function testUpdatePinnedToTrueRemovesExpiration(): void
     {
-        $manager = new StashManager(
-            $this->createStub(StashRepository::class),
-            $this->createStub(AttachmentManager::class),
-            $this->createStub(LinkRepository::class),
-            $this->createStub(Flusher::class),
-        );
-
         $stash = new Stash(StashType::Text);
         $stash->expiresAt = new \DateTimeImmutable()->modify('+1 day');
 
-        $manager->update($stash, new UpdateStashDto(pinned: true));
+        $this->makeManager()->update($stash, new UpdateStashDto(pinned: true));
 
         $this->assertNull($stash->expiresAt);
     }
@@ -111,20 +93,13 @@ class StashManagerTest extends TestCase
     public function testUpdatePinnedToFalseAddsExpiration(): void
     {
         $ttl = new \DateInterval('P7D');
-        $manager = new StashManager(
-            $this->createStub(StashRepository::class),
-            $this->createStub(AttachmentManager::class),
-            $this->createStub(LinkRepository::class),
-            $this->createStub(Flusher::class),
-            $ttl,
-        );
 
         $stash = new Stash(StashType::Text);
         $stash->pinned = true;
         $stash->expiresAt = null;
 
         $beforeUpdate = new \DateTimeImmutable();
-        $manager->update($stash, new UpdateStashDto(pinned: false));
+        $this->makeManager(ttl: $ttl)->update($stash, new UpdateStashDto(pinned: false));
         $afterUpdate = new \DateTimeImmutable();
 
         $this->assertNotNull($stash->expiresAt);
@@ -134,17 +109,10 @@ class StashManagerTest extends TestCase
 
     public function testUpdatePinnedWithSameValueDoesNotUpdate(): void
     {
-        $manager = new StashManager(
-            $this->createStub(StashRepository::class),
-            $this->createStub(AttachmentManager::class),
-            $this->createStub(LinkRepository::class),
-            $this->createStub(Flusher::class),
-        );
-
         $stash = new Stash(StashType::Text);
         $originalExpiresAt = $stash->expiresAt;
 
-        $manager->update($stash, new UpdateStashDto(pinned: false));
+        $this->makeManager()->update($stash, new UpdateStashDto(pinned: false));
 
         $this->assertFalse($stash->pinned);
         $this->assertEquals($originalExpiresAt, $stash->expiresAt);
@@ -152,17 +120,10 @@ class StashManagerTest extends TestCase
 
     public function testUpdatePinnedWithNullValueDoesNotUpdate(): void
     {
-        $manager = new StashManager(
-            $this->createStub(StashRepository::class),
-            $this->createStub(AttachmentManager::class),
-            $this->createStub(LinkRepository::class),
-            $this->createStub(Flusher::class),
-        );
-
         $stash = new Stash(StashType::Text);
         $originalExpiresAt = $stash->expiresAt;
 
-        $manager->update($stash, new UpdateStashDto(pinned: null));
+        $this->makeManager()->update($stash, new UpdateStashDto(pinned: null));
 
         $this->assertFalse($stash->pinned);
         $this->assertEquals($originalExpiresAt, $stash->expiresAt);

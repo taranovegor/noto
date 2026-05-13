@@ -2,7 +2,11 @@
 
 namespace App\Tests\Integration\Controller\Api;
 
+use App\Entity\Attachment;
+use App\Entity\Link;
 use App\Entity\Note;
+use App\Enum\AttachmentStatus;
+use App\Enum\LinkKind;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Uid\Uuid;
 
@@ -29,8 +33,8 @@ class NoteControllerTest extends AuthenticatedApiTestCase
         $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
 
-        $note1 = new Note('# First Note' . "\n" . 'Content 1');
-        $note2 = new Note('# Second Note' . "\n" . 'Content 2');
+        $note1 = new Note('# First Note'."\n".'Content 1');
+        $note2 = new Note('# Second Note'."\n".'Content 2');
         $em->persist($note1);
         $em->persist($note2);
         $em->flush();
@@ -51,7 +55,7 @@ class NoteControllerTest extends AuthenticatedApiTestCase
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
 
         for ($i = 1; $i <= 5; ++$i) {
-            $note = new Note("# Note $i" . "\n" . "Content $i");
+            $note = new Note("# Note $i"."\n"."Content $i");
             $em->persist($note);
         }
         $em->flush();
@@ -74,7 +78,7 @@ class NoteControllerTest extends AuthenticatedApiTestCase
         $client = $this->getAuthenticatedClient();
 
         $data = [
-            'content' => '# New Note' . "\n" . 'This is a test note',
+            'content' => '# New Note'."\n".'This is a test note',
         ];
 
         $client->request('POST', '/api/notes', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($data));
@@ -82,7 +86,7 @@ class NoteControllerTest extends AuthenticatedApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
         $response = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertEquals('# New Note' . "\n" . 'This is a test note', $response['content']);
+        $this->assertEquals('# New Note'."\n".'This is a test note', $response['content']);
         $this->assertNotEmpty($response['id']);
         $this->assertNotEmpty($response['createdAt']);
         $this->assertNotEmpty($response['updatedAt']);
@@ -125,7 +129,7 @@ class NoteControllerTest extends AuthenticatedApiTestCase
         $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
 
-        $note = new Note('# Get Test Note' . "\n" . 'Content');
+        $note = new Note('# Get Test Note'."\n".'Content');
         $em->persist($note);
         $em->flush();
 
@@ -135,7 +139,7 @@ class NoteControllerTest extends AuthenticatedApiTestCase
         $response = json_decode($client->getResponse()->getContent(), true);
 
         $this->assertEquals($note->id->toRfc4122(), $response['id']);
-        $this->assertEquals('# Get Test Note' . "\n" . 'Content', $response['content']);
+        $this->assertEquals('# Get Test Note'."\n".'Content', $response['content']);
     }
 
     public function testGetNoteNotFound(): void
@@ -179,6 +183,208 @@ class NoteControllerTest extends AuthenticatedApiTestCase
 
         $this->assertEquals('Updated Content', $response['content']);
     }
+
+    // --- Attachment helpers ---
+
+    private function createUploadedAttachment(): Attachment
+    {
+        $em = self::getContainer()->get('doctrine.orm.entity_manager');
+
+        $attachment = new Attachment();
+        $attachment->originFilename = 'file.png';
+        $attachment->mimeType = 'image/png';
+        $attachment->size = 1024;
+        $attachment->path = 'attachments/'.$attachment->id->toRfc4122().'.png';
+        $attachment->status = AttachmentStatus::Uploaded;
+
+        $em->persist($attachment);
+        $em->flush();
+
+        return $attachment;
+    }
+
+    // --- Create with attachments ---
+
+    public function testCreateNoteWithAttachmentsLinksOwnership(): void
+    {
+        $client = $this->getAuthenticatedClient();
+        $attachment = $this->createUploadedAttachment();
+
+        $client->request('POST', '/api/notes', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+            'content' => '# Note with attachment',
+            'attachments' => [$attachment->id->toRfc4122()],
+        ]));
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
+        $response = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertCount(1, $response['attachments']);
+        $this->assertEquals($attachment->id->toRfc4122(), $response['attachments'][0]['id']);
+    }
+
+    public function testCreateNoteWithNonExistentAttachmentFails(): void
+    {
+        $client = $this->getAuthenticatedClient();
+
+        $client->request('POST', '/api/notes', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+            'content' => '# Note',
+            'attachments' => [Uuid::v7()->toRfc4122()],
+        ]));
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    public function testCreateNoteWithAlreadyOwnedAttachmentFails(): void
+    {
+        $client = $this->getAuthenticatedClient();
+        $em = self::getContainer()->get('doctrine.orm.entity_manager');
+
+        $attachment = $this->createUploadedAttachment();
+        $owner = new Note('# Owner');
+        $em->persist($owner);
+        $em->persist(new Link($owner->ref, $attachment->ref, LinkKind::Ownership));
+        $em->flush();
+
+        $client->request('POST', '/api/notes', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+            'content' => '# Note',
+            'attachments' => [$attachment->id->toRfc4122()],
+        ]));
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    // --- GET with attachments ---
+
+    public function testGetNoteReturnsAttachments(): void
+    {
+        $client = $this->getAuthenticatedClient();
+        $em = self::getContainer()->get('doctrine.orm.entity_manager');
+
+        $note = new Note('# Note');
+        $attachment = $this->createUploadedAttachment();
+        $em->persist($note);
+        $em->persist(new Link($note->ref, $attachment->ref, LinkKind::Ownership));
+        $em->flush();
+
+        $client->request('GET', '/api/notes/'.$note->id->toRfc4122());
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        $response = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertCount(1, $response['attachments']);
+        $this->assertEquals($attachment->id->toRfc4122(), $response['attachments'][0]['id']);
+    }
+
+    public function testGetNoteWithNoAttachmentsReturnsNull(): void
+    {
+        $client = $this->getAuthenticatedClient();
+        $em = self::getContainer()->get('doctrine.orm.entity_manager');
+
+        $note = new Note('# Note');
+        $em->persist($note);
+        $em->flush();
+
+        $client->request('GET', '/api/notes/'.$note->id->toRfc4122());
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        $response = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertNull($response['attachments']);
+    }
+
+    // --- POST /notes/:id/attachments ---
+
+    public function testAttachAttachmentsToNote(): void
+    {
+        $client = $this->getAuthenticatedClient();
+        $em = self::getContainer()->get('doctrine.orm.entity_manager');
+
+        $note = new Note('# Note');
+        $em->persist($note);
+        $em->flush();
+
+        $attachment = $this->createUploadedAttachment();
+
+        $client->request('POST', '/api/notes/'.$note->id->toRfc4122().'/attachments', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+            'attachments' => [$attachment->id->toRfc4122()],
+        ]));
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        $response = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertCount(1, $response['attachments']);
+        $this->assertEquals($attachment->id->toRfc4122(), $response['attachments'][0]['id']);
+    }
+
+    public function testAttachAlreadyOwnedAttachmentFails(): void
+    {
+        $client = $this->getAuthenticatedClient();
+        $em = self::getContainer()->get('doctrine.orm.entity_manager');
+
+        $note = new Note('# Note');
+        $attachment = $this->createUploadedAttachment();
+        $owner = new Note('# Owner');
+        $em->persist($note);
+        $em->persist($owner);
+        $em->persist(new Link($owner->ref, $attachment->ref, LinkKind::Ownership));
+        $em->flush();
+
+        $client->request('POST', '/api/notes/'.$note->id->toRfc4122().'/attachments', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+            'attachments' => [$attachment->id->toRfc4122()],
+        ]));
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    // --- DELETE /notes/:id/attachments/:attachmentId ---
+
+    public function testDetachAttachmentFromNote(): void
+    {
+        $client = $this->getAuthenticatedClient();
+        $em = self::getContainer()->get('doctrine.orm.entity_manager');
+
+        $note = new Note('# Note');
+        $attachment = $this->createUploadedAttachment();
+        $em->persist($note);
+        $em->persist(new Link($note->ref, $attachment->ref, LinkKind::Ownership));
+        $em->flush();
+
+        $client->request('DELETE', '/api/notes/'.$note->id->toRfc4122().'/attachments/'.$attachment->id->toRfc4122());
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+    }
+
+    public function testDetachNonLinkedAttachmentReturns404(): void
+    {
+        $client = $this->getAuthenticatedClient();
+        $em = self::getContainer()->get('doctrine.orm.entity_manager');
+
+        $note = new Note('# Note');
+        $em->persist($note);
+        $em->flush();
+
+        $attachment = $this->createUploadedAttachment();
+
+        $client->request('DELETE', '/api/notes/'.$note->id->toRfc4122().'/attachments/'.$attachment->id->toRfc4122());
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
+    public function testDetachNonExistentAttachmentReturns404(): void
+    {
+        $client = $this->getAuthenticatedClient();
+        $em = self::getContainer()->get('doctrine.orm.entity_manager');
+
+        $note = new Note('# Note');
+        $em->persist($note);
+        $em->flush();
+
+        $client->request('DELETE', '/api/notes/'.$note->id->toRfc4122().'/attachments/'.Uuid::v7()->toRfc4122());
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
+    // --- ---
 
     public function testUpdateNonExistentNote(): void
     {

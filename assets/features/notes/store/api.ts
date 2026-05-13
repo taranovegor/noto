@@ -43,11 +43,30 @@ const notesApi = api.injectEndpoints({
       invalidatesTags: ['Notes'],
     }),
 
+    attachNoteAttachments: builder.mutation<
+      NoteResponseDto,
+      { noteId: string; attachments: string[] }
+    >({
+      query: ({ noteId, attachments }) => ({
+        url: `/notes/${noteId}/attachments`,
+        method: 'POST',
+        body: { attachments },
+      }),
+      invalidatesTags: (_, __, { noteId }) => [{ type: 'Notes', id: noteId }],
+    }),
+
+    detachNoteAttachment: builder.mutation<void, { noteId: string; attachmentId: string }>({
+      query: ({ noteId, attachmentId }) => ({
+        url: `/notes/${noteId}/attachments/${attachmentId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (_, __, { noteId }) => [{ type: 'Notes', id: noteId }],
+    }),
+
     updateNote: builder.mutation<NoteResponseDto, { id: string; body: UpdateNoteDto }>({
       query: ({ id, body }) => ({ url: `/notes/${id}`, method: 'PATCH', body }),
-      invalidatesTags: (_, __, { id }) => [{ type: 'Notes', id }, 'Notes'],
       async onQueryStarted({ id, body }, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
+        const listPatch = dispatch(
           notesApi.util.updateQueryData('getNotes', null, (draft) => {
             for (const page of draft.pages) {
               const note = page.notes.find((n) => n.id === id);
@@ -59,9 +78,21 @@ const notesApi = api.injectEndpoints({
           }),
         );
         try {
-          await queryFulfilled;
+          const { data } = await queryFulfilled;
+          dispatch(notesApi.util.updateQueryData('getNote', id, () => data));
+          dispatch(
+            notesApi.util.updateQueryData('getNotes', null, (draft) => {
+              for (const page of draft.pages) {
+                const note = page.notes.find((n) => n.id === id);
+                if (note) {
+                  Object.assign(note, data);
+                  return;
+                }
+              }
+            }),
+          );
         } catch {
-          patchResult.undo();
+          listPatch.undo();
         }
       },
     }),
@@ -73,4 +104,6 @@ export const {
   useGetNoteQuery,
   useCreateNoteMutation,
   useUpdateNoteMutation,
+  useAttachNoteAttachmentsMutation,
+  useDetachNoteAttachmentMutation,
 } = notesApi;

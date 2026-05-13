@@ -1,9 +1,18 @@
 import { api } from '../../../shared/store/api';
-import type { AttachmentUploadResponseDto, AttachmentDownloadResponseDto } from '../types';
+import type {
+  AttachmentDto,
+  AttachmentResponseDto,
+  AttachmentUploadResponseDto,
+  AttachmentDownloadResponseDto,
+} from '../types';
 
 const attachmentsApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    confirmAttachmentUpload: builder.mutation<AttachmentUploadResponseDto, string>({
+    createAttachment: builder.mutation<AttachmentUploadResponseDto, AttachmentDto>({
+      query: (body) => ({ url: '/attachments', method: 'POST', body }),
+    }),
+
+    confirmAttachmentUpload: builder.mutation<AttachmentResponseDto, string>({
       query: (attachmentId) => ({
         url: `/attachments/${attachmentId}/confirm`,
         method: 'POST',
@@ -30,6 +39,7 @@ const attachmentsApi = api.injectEndpoints({
 });
 
 export const {
+  useCreateAttachmentMutation,
   useConfirmAttachmentUploadMutation,
   useGetAttachmentDownloadUrlQuery,
   useLazyGetAttachmentDownloadUrlQuery,

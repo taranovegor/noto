@@ -9,6 +9,7 @@ interface FormShellProps {
   saving?: boolean;
   showSaveBar: boolean;
   onSubmit: (e: React.SyntheticEvent) => void;
+  extraActions?: React.ReactNode;
 }
 
 export function FormShell({
@@ -18,6 +19,7 @@ export function FormShell({
   saving,
   showSaveBar,
   onSubmit,
+  extraActions,
 }: FormShellProps) {
   const navigate = useNavigate();
 
@@ -37,11 +39,14 @@ export function FormShell({
           {error}
         </div>
       )}
-      {showSaveBar && (
+      {(showSaveBar || extraActions) && (
         <div className={styles.saveArea}>
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'Saving...' : 'Save'}
-          </button>
+          {showSaveBar && (
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? 'Saving...' : 'Save'}
+            </button>
+          )}
+          {extraActions}
         </div>
       )}
     </form>

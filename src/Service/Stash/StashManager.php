@@ -4,22 +4,19 @@ namespace App\Service\Stash;
 
 use App\Dto\Stash\CreateStashDto;
 use App\Dto\Stash\UpdateStashDto;
-use App\Entity\Link;
 use App\Entity\Stash;
 use App\Enum\LinkKind;
 use App\Exception\EntityNotFoundException;
-use App\Repository\LinkRepository;
 use App\Repository\StashRepository;
-use App\Service\Attachment\AttachmentManager;
 use App\Service\Flusher;
+use App\Service\Link\LinkerInterface;
 use Symfony\Component\Uid\Uuid;
 
 final readonly class StashManager
 {
     public function __construct(
         private StashRepository $stashRepository,
-        private AttachmentManager $attachmentManager,
-        private LinkRepository $linkRepository,
+        private LinkerInterface $linker,
         private Flusher $flusher,
         private \DateInterval $ttl = new \DateInterval('PT23H59M59S'),
     ) {
@@ -33,13 +30,8 @@ final readonly class StashManager
 
         $this->stashRepository->add($stash);
 
-        if (is_iterable($dto->attachments)) {
-            foreach ($dto->attachments as $attachmentDto) {
-                $attachment = $this->attachmentManager->create($attachmentDto);
-
-                $link = new Link($stash->ref, $attachment->ref, LinkKind::Ownership);
-                $this->linkRepository->add($link);
-            }
+        foreach ($dto->attachments ?? [] as $attachment) {
+            $this->linker->link($stash, $attachment, LinkKind::Ownership);
         }
 
         $this->flusher->flush();

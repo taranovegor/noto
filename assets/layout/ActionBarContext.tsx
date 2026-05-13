@@ -19,7 +19,7 @@ export type ActionBarButton = {
 };
 
 export type ActionBarInputConfig = {
-  ref: React.RefObject<HTMLInputElement>;
+  ref: React.RefObject<HTMLInputElement | null>;
   value: string;
   placeholder?: string;
   disabled?: boolean;
@@ -29,6 +29,7 @@ export type ActionBarInputConfig = {
 };
 
 export type ActionBarConfig = {
+  backButton?: ActionBarButton;
   buttons: ActionBarButton[];
   input?: ActionBarInputConfig | null;
 };

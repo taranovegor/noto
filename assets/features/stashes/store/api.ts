@@ -1,11 +1,6 @@
 import { api } from '../../../shared/store/api';
 import type { ListResponse } from '../../../shared/types/api';
-import type {
-  StashResponseDto,
-  CreateStashResponseDto,
-  CreateStashDto,
-  UpdateStashDto,
-} from '../types';
+import type { StashResponseDto, CreateStashDto, UpdateStashDto } from '../types';
 
 const stashesApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -35,7 +30,7 @@ const stashesApi = api.injectEndpoints({
       providesTags: ['Stashes'],
     }),
 
-    createStash: builder.mutation<CreateStashResponseDto, CreateStashDto>({
+    createStash: builder.mutation<StashResponseDto, CreateStashDto>({
       query: (body) => ({
         url: '/stashes',
         method: 'POST',

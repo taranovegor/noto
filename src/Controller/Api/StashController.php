@@ -141,7 +141,7 @@ final class StashController extends AbstractController
     public function create(#[MapRequestPayload] CreateStashDto $dto): JsonResponse
     {
         $stash = $this->stashManager->create($dto);
-        $responseDto = $this->responseDtoFactory->createWithUploadUrls($stash);
+        $responseDto = $this->responseDtoFactory->create($stash);
 
         return $this->json($responseDto, Response::HTTP_CREATED, context: [
             AbstractNormalizer::GROUPS => ['stash:read', 'attachment:read'],

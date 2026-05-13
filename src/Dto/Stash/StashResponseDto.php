@@ -3,7 +3,6 @@
 namespace App\Dto\Stash;
 
 use App\Dto\Attachment\AttachmentResponseDto;
-use App\Dto\Attachment\AttachmentUploadResponseDto;
 use App\Enum\StashType;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
@@ -11,7 +10,7 @@ use Symfony\Component\Uid\Uuid;
 readonly class StashResponseDto
 {
     /**
-     * @param array<int, AttachmentResponseDto|AttachmentUploadResponseDto>|null $attachments
+     * @param array<int, AttachmentResponseDto>|null $attachments
      */
     public function __construct(
         #[Groups(['stash:read'])]

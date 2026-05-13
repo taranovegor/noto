@@ -1,8 +1,4 @@
-import type {
-  AttachmentResponseDto,
-  AttachmentUploadResponseDto,
-  AttachmentDto,
-} from '../attachments';
+import type { AttachmentResponseDto } from '../attachments';
 
 export type StashType = 'text' | 'file';
 
@@ -16,14 +12,10 @@ export interface StashResponseDto {
   attachments: AttachmentResponseDto[] | null;
 }
 
-export interface CreateStashResponseDto extends Omit<StashResponseDto, 'attachments'> {
-  attachments: AttachmentUploadResponseDto[] | null;
-}
-
 export interface CreateStashDto {
   type: StashType;
   content?: string | null;
-  attachments?: AttachmentDto[] | null;
+  attachments?: string[] | null;
 }
 
 export interface UpdateStashDto {

@@ -3,11 +3,15 @@
 namespace App\Tests\Unit\Factory\Task;
 
 use App\Dto\Task\TaskResponseDto;
+use App\Entity\Attachment;
 use App\Entity\Project;
 use App\Entity\Task;
+use App\Enum\LinkKind;
 use App\Enum\TaskPriority;
 use App\Enum\TaskStatus;
+use App\Factory\Attachment\AttachmentResponseDtoFactory;
 use App\Factory\Task\TaskResponseDtoFactory;
+use App\Service\Link\LinkResolver;
 use PHPUnit\Framework\TestCase;
 
 class TaskResponseDtoFactoryTest extends TestCase
@@ -16,7 +20,9 @@ class TaskResponseDtoFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->factory = new TaskResponseDtoFactory();
+        $linkResolver = $this->createStub(LinkResolver::class);
+        $attachmentResponseDtoFactory = $this->createStub(AttachmentResponseDtoFactory::class);
+        $this->factory = new TaskResponseDtoFactory($linkResolver, $attachmentResponseDtoFactory);
     }
 
     public function testCreateConvertsTaskToDto(): void
@@ -37,6 +43,7 @@ class TaskResponseDtoFactoryTest extends TestCase
         $this->assertNull($dto->projectId);
         $this->assertNull($dto->code);
         $this->assertNull($dto->deadline);
+        $this->assertNull($dto->attachments);
     }
 
     public function testCreateWithProject(): void
@@ -77,5 +84,30 @@ class TaskResponseDtoFactoryTest extends TestCase
 
         $this->assertEquals($task->createdAt, $dto->createdAt);
         $this->assertEquals($task->updatedAt, $dto->updatedAt);
+    }
+
+    public function testCreateWithAttachmentsResolvesViaLinkResolver(): void
+    {
+        $attachment = new Attachment();
+        $task = new Task('Task with attachment');
+        $task->note = '';
+        $task->status = TaskStatus::Backlog;
+
+        $linkResolver = $this->createMock(LinkResolver::class);
+        $linkResolver->expects($this->once())
+            ->method('resolve')
+            ->with($task, LinkKind::Ownership, Attachment::class)
+            ->willReturn([$attachment]);
+
+        $attachmentResponseDtoFactory = $this->createMock(AttachmentResponseDtoFactory::class);
+        $attachmentResponseDtoFactory->expects($this->once())
+            ->method('create')
+            ->with($attachment);
+
+        $factory = new TaskResponseDtoFactory($linkResolver, $attachmentResponseDtoFactory);
+        $dto = $factory->create($task);
+
+        $this->assertNotNull($dto->attachments);
+        $this->assertCount(1, $dto->attachments);
     }
 }
