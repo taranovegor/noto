@@ -1,5 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { formatDateTime, parseError, shouldShowSkeleton } from '../../../shared/utils';
+import {
+  formatDateTime,
+  parseError,
+  shouldShowSkeleton,
+  renderPlainText,
+} from '../../../shared/utils';
 import { useAppSelector } from '../../../shared/store/hooks';
 import { useNotes } from '../store/api';
 import { useInfiniteScroll, useIsDataStale } from '../../../shared/hooks';
@@ -7,6 +12,17 @@ import { NotesListSkeleton } from './NotesListSkeleton';
 import { NotesLoadingMoreSkeleton } from './NotesLoadingMoreSkeleton';
 
 import styles from './NotesList.module.css';
+
+function extractNoteTitle(content: string): { title: string; body: string } {
+  const lines = content.split('\n');
+  const firstLine = lines[0] ?? '';
+  const rawTitle = firstLine.startsWith('# ')
+    ? firstLine.slice(2).trim()
+    : firstLine.trim() || 'Untitled';
+  const title = renderPlainText(rawTitle);
+  const body = lines.slice(1).join('\n');
+  return { title, body };
+}
 
 export function NotesList() {
   const navigate = useNavigate();
@@ -39,18 +55,22 @@ export function NotesList() {
         <NotesListSkeleton />
       ) : notes.length > 0 ? (
         <div className={styles.list} role="list">
-          {notes.map((note) => (
-            <button
-              key={note.id}
-              className={`card ${styles.card}`}
-              onClick={() => navigate(`/notes/${note.id}`)}
-              role="listitem"
-            >
-              <div className={styles.cardTitle}>{note.title}</div>
-              <div className={styles.cardPreview}>{note.content}</div>
-              <div className={styles.cardDate}>{formatDateTime(note.updatedAt)}</div>
-            </button>
-          ))}
+          {notes.map((note) => {
+            const { title, body } = extractNoteTitle(note.content);
+
+            return (
+              <button
+                key={note.id}
+                className={`card ${styles.card}`}
+                onClick={() => navigate(`/notes/${note.id}`)}
+                role="listitem"
+              >
+                <div className={styles.cardTitle}>{title}</div>
+                <div className={styles.cardPreview}>{body ? renderPlainText(body) : ''}</div>
+                <div className={styles.cardDate}>{formatDateTime(note.updatedAt)}</div>
+              </button>
+            );
+          })}
 
           {isFetchingNextPage && <NotesLoadingMoreSkeleton />}
 

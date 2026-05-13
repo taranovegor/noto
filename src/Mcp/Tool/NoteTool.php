@@ -92,20 +92,13 @@ class NoteTool extends AbstractTool
         ),
     )]
     #[Schema(type: 'object', properties: [
-        'title' => [
-            'type' => 'string',
-            'description' => 'Note title (1-255 characters)',
-            'minLength' => 1,
-            'maxLength' => 255,
-            'example' => 'Project Notes',
-        ],
         'content' => [
             'type' => 'string',
-            'description' => 'Note content/body',
+            'description' => 'Note content/body. First line starting with # is used as the title.',
             'minLength' => 1,
-            'example' => 'This is the content of the note...',
+            'example' => '# My Note\n\nThis is the content...',
         ],
-    ], required: ['title', 'content'])]
+    ], required: ['content'])]
     public function create(RequestContext $context): CallToolResult
     {
         return $this->handle($context, function (CreateNoteDto $dto): object {
@@ -127,18 +120,11 @@ class NoteTool extends AbstractTool
         ),
     )]
     #[Schema(type: 'object', properties: [
-        'title' => [
-            'type' => ['string', 'null'],
-            'description' => 'New note title (1-255 characters). Omit to keep the current value.',
-            'minLength' => 1,
-            'maxLength' => 255,
-            'example' => 'Updated Title',
-        ],
         'content' => [
             'type' => ['string', 'null'],
-            'description' => 'Update note content/body. Omit to keep the current value.',
+            'description' => 'Update note content/body. First line starting with # is used as the title. Omit to keep the current value.',
             'minLength' => 1,
-            'example' => 'Updated content...',
+            'example' => '# Updated Title\n\nUpdated content...',
         ],
     ])]
     public function update(

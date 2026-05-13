@@ -11,8 +11,6 @@ readonly class NoteResponseDto
         #[Groups(['note:read', 'note:list'])]
         public Uuid $id,
         #[Groups(['note:read', 'note:list'])]
-        public string $title,
-        #[Groups(['note:read', 'note:list'])]
         public string $content,
         #[Groups(['note:read', 'note:list'])]
         public \DateTimeInterface $createdAt,

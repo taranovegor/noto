@@ -11,23 +11,19 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: NoteRepository::class)]
 #[ORM\Table(name: 'notes')]
 #[ORM\HasLifecycleCallbacks]
-#[Indexable('id', fields: ['title', 'content'])]
+#[Indexable('id', fields: ['content'])]
 class Note implements ReferenceableInterface, HasUpdatedAtInterface
 {
     use ReferenceableTrait;
     use HasCreatedAtTrait;
     use HasUpdatedAtTrait;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    public string $title;
-
     #[ORM\Column(type: 'text')]
     public string $content;
 
-    public function __construct(string $title, string $content)
+    public function __construct(string $content)
     {
         $this->initRef();
-        $this->title = $title;
         $this->content = $content;
         $this->createdAt = new \DateTimeImmutable();
         $this->touchUpdatedAt();

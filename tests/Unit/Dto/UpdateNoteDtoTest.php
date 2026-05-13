@@ -7,36 +7,21 @@ use PHPUnit\Framework\TestCase;
 
 class UpdateNoteDtoTest extends TestCase
 {
-    public function testUpdateNoteDtoWithAllFields(): void
+    public function testUpdateNoteDtoWithContent(): void
     {
         $dto = new UpdateNoteDto(
-            title: 'Updated Title',
             content: 'Updated Content',
         );
 
-        $this->assertEquals('Updated Title', $dto->title);
         $this->assertEquals('Updated Content', $dto->content);
     }
 
-    public function testUpdateNoteDtoWithNullFields(): void
+    public function testUpdateNoteDtoWithNullContent(): void
     {
         $dto = new UpdateNoteDto(
-            title: null,
             content: null,
         );
 
-        $this->assertNull($dto->title);
-        $this->assertNull($dto->content);
-    }
-
-    public function testUpdateNoteDtoWithPartialUpdate(): void
-    {
-        $dto = new UpdateNoteDto(
-            title: 'New Title',
-            content: null,
-        );
-
-        $this->assertEquals('New Title', $dto->title);
         $this->assertNull($dto->content);
     }
 
@@ -45,6 +30,6 @@ class UpdateNoteDtoTest extends TestCase
         $dto = new UpdateNoteDto();
 
         $this->expectException(\Error::class);
-        $dto->title = 'Modified';
+        $dto->content = 'Modified';
     }
 }

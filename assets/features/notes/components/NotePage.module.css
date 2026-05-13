@@ -3,57 +3,24 @@
   margin: 0 auto;
 }
 
-.titleRow {
-  position: relative;
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-xl);
-}
-
-.backBtn {
-  position: absolute;
-  left: -1.5rem;
-  top: 2px;
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  line-height: 1.2;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  padding: 0;
-  min-width: 44px;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 150ms var(--ease-out);
-}
-
-.backBtn:hover {
-  color: var(--color-text);
-}
-
-.titleInput {
-  flex: 1;
-  font-size: var(--text-2xl);
-  font-family: var(--font-serif);
-  font-weight: var(--weight-semibold);
-  letter-spacing: -0.02em;
-  line-height: var(--leading-tight);
-  border: none;
-  padding: 0;
-  background-color: transparent;
-  color: var(--color-text);
-  resize: none;
-  overflow: hidden;
-  min-height: calc(1.875rem * 1.2);
-  outline: none;
-}
-
 .editor {
   min-height: 300px;
-  margin-bottom: var(--space-xl);
+}
+
+.editor :global(.ProseMirror) > :last-child {
+  margin-bottom: 0;
+}
+
+.editor :global(.tiptap-editor) p {
+  color: var(--color-text);
+}
+
+.editor :global(.is-empty)[data-placeholder]::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+  height: 0;
 }
 
 .skeletonForm {
@@ -78,10 +45,6 @@
   justify-content: center;
 }
 
-.skeletonTitle {
-  margin-bottom: var(--space-xl);
-}
-
 .skeletonBody {
   margin-top: var(--space-xl);
 }
@@ -96,17 +59,6 @@
 }
 
 @media (min-width: 769px) {
-  .titleRow {
-    margin-bottom: var(--space-xl);
-  }
-
-  .backBtn {
-    left: -2.75rem;
-    min-width: auto;
-    min-height: auto;
-    padding: 6px 12px;
-  }
-
   .editor {
     min-height: 400px;
   }

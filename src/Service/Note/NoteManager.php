@@ -20,7 +20,7 @@ final readonly class NoteManager
 
     public function create(CreateNoteDto $dto): Note
     {
-        $note = new Note($dto->title, $dto->content);
+        $note = new Note($dto->content);
 
         $this->noteRepository->add($note);
 
@@ -36,10 +36,6 @@ final readonly class NoteManager
 
     public function update(Note $note, UpdateNoteDto $dto): void
     {
-        if (null !== $dto->title) {
-            $note->title = $dto->title;
-        }
-
         if (null !== $dto->content) {
             $note->content = $dto->content;
         }

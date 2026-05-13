@@ -11,7 +11,6 @@ class NoteResponseDtoFactory
     {
         return new NoteResponseDto(
             $note->id,
-            $note->title,
             $note->content,
             $note->createdAt,
             $note->updatedAt,

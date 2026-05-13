@@ -26,7 +26,7 @@ class NoteResource extends AbstractResource
     #[McpResourceTemplate(
         uriTemplate: 'note://{noteId}',
         name: 'note',
-        description: 'Single note by UUID. Contains: id, title, content, createdAt, updatedAt. Get a specific note if you have its UUID.',
+        description: 'Single note by UUID. Contains: id, content, createdAt, updatedAt. The first line of content (prefixed with #) is the note title. Get a specific note if you have its UUID.',
         mimeType: 'application/json',
     )]
     public function get(string $noteId): TextResourceContents

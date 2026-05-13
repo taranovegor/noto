@@ -29,8 +29,8 @@ class NoteControllerTest extends AuthenticatedApiTestCase
         $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
 
-        $note1 = new Note('First Note', 'Content 1');
-        $note2 = new Note('Second Note', 'Content 2');
+        $note1 = new Note('# First Note' . "\n" . 'Content 1');
+        $note2 = new Note('# Second Note' . "\n" . 'Content 2');
         $em->persist($note1);
         $em->persist($note2);
         $em->flush();
@@ -51,7 +51,7 @@ class NoteControllerTest extends AuthenticatedApiTestCase
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
 
         for ($i = 1; $i <= 5; ++$i) {
-            $note = new Note("Note $i", "Content $i");
+            $note = new Note("# Note $i" . "\n" . "Content $i");
             $em->persist($note);
         }
         $em->flush();
@@ -74,8 +74,7 @@ class NoteControllerTest extends AuthenticatedApiTestCase
         $client = $this->getAuthenticatedClient();
 
         $data = [
-            'title' => 'New Note',
-            'content' => 'This is a test note',
+            'content' => '# New Note' . "\n" . 'This is a test note',
         ];
 
         $client->request('POST', '/api/notes', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($data));
@@ -83,29 +82,10 @@ class NoteControllerTest extends AuthenticatedApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
         $response = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertEquals('New Note', $response['title']);
-        $this->assertEquals('This is a test note', $response['content']);
+        $this->assertEquals('# New Note' . "\n" . 'This is a test note', $response['content']);
         $this->assertNotEmpty($response['id']);
         $this->assertNotEmpty($response['createdAt']);
         $this->assertNotEmpty($response['updatedAt']);
-    }
-
-    public function testCreateNoteValidationMissingTitle(): void
-    {
-        $client = $this->getAuthenticatedClient();
-
-        $data = [
-            'title' => '',  // Invalid: empty title
-            'content' => 'Content',
-        ];
-
-        $client->request('POST', '/api/notes', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($data));
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
-        $response = json_decode($client->getResponse()->getContent(), true);
-
-        $this->assertEquals('Validation Failed', $response['title']);
-        $this->assertIsArray($response['violations']);
     }
 
     public function testCreateNoteValidationMissingContent(): void
@@ -113,7 +93,6 @@ class NoteControllerTest extends AuthenticatedApiTestCase
         $client = $this->getAuthenticatedClient();
 
         $data = [
-            'title' => 'Title',
             'content' => '',  // Invalid: empty content
         ];
 
@@ -128,7 +107,6 @@ class NoteControllerTest extends AuthenticatedApiTestCase
 
         $longContent = str_repeat('Lorem ipsum dolor sit amet ', 100);
         $data = [
-            'title' => 'Long Note',
             'content' => $longContent,
         ];
 
@@ -147,7 +125,7 @@ class NoteControllerTest extends AuthenticatedApiTestCase
         $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
 
-        $note = new Note('Get Test Note', 'Content');
+        $note = new Note('# Get Test Note' . "\n" . 'Content');
         $em->persist($note);
         $em->flush();
 
@@ -157,8 +135,7 @@ class NoteControllerTest extends AuthenticatedApiTestCase
         $response = json_decode($client->getResponse()->getContent(), true);
 
         $this->assertEquals($note->id->toRfc4122(), $response['id']);
-        $this->assertEquals('Get Test Note', $response['title']);
-        $this->assertEquals('Content', $response['content']);
+        $this->assertEquals('# Get Test Note' . "\n" . 'Content', $response['content']);
     }
 
     public function testGetNoteNotFound(): void
@@ -182,18 +159,17 @@ class NoteControllerTest extends AuthenticatedApiTestCase
 
     // --- Update Tests ---
 
-    public function testUpdateNotePartially(): void
+    public function testUpdateNoteContent(): void
     {
         $client = $this->getAuthenticatedClient();
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
 
-        $note = new Note('Original Title', 'Original Content');
+        $note = new Note('Original Content');
         $em->persist($note);
         $em->flush();
 
         $data = [
-            'title' => 'Updated Title',
-            'content' => null,
+            'content' => 'Updated Content',
         ];
 
         $client->request('PATCH', '/api/notes/'.$note->id->toRfc4122(), [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($data));
@@ -201,31 +177,7 @@ class NoteControllerTest extends AuthenticatedApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $response = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertEquals('Updated Title', $response['title']);
-        $this->assertEquals('Original Content', $response['content']);
-    }
-
-    public function testUpdateNoteAllFields(): void
-    {
-        $client = $this->getAuthenticatedClient();
-        $em = self::getContainer()->get('doctrine.orm.entity_manager');
-
-        $note = new Note('Old Title', 'Old Content');
-        $em->persist($note);
-        $em->flush();
-
-        $data = [
-            'title' => 'New Title',
-            'content' => 'New Content',
-        ];
-
-        $client->request('PATCH', '/api/notes/'.$note->id->toRfc4122(), [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($data));
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
-        $response = json_decode($client->getResponse()->getContent(), true);
-
-        $this->assertEquals('New Title', $response['title']);
-        $this->assertEquals('New Content', $response['content']);
+        $this->assertEquals('Updated Content', $response['content']);
     }
 
     public function testUpdateNonExistentNote(): void
@@ -234,8 +186,7 @@ class NoteControllerTest extends AuthenticatedApiTestCase
         $nonExistentId = Uuid::v7()->toRfc4122();
 
         $data = [
-            'title' => 'Should not work',
-            'content' => null,
+            'content' => 'Should not work',
         ];
 
         $client->request('PATCH', '/api/notes/'.$nonExistentId, [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($data));

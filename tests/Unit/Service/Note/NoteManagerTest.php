@@ -32,30 +32,28 @@ class NoteManagerTest extends TestCase
 
     public function testCreateNoteWithValidData(): void
     {
+        $content = 'This is a test note content';
         $dto = new CreateNoteDto(
-            title: 'Test Note',
-            content: 'This is a test note content',
+            content: $content,
         );
 
         $this->noteRepository->expects($this->once())
             ->method('add')
-            ->with($this->callback(function (Note $note) {
-                return 'Test Note' === $note->title
-                    && 'This is a test note content' === $note->content;
+            ->with($this->callback(function (Note $note) use ($content) {
+                return $content === $note->content;
             }));
         $this->flusher->expects($this->once())->method('flush');
 
         $note = $this->noteManager->create($dto);
 
         $this->assertInstanceOf(Note::class, $note);
-        $this->assertEquals('Test Note', $note->title);
-        $this->assertEquals('This is a test note content', $note->content);
+        $this->assertEquals($content, $note->content);
     }
 
     public function testGetNoteReturnsNote(): void
     {
         $id = Uuid::v7();
-        $note = new Note('Test', 'Content');
+        $note = new Note('Content');
 
         $this->noteRepository->expects($this->once())
             ->method('find')
@@ -85,10 +83,9 @@ class NoteManagerTest extends TestCase
 
     public function testUpdateNotePartially(): void
     {
-        $note = new Note('Old Title', 'Old Content');
+        $note = new Note('Old Content');
 
         $dto = new UpdateNoteDto(
-            title: 'New Title',
             content: null,
         );
 
@@ -97,16 +94,14 @@ class NoteManagerTest extends TestCase
 
         $this->noteManager->update($note, $dto);
 
-        $this->assertEquals('New Title', $note->title);
         $this->assertEquals('Old Content', $note->content);
     }
 
     public function testUpdateNoteAllFields(): void
     {
-        $note = new Note('Old Title', 'Old Content');
+        $note = new Note('Old Content');
 
         $dto = new UpdateNoteDto(
-            title: 'New Title',
             content: 'New Content',
         );
 
@@ -115,16 +110,14 @@ class NoteManagerTest extends TestCase
 
         $this->noteManager->update($note, $dto);
 
-        $this->assertEquals('New Title', $note->title);
         $this->assertEquals('New Content', $note->content);
     }
 
     public function testUpdateNoteNoChanges(): void
     {
-        $note = new Note('Title', 'Content');
+        $note = new Note('Content');
 
         $dto = new UpdateNoteDto(
-            title: null,
             content: null,
         );
 
@@ -133,7 +126,6 @@ class NoteManagerTest extends TestCase
 
         $this->noteManager->update($note, $dto);
 
-        $this->assertEquals('Title', $note->title);
         $this->assertEquals('Content', $note->content);
     }
 }

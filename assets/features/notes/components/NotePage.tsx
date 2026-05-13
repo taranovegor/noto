@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useGetNoteQuery, useCreateNoteMutation, useUpdateNoteMutation } from '../store/api';
 import { MarkdownEditor, FormShell } from '../../../shared/components';
-import { useAutoResize, useDraftSave, useDraftRestore, useFormDirty } from '../../../shared/hooks';
+import { useDraftSave, useDraftRestore, useFormDirty } from '../../../shared/hooks';
 import { NOTE_DRAFT_KEY } from '../constants';
 import { parseError } from '../../../shared/utils';
 import { NotePageSkeleton } from './NotePageSkeleton';
 import styles from './NotePage.module.css';
 
 interface FormState {
-  title: string;
   content: string;
 }
 
@@ -26,19 +25,17 @@ export function NotePage() {
   const [createNote, { isLoading: isCreating }] = useCreateNoteMutation();
   const [updateNote, { isLoading: isUpdating }] = useUpdateNoteMutation();
 
-  const [form, setForm] = useState<FormState>({ title: '', content: '' });
+  const [form, setForm] = useState<FormState>({ content: isNew ? '# ' : '' });
   const [error, setError] = useState<string | null>(null);
-  const titleRef = useRef<HTMLTextAreaElement>(null);
 
   const saving = isCreating || isUpdating;
 
-  useAutoResize(titleRef, form.title);
   const { restore, clear } = useDraftSave(NOTE_DRAFT_KEY, form, isNew);
   const { isDirty, markSaved } = useFormDirty(form);
 
   useEffect(() => {
     if (note) {
-      const state = { title: note.title, content: note.content };
+      const state = { content: note.content };
       setForm(state);
       markSaved(state);
     }
@@ -48,10 +45,6 @@ export function NotePage() {
 
   const handleSave = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    if (!form.title.trim()) {
-      setError('Add a title');
-      return;
-    }
     if (!form.content.trim()) {
       setError('Add content before saving');
       return;
@@ -62,7 +55,6 @@ export function NotePage() {
     try {
       if (isNew) {
         const created = await createNote({
-          title: form.title.trim(),
           content: form.content.trim(),
         }).unwrap();
         clear();
@@ -71,9 +63,9 @@ export function NotePage() {
         if (!noteId) return;
         await updateNote({
           id: noteId,
-          body: { title: form.title.trim(), content: form.content.trim() },
+          body: { content: form.content.trim() },
         }).unwrap();
-        markSaved({ title: form.title.trim(), content: form.content.trim() });
+        markSaved({ content: form.content.trim() });
       }
     } catch (err: unknown) {
       setError(parseError(err).message);
@@ -92,24 +84,12 @@ export function NotePage() {
       showSaveBar={isNew || isDirty}
       onSubmit={handleSave}
     >
-      <div className={styles.titleRow}>
-        <textarea
-          ref={titleRef}
-          value={form.title}
-          onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-          placeholder="Title"
-          maxLength={255}
-          autoFocus={isNew}
-          className={styles.titleInput}
-          rows={1}
-        />
-      </div>
-
       <div className={styles.editor}>
         <MarkdownEditor
           value={form.content}
           onChange={(content) => setForm((p) => ({ ...p, content }))}
-          placeholder="Write..."
+          headingLevels={[1]}
+          enforceFirstLineHeading
         />
       </div>
     </FormShell>

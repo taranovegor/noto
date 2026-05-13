@@ -81,7 +81,7 @@ final class NoteController extends AbstractController
 
     #[Route('', 'create', methods: ['POST'])]
     #[OA\Post(
-        description: 'Creates a new note with the provided title and content. Returns the created note with 201 Created status.',
+        description: 'Creates a new note. The first line starting with # is used as the title. Returns the created note with 201 Created status.',
         summary: 'Create a new note',
         requestBody: new OA\RequestBody(
             description: 'Note creation data',

@@ -23,7 +23,7 @@ export function PageShell({
   return (
     <div className={shellClass}>
       <div className={styles.header}>
-        <h2 className={styles.title}>{title}</h2>
+        <h1 className={styles.title}>{title}</h1>
         {actions && <div className={styles.actions}>{actions}</div>}
       </div>
       {children}

@@ -18,21 +18,21 @@ class NoteResponseDtoFactoryTest extends TestCase
 
     public function testCreateConvertsNoteToDto(): void
     {
-        $note = new Note('Test Note', 'Test Content');
+        $content = '# Test Note' . "\n" . 'Test Content';
+        $note = new Note($content);
 
         $dto = $this->factory->create($note);
 
         $this->assertInstanceOf(NoteResponseDto::class, $dto);
         $this->assertEquals($note->id, $dto->id);
-        $this->assertEquals('Test Note', $dto->title);
-        $this->assertEquals('Test Content', $dto->content);
+        $this->assertEquals($content, $dto->content);
         $this->assertEquals($note->createdAt, $dto->createdAt);
         $this->assertEquals($note->updatedAt, $dto->updatedAt);
     }
 
     public function testCreatePreservesTimestamps(): void
     {
-        $note = new Note('Title', 'Content');
+        $note = new Note('Content');
 
         $dto = $this->factory->create($note);
 
@@ -43,7 +43,7 @@ class NoteResponseDtoFactoryTest extends TestCase
     public function testCreateWithLongContent(): void
     {
         $longContent = str_repeat('Lorem ipsum ', 100);
-        $note = new Note('Note with long content', $longContent);
+        $note = new Note($longContent);
 
         $dto = $this->factory->create($note);
 
