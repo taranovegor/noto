@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
-    "@tiptap/extension-placeholder": "^3.23.2",
+    "@tiptap/extension-placeholder": "^3.23.4",
     "@tiptap/react": "^3.22.3",
     "@tiptap/starter-kit": "^3.22.3",
     "centrifuge": "^5.5.3",
