@@ -2,13 +2,13 @@
   max-width: 64rem;
   position: relative;
   padding-top: var(--space-lg);
-  padding-bottom: var(--action-bar-clearance);
+  padding-bottom: calc(var(--action-bar-clearance) + env(safe-area-inset-bottom, 0px));
 }
 
 @media (min-width: 769px) {
   .form {
     padding-top: var(--space-3xl);
-    padding-bottom: var(--space-3xl);
+    padding-bottom: calc(var(--space-3xl) + env(safe-area-inset-bottom, 0px));
   }
 }
 
