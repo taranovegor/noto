@@ -39,8 +39,6 @@ services:
 
     Symfony\AI\Store\Document\VectorizerInterface: '@ai.vectorizer.voyage'
 
-    Symfony\AI\Store\StoreInterface: '@App\Service\Embedding\EmbeddingStore'
-
     ai.store.document.transformer.text_trim:
         class: Symfony\AI\Store\Document\Transformer\TextTrimTransformer
 

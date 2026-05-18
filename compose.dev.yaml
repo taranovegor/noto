@@ -16,6 +16,8 @@ services:
                 condition: service_healthy
             centrifugo:
                 condition: service_healthy
+            meilisearch:
+                condition: service_healthy
 
     db:
         image: pgvector/pgvector:pg18
@@ -83,5 +85,23 @@ services:
             timeout: 3s
             retries: 6
 
+    meilisearch:
+        image: getmeili/meilisearch:v1
+        container_name: noto_meilisearch
+        ports:
+            - "7700:7700"
+        environment:
+            MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-ChangeMe}
+            MEILI_ENV: ${MEILI_ENV:-development}
+        volumes:
+            - meili_data:/meili_data
+        restart: unless-stopped
+        healthcheck:
+            test: ["CMD", "curl", "-sf", "http://localhost:7700/health"]
+            interval: 5s
+            timeout: 3s
+            retries: 6
+
 volumes:
     db_data:
+    meili_data:

@@ -206,6 +206,18 @@
             "config/packages/ai.yaml"
         ]
     },
+    "symfony/ai-meilisearch-store": {
+        "version": "0.8",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "0.1",
+            "ref": "3b6e66ca509ee3e0dd38003fa2ba19aa9d0a744e"
+        },
+        "files": [
+            "config/packages/ai_meilisearch_store.yaml"
+        ]
+    },
     "symfony/ai-voyage-platform": {
         "version": "0.8",
         "recipe": {

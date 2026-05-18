@@ -5,7 +5,14 @@ ai:
 
     agent: ~ # see https://symfony.com/doc/current/ai/bundles/ai-bundle.html
 
-    store: ~ # manually configured service App\Service\Embedding\EmbeddingStore
+    store:
+        meilisearch:
+            default:
+                endpoint: '%env(string:MEILISEARCH_ENDPOINT)%'
+                api_key: '%env(string:MEILISEARCH_API_KEY)%'
+                index_name: '%env(string:MEILISEARCH_INDEX_NAME)%'
+                dimensions: '%env(int:MEILISEARCH_DIMENSIONS)%'
+                semantic_ratio: 1.0
 
     vectorizer:
         voyage:
@@ -14,10 +21,12 @@ ai:
     indexer:
         default:
             loader: 'ai.store.document.indexable_entity_loader'
-            transformers:
-                - 'ai.store.document.transformer.plain_text'
-                - 'ai.store.document.transformer.text_trim'
-                - 'ai.store.document.transformer.text_split'
+#            transformers:
+#                - 'ai.store.document.transformer.plain_text'
+#                - 'ai.store.document.transformer.text_trim'
+#                - 'ai.store.document.transformer.text_split'
 
     retriever:
-        default: ~ # configured automatically
+        default:
+            vectorizer: 'ai.vectorizer.voyage'
+            store: 'ai.store.meilisearch.default'
