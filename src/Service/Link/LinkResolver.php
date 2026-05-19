@@ -26,15 +26,13 @@ readonly class LinkResolver
      *
      * @return ($target is class-string<T> ? T[] : ReferenceableInterface[])
      */
-    public function resolve(Ref|ReferenceableInterface $source, ?LinkKind $kind = null, ?string $target = null): array
+    public function resolve(Ref $source, ?LinkKind $kind = null, ?string $target = null): array
     {
-        $sourceRef = $source instanceof Ref ? $source : $source->getRef();
-
         if (null !== $target) {
-            return $this->resolveTo($sourceRef, $kind, $target);
+            return $this->resolveTo($source, $kind, $target);
         }
 
-        $criteria = ['source' => $sourceRef];
+        $criteria = ['source' => $source];
         if (null !== $kind) {
             $criteria['kind'] = $kind;
         }

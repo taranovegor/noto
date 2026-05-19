@@ -28,6 +28,9 @@ const TaskPage = React.lazy(() =>
 const NotePage = React.lazy(() =>
   import('./features/notes/components/NotePage').then((m) => ({ default: m.NotePage })),
 );
+const RefsPage = React.lazy(() =>
+  import('./features/refs/RefsPage').then((m) => ({ default: m.RefsPage })),
+);
 
 // Auth initializer component - runs on app mount
 function AuthInitializer() {
@@ -102,6 +105,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<NotePageSkeleton />}>
             <NotePage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'refs/:id',
+        element: (
+          <Suspense fallback={null}>
+            <RefsPage />
           </Suspense>
         ),
       },

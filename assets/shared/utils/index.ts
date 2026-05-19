@@ -2,3 +2,5 @@ export { toDateInputValue, formatDate, formatDateTime, formatRelative } from './
 export { parseError } from './errors';
 export { shouldShowSkeleton } from './query';
 export { renderPlainText } from './markdown';
+export { parseInternalUrl, resolveInternalLink } from './internalLink';
+export type { ParsedInternalUrl, ResolvedTitle } from './internalLink';

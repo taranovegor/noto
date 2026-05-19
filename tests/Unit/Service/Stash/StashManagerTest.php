@@ -5,6 +5,7 @@ namespace App\Tests\Unit\Service\Stash;
 use App\Dto\Stash\CreateStashDto;
 use App\Dto\Stash\UpdateStashDto;
 use App\Entity\Attachment;
+use App\Entity\Ref;
 use App\Entity\Stash;
 use App\Enum\LinkKind;
 use App\Enum\StashType;
@@ -58,7 +59,7 @@ class StashManagerTest extends TestCase
 
         $repo->expects($this->once())->method('add');
         $linker->expects($this->exactly(2))->method('link')
-            ->with($this->isInstanceOf(Stash::class), $this->isInstanceOf(Attachment::class), LinkKind::Ownership);
+            ->with($this->isInstanceOf(Ref::class), $this->isInstanceOf(Ref::class), LinkKind::Ownership);
         $flusher->expects($this->once())->method('flush');
 
         $stash = $this->makeManager(repo: $repo, linker: $linker, flusher: $flusher)

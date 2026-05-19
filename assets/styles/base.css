@@ -269,6 +269,20 @@ button.card {
   caret-color: var(--color-text);
 }
 
+.tiptap-editor a[href^='/refs/'] {
+  color: var(--color-link);
+  text-decoration: none;
+  background: color-mix(in srgb, var(--color-link) 8%, transparent);
+  border-radius: 4px;
+  padding: 0.05em 0.35em;
+  margin: 0 0.05em;
+  transition: background 0.15s ease;
+}
+
+.tiptap-editor a[href^='/refs/']:hover {
+  background: color-mix(in srgb, var(--color-link) 16%, transparent);
+}
+
 .markdown-body {
   font-size: var(--text-base);
   color: var(--color-text);

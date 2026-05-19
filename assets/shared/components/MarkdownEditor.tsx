@@ -5,6 +5,7 @@ import { Placeholder } from '@tiptap/extension-placeholder';
 import type { Level } from '@tiptap/extension-heading';
 import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from 'tiptap-markdown';
+import { InternalLinkPaste } from './InternalLinkPaste';
 
 interface MarkdownEditorProps {
   value: string;
@@ -44,6 +45,7 @@ export function MarkdownEditor({
           ]
         : []),
       Markdown,
+      InternalLinkPaste,
     ],
     content: value,
     onUpdate({ editor }) {

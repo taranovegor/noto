@@ -53,11 +53,20 @@ services:
     ai.store.document.indexable_entity_loader:
         class: App\Component\Ai\Store\Document\IndexableEntityLoader
 
+    League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension: ~
+
     League\CommonMark\Environment\EnvironmentInterface:
         class: League\CommonMark\Environment\Environment
+        calls:
+            - addExtension: ['@League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension']
 
     League\CommonMark\ConverterInterface:
         class: League\CommonMark\CommonMarkConverter
+
+    League\CommonMark\Parser\MarkdownParserInterface:
+        class: League\CommonMark\Parser\MarkdownParser
+        arguments:
+            - '@League\CommonMark\Environment\EnvironmentInterface'
 
     cloudflare_r2_client:
         class: 'AsyncAws\S3\S3Client'

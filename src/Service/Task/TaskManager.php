@@ -42,7 +42,7 @@ final readonly class TaskManager
         $this->taskRepository->add($task);
 
         foreach ($dto->attachments ?? [] as $attachment) {
-            $this->linker->link($task, $attachment, LinkKind::Ownership);
+            $this->linker->link($task->getRef(), $attachment->getRef(), LinkKind::Ownership);
         }
 
         $this->flusher->flush();
@@ -89,14 +89,14 @@ final readonly class TaskManager
     public function attach(Task $task, AttachTaskAttachmentsDto $dto): void
     {
         foreach ($dto->attachments as $attachment) {
-            $this->linker->link($task, $attachment, LinkKind::Ownership);
+            $this->linker->link($task->getRef(), $attachment->getRef(), LinkKind::Ownership);
         }
         $this->flusher->flush();
     }
 
     public function detach(Task $task, Attachment $attachment): void
     {
-        $this->linker->unlink($task, $attachment, LinkKind::Ownership);
+        $this->linker->unlink($task->getRef(), $attachment->getRef(), LinkKind::Ownership);
         $this->flusher->flush();
     }
 }

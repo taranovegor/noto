@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Component\Ai\Store\Attribute\Indexable;
 use App\Contract\HasUpdatedAtInterface;
+use App\Contract\LinkSourceInterface;
 use App\Enum\RefType;
 use App\Enum\TaskPriority;
 use App\Enum\TaskStatus;
@@ -14,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'tasks')]
 #[Indexable('id', fields: ['name', 'note'])]
 #[ORM\HasLifecycleCallbacks]
-class Task implements ReferenceableInterface, HasUpdatedAtInterface
+class Task implements ReferenceableInterface, HasUpdatedAtInterface, LinkSourceInterface
 {
     use ReferenceableTrait;
     use HasCreatedAtTrait;
@@ -54,6 +55,11 @@ class Task implements ReferenceableInterface, HasUpdatedAtInterface
     public static function getRefType(): RefType
     {
         return RefType::Task;
+    }
+
+    public function getContent(): string
+    {
+        return $this->note;
     }
 
     /**

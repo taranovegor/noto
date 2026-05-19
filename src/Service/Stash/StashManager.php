@@ -31,7 +31,7 @@ final readonly class StashManager
         $this->stashRepository->add($stash);
 
         foreach ($dto->attachments ?? [] as $attachment) {
-            $this->linker->link($stash, $attachment, LinkKind::Ownership);
+            $this->linker->link($stash->getRef(), $attachment->getRef(), LinkKind::Ownership);
         }
 
         $this->flusher->flush();

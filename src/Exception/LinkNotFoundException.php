@@ -2,25 +2,20 @@
 
 namespace App\Exception;
 
-use App\Entity\ReferenceableInterface;
+use App\Entity\Ref;
 use App\Enum\LinkKind;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 final class LinkNotFoundException extends \DomainException implements HttpExceptionInterface
 {
-    public function __construct(
-        ReferenceableInterface $source,
-        ReferenceableInterface $target,
-        LinkKind $kind,
-    ) {
+    public function __construct(Ref $source, Ref $target, LinkKind $kind)
+    {
         parent::__construct(\sprintf(
-            'No %s link between %s(%s) and %s(%s).',
+            'No %s link between ref %s and ref %s.',
             $kind->value,
-            substr(strrchr($source::class, '\\'), 1),
-            $source->getRef()->id,
-            substr(strrchr($target::class, '\\'), 1),
-            $target->getRef()->id,
+            $source->id,
+            $target->id,
         ));
     }
 

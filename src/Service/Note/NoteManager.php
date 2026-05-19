@@ -30,7 +30,7 @@ final readonly class NoteManager
         $this->noteRepository->add($note);
 
         foreach ($dto->attachments ?? [] as $attachment) {
-            $this->linker->link($note, $attachment, LinkKind::Ownership);
+            $this->linker->link($note->getRef(), $attachment->getRef(), LinkKind::Ownership);
         }
 
         $this->flusher->flush();
@@ -55,14 +55,14 @@ final readonly class NoteManager
     public function attach(Note $note, AttachNoteAttachmentsDto $dto): void
     {
         foreach ($dto->attachments as $attachment) {
-            $this->linker->link($note, $attachment, LinkKind::Ownership);
+            $this->linker->link($note->getRef(), $attachment->getRef(), LinkKind::Ownership);
         }
         $this->flusher->flush();
     }
 
     public function detach(Note $note, Attachment $attachment): void
     {
-        $this->linker->unlink($note, $attachment, LinkKind::Ownership);
+        $this->linker->unlink($note->getRef(), $attachment->getRef(), LinkKind::Ownership);
         $this->flusher->flush();
     }
 }

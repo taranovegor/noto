@@ -21,7 +21,7 @@ readonly class StashResponseDtoFactory
     {
         $attachments = array_map(
             fn (Attachment $a) => $this->responseDtoFactory->create($a),
-            $this->linkResolver->resolve($stash, LinkKind::Ownership, Attachment::class),
+            $this->linkResolver->resolve($stash->getRef(), LinkKind::Ownership, Attachment::class),
         );
 
         return new StashResponseDto(

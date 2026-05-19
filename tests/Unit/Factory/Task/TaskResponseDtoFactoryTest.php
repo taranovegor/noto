@@ -96,7 +96,7 @@ class TaskResponseDtoFactoryTest extends TestCase
         $linkResolver = $this->createMock(LinkResolver::class);
         $linkResolver->expects($this->once())
             ->method('resolve')
-            ->with($task, LinkKind::Ownership, Attachment::class)
+            ->with($task->getRef(), LinkKind::Ownership, Attachment::class)
             ->willReturn([$attachment]);
 
         $attachmentResponseDtoFactory = $this->createMock(AttachmentResponseDtoFactory::class);

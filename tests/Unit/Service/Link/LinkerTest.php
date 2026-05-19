@@ -11,6 +11,7 @@ use App\Repository\LinkRepository;
 use App\Service\Link\Linker;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class LinkerTest extends TestCase
 {
@@ -20,7 +21,7 @@ class LinkerTest extends TestCase
     protected function setUp(): void
     {
         $this->linkRepository = $this->createMock(LinkRepository::class);
-        $this->linker = new Linker($this->linkRepository);
+        $this->linker = new Linker($this->linkRepository, $this->createStub(LoggerInterface::class));
     }
 
     public function testLinkPersistsCorrectLink(): void
@@ -37,7 +38,7 @@ class LinkerTest extends TestCase
                     && LinkKind::Ownership === $link->kind;
             }));
 
-        $this->linker->link($note, $attachment, LinkKind::Ownership);
+        $this->linker->link($note->getRef(), $attachment->getRef(), LinkKind::Ownership);
     }
 
     public function testUnlinkRemovesExistingLink(): void
@@ -57,7 +58,7 @@ class LinkerTest extends TestCase
             ->method('remove')
             ->with($link);
 
-        $this->linker->unlink($note, $attachment, LinkKind::Ownership);
+        $this->linker->unlink($note->getRef(), $attachment->getRef(), LinkKind::Ownership);
     }
 
     public function testUnlinkThrowsWhenLinkNotFound(): void
@@ -74,6 +75,6 @@ class LinkerTest extends TestCase
 
         $this->expectException(LinkNotFoundException::class);
 
-        $this->linker->unlink($note, $attachment, LinkKind::Ownership);
+        $this->linker->unlink($note->getRef(), $attachment->getRef(), LinkKind::Ownership);
     }
 }

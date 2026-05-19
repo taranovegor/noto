@@ -7,6 +7,7 @@ use App\Dto\Note\CreateNoteDto;
 use App\Dto\Note\UpdateNoteDto;
 use App\Entity\Attachment;
 use App\Entity\Note;
+use App\Entity\Ref;
 use App\Enum\LinkKind;
 use App\Exception\EntityNotFoundException;
 use App\Exception\LinkNotFoundException;
@@ -58,7 +59,7 @@ class NoteManagerTest extends TestCase
 
         $repo->expects($this->once())->method('add');
         $linker->expects($this->exactly(2))->method('link')
-            ->with($this->isInstanceOf(Note::class), $this->isInstanceOf(Attachment::class), LinkKind::Ownership);
+            ->with($this->isInstanceOf(Ref::class), $this->isInstanceOf(Ref::class), LinkKind::Ownership);
         $flusher->expects($this->once())->method('flush');
 
         $this->makeManager($repo, $linker, $flusher)->create(
@@ -116,7 +117,7 @@ class NoteManagerTest extends TestCase
         $flusher = $this->createMock(Flusher::class);
 
         $linker->expects($this->exactly(2))->method('link')
-            ->with($note, $this->isInstanceOf(Attachment::class), LinkKind::Ownership);
+            ->with($this->equalTo($note->getRef()), $this->isInstanceOf(Ref::class), LinkKind::Ownership);
         $flusher->expects($this->once())->method('flush');
 
         $this->makeManager(linker: $linker, flusher: $flusher)
@@ -130,7 +131,8 @@ class NoteManagerTest extends TestCase
         $linker = $this->createMock(LinkerInterface::class);
         $flusher = $this->createMock(Flusher::class);
 
-        $linker->expects($this->once())->method('unlink')->with($note, $attachment, LinkKind::Ownership);
+        $linker->expects($this->once())->method('unlink')
+            ->with($this->equalTo($note->getRef()), $this->equalTo($attachment->getRef()), LinkKind::Ownership);
         $flusher->expects($this->once())->method('flush');
 
         $this->makeManager(linker: $linker, flusher: $flusher)->detach($note, $attachment);
@@ -144,7 +146,7 @@ class NoteManagerTest extends TestCase
         $flusher = $this->createMock(Flusher::class);
 
         $linker->expects($this->once())->method('unlink')
-            ->willThrowException(new LinkNotFoundException($note, $attachment, LinkKind::Ownership));
+            ->willThrowException(new LinkNotFoundException($note->getRef(), $attachment->getRef(), LinkKind::Ownership));
         $flusher->expects($this->never())->method('flush');
 
         $this->expectException(LinkNotFoundException::class);

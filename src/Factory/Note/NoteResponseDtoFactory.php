@@ -9,17 +9,17 @@ use App\Enum\LinkKind;
 use App\Factory\Attachment\AttachmentResponseDtoFactory;
 use App\Service\Link\LinkResolver;
 
-class NoteResponseDtoFactory
+readonly class NoteResponseDtoFactory
 {
     public function __construct(
-        private readonly LinkResolver $linkResolver,
-        private readonly AttachmentResponseDtoFactory $attachmentResponseDtoFactory,
+        private LinkResolver $linkResolver,
+        private AttachmentResponseDtoFactory $attachmentResponseDtoFactory,
     ) {
     }
 
     public function create(Note $note): NoteResponseDto
     {
-        $resolved = $this->linkResolver->resolve($note, LinkKind::Ownership, Attachment::class);
+        $resolved = $this->linkResolver->resolve($note->getRef(), LinkKind::Ownership, Attachment::class);
         $attachments = array_map($this->attachmentResponseDtoFactory->create(...), $resolved) ?: null;
 
         return new NoteResponseDto(

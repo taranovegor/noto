@@ -36,7 +36,7 @@ class StashResponseDtoFactoryTest extends TestCase
         $linkResolver = $this->createMock(LinkResolver::class);
         $linkResolver->expects($this->once())
             ->method('resolve')
-            ->with($stash, LinkKind::Ownership, Attachment::class)
+            ->with($stash->getRef(), LinkKind::Ownership, Attachment::class)
             ->willReturn([$attachment]);
 
         $dto = $this->makeFactory($linkResolver)->create($stash);

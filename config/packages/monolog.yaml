@@ -4,6 +4,7 @@ monolog:
         - ai_index
         - s3
         - attachment
+        - link
         - ref
         - websocket
 

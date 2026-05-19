@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Component\Ai\Store\Attribute\Indexable;
 use App\Contract\HasUpdatedAtInterface;
+use App\Contract\LinkSourceInterface;
 use App\Enum\RefType;
 use App\Repository\NoteRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'notes')]
 #[ORM\HasLifecycleCallbacks]
 #[Indexable('id', fields: ['content'])]
-class Note implements ReferenceableInterface, HasUpdatedAtInterface
+class Note implements ReferenceableInterface, HasUpdatedAtInterface, LinkSourceInterface
 {
     use ReferenceableTrait;
     use HasCreatedAtTrait;
@@ -32,5 +33,10 @@ class Note implements ReferenceableInterface, HasUpdatedAtInterface
     public static function getRefType(): RefType
     {
         return RefType::Note;
+    }
+
+    public function getContent(): string
+    {
+        return $this->content;
     }
 }

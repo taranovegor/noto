@@ -48,8 +48,7 @@ final readonly class OwnershipCascadeSubscriber
             }
             $processed[$id] = true;
 
-            /* @phpstan-ignore argument.templateType */
-            $children = $this->linkResolver->resolve($entity, kind: LinkKind::Ownership);
+            $children = $this->linkResolver->resolve($entity->getRef(), kind: LinkKind::Ownership);
             foreach ($children as $child) {
                 $this->logger->debug('Cascading deletion through Ownership link', [
                     'source' => $entity::getRefType()->value,

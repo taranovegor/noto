@@ -19,7 +19,7 @@ readonly class TaskResponseDtoFactory
 
     public function create(Task $task): TaskResponseDto
     {
-        $resolved = $this->linkResolver->resolve($task, LinkKind::Ownership, Attachment::class);
+        $resolved = $this->linkResolver->resolve($task->getRef(), LinkKind::Ownership, Attachment::class);
         $attachments = array_map($this->attachmentResponseDtoFactory->create(...), $resolved) ?: null;
 
         return new TaskResponseDto(

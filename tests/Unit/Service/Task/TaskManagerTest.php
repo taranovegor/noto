@@ -7,6 +7,7 @@ use App\Dto\Task\CreateTaskDto;
 use App\Dto\Task\UpdateTaskDto;
 use App\Entity\Attachment;
 use App\Entity\Project;
+use App\Entity\Ref;
 use App\Entity\Task;
 use App\Enum\LinkKind;
 use App\Enum\TaskPriority;
@@ -239,7 +240,7 @@ class TaskManagerTest extends TestCase
 
         $repo->expects($this->once())->method('add');
         $linker->expects($this->exactly(2))->method('link')
-            ->with($this->isInstanceOf(Task::class), $this->isInstanceOf(Attachment::class), LinkKind::Ownership);
+            ->with($this->isInstanceOf(Ref::class), $this->isInstanceOf(Ref::class), LinkKind::Ownership);
         $flusher->expects($this->once())->method('flush');
 
         $task = $this->makeManager(repo: $repo, linker: $linker, flusher: $flusher)
@@ -257,7 +258,7 @@ class TaskManagerTest extends TestCase
         $flusher = $this->createMock(Flusher::class);
 
         $linker->expects($this->exactly(2))->method('link')
-            ->with($task, $this->isInstanceOf(Attachment::class), LinkKind::Ownership);
+            ->with($this->equalTo($task->getRef()), $this->isInstanceOf(Ref::class), LinkKind::Ownership);
         $flusher->expects($this->once())->method('flush');
 
         $this->makeManager(linker: $linker, flusher: $flusher)
@@ -273,7 +274,7 @@ class TaskManagerTest extends TestCase
         $flusher = $this->createMock(Flusher::class);
 
         $linker->expects($this->once())->method('unlink')
-            ->with($task, $attachment, LinkKind::Ownership);
+            ->with($this->equalTo($task->getRef()), $this->equalTo($attachment->getRef()), LinkKind::Ownership);
         $flusher->expects($this->once())->method('flush');
 
         $this->makeManager(linker: $linker, flusher: $flusher)
