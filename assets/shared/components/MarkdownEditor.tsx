@@ -40,7 +40,7 @@ export function MarkdownEditor({
         ? [
             Placeholder.configure({
               placeholder: ({ node }) =>
-                node.type.name === 'heading' ? 'Note' : (placeholder ?? ''),
+                node.type.name === 'heading' ? 'Memo' : (placeholder ?? ''),
             }),
           ]
         : []),

@@ -3,7 +3,7 @@
 namespace App\Tests\Unit\Service\Link;
 
 use App\Entity\Link;
-use App\Entity\Note;
+use App\Entity\Memo;
 use App\Entity\Task;
 use App\Enum\LinkKind;
 use App\Enum\RefType;
@@ -39,13 +39,13 @@ class ReferenceLinkSynchronizerTest extends TestCase
 
     public function testSyncRemovesStaleLinksAndCreatesNewOnes(): void
     {
-        $note = new Note('# Test');
+        $memo = new Memo('# Test');
         $existingTarget = new Task('Old Target');
         $newRef = new \App\Entity\Ref(RefType::Task);
 
         $markdown = "# Test\n\n[Link](/refs/{$newRef->id->toString()})";
         // Set content after creation since the constructor doesn't take it as markdown with links
-        $note->content = $markdown;
+        $memo->content = $markdown;
 
         $linker = $this->createMock(LinkerInterface::class);
         $linkResolver = $this->createMock(LinkResolver::class);
@@ -53,14 +53,14 @@ class ReferenceLinkSynchronizerTest extends TestCase
 
         $linkResolver->expects($this->once())
             ->method('resolve')
-            ->with($this->equalTo($note->getRef()), LinkKind::Reference)
+            ->with($this->equalTo($memo->getRef()), LinkKind::Reference)
             ->willReturn([$existingTarget]);
 
         // Existing target is not in new markdown — unlink
         $linker->expects($this->once())
             ->method('unlink')
             ->with(
-                $this->equalTo($note->getRef()),
+                $this->equalTo($memo->getRef()),
                 $this->equalTo($existingTarget->getRef()),
                 LinkKind::Reference,
             );
@@ -69,17 +69,17 @@ class ReferenceLinkSynchronizerTest extends TestCase
             ->method('findByIds')
             ->willReturn([$newRef]);
 
-        $expectedLink = new Link($note->getRef(), $newRef, LinkKind::Reference);
+        $expectedLink = new Link($memo->getRef(), $newRef, LinkKind::Reference);
         $linker->expects($this->once())
             ->method('link')
-            ->with($this->equalTo($note->getRef()), $this->equalTo($newRef), LinkKind::Reference)
+            ->with($this->equalTo($memo->getRef()), $this->equalTo($newRef), LinkKind::Reference)
             ->willReturn($expectedLink);
 
         $result = $this->makeSynchronizer(
             linkResolver: $linkResolver,
             linker: $linker,
             refRepository: $refRepository,
-        )->sync($note);
+        )->sync($memo);
 
         $this->assertCount(1, $result);
         $this->assertSame($expectedLink, $result[0]);
@@ -88,8 +88,8 @@ class ReferenceLinkSynchronizerTest extends TestCase
     public function testSyncKeepsExistingLinks(): void
     {
         $target = new Task('Target');
-        $note = new Note('# Test');
-        $note->content = "# Test\n\n[Link](/refs/{$target->getRef()->id->toString()})";
+        $memo = new Memo('# Test');
+        $memo->content = "# Test\n\n[Link](/refs/{$target->getRef()->id->toString()})";
 
         $linker = $this->createMock(LinkerInterface::class);
         $linkResolver = $this->createMock(LinkResolver::class);
@@ -105,15 +105,15 @@ class ReferenceLinkSynchronizerTest extends TestCase
         $result = $this->makeSynchronizer(
             linkResolver: $linkResolver,
             linker: $linker,
-        )->sync($note);
+        )->sync($memo);
 
         $this->assertSame([], $result);
     }
 
     public function testSyncSkipsSelfReference(): void
     {
-        $note = new Note('# Test');
-        $note->content = "# Test\n\n[Self](/refs/{$note->getRef()->id->toString()})";
+        $memo = new Memo('# Test');
+        $memo->content = "# Test\n\n[Self](/refs/{$memo->getRef()->id->toString()})";
 
         $linker = $this->createMock(LinkerInterface::class);
         $linkResolver = $this->createMock(LinkResolver::class);
@@ -128,14 +128,14 @@ class ReferenceLinkSynchronizerTest extends TestCase
         $result = $this->makeSynchronizer(
             linkResolver: $linkResolver,
             linker: $linker,
-        )->sync($note);
+        )->sync($memo);
 
         $this->assertSame([], $result);
     }
 
     public function testSyncNoRefsInContent(): void
     {
-        $note = new Note('# Just a note');
+        $memo = new Memo('# Just a note');
 
         $linker = $this->createMock(LinkerInterface::class);
         $linkResolver = $this->createMock(LinkResolver::class);
@@ -150,14 +150,14 @@ class ReferenceLinkSynchronizerTest extends TestCase
         $result = $this->makeSynchronizer(
             linkResolver: $linkResolver,
             linker: $linker,
-        )->sync($note);
+        )->sync($memo);
 
         $this->assertSame([], $result);
     }
 
     public function testSyncRemovesAllExistingWhenContentCleared(): void
     {
-        $note = new Note('# Clean');
+        $memo = new Memo('# Clean');
         $oldTarget = new Task('Old Target');
 
         $linker = $this->createMock(LinkerInterface::class);
@@ -170,7 +170,7 @@ class ReferenceLinkSynchronizerTest extends TestCase
         $linker->expects($this->once())
             ->method('unlink')
             ->with(
-                $this->equalTo($note->getRef()),
+                $this->equalTo($memo->getRef()),
                 $this->equalTo($oldTarget->getRef()),
                 LinkKind::Reference,
             );
@@ -180,16 +180,16 @@ class ReferenceLinkSynchronizerTest extends TestCase
         $result = $this->makeSynchronizer(
             linkResolver: $linkResolver,
             linker: $linker,
-        )->sync($note);
+        )->sync($memo);
 
         $this->assertSame([], $result);
     }
 
     public function testSyncSkipsUuidsNotFoundInRepository(): void
     {
-        $note = new Note('# Test');
+        $memo = new Memo('# Test');
         $missingRefId = \Symfony\Component\Uid\Uuid::v7();
-        $note->content = "# Test\n\n[Missing](/refs/{$missingRefId->toString()})";
+        $memo->content = "# Test\n\n[Missing](/refs/{$missingRefId->toString()})";
 
         $linker = $this->createMock(LinkerInterface::class);
         $linkResolver = $this->createMock(LinkResolver::class);
@@ -211,7 +211,7 @@ class ReferenceLinkSynchronizerTest extends TestCase
             linkResolver: $linkResolver,
             linker: $linker,
             refRepository: $refRepository,
-        )->sync($note);
+        )->sync($memo);
 
         $this->assertSame([], $result);
     }

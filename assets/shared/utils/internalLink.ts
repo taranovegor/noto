@@ -18,12 +18,12 @@ function stripMarkdown(text: string): string {
 }
 
 const ENTITY_REGISTRY: Record<string, EntityDescriptor> = {
-  notes: {
-    path: 'notes',
-    fallback: 'Note',
+  memos: {
+    path: 'memos',
+    fallback: 'Memo',
     extractTitle: (data) => {
       const content = String(data.content ?? '');
-      return stripMarkdown(content.split('\n')[0]!) || 'Note';
+      return stripMarkdown(content.split('\n')[0]!) || 'Memo';
     },
   },
   tasks: {
@@ -35,7 +35,7 @@ const ENTITY_REGISTRY: Record<string, EntityDescriptor> = {
 
 const ENTITY_PATHS = Object.keys(ENTITY_REGISTRY).join('|');
 
-/** Matches internal entity URLs: /notes/<uuid> or /tasks/<uuid> */
+/** Matches internal entity URLs: /memos/<uuid> or /tasks/<uuid> */
 const ENTITY_PATH_RE = new RegExp(
   `^/(${ENTITY_PATHS})/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$`,
 );

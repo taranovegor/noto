@@ -22,7 +22,7 @@ class LinkResponseDtoFactoryTest extends TestCase
     public function testCreateConvertsLinkToDto(): void
     {
         $source = new Ref(RefType::Task);
-        $target = new Ref(RefType::Note);
+        $target = new Ref(RefType::Memo);
         $link = new Link($source, $target, LinkKind::Ownership);
 
         $dto = $this->factory->create($link);
@@ -32,7 +32,7 @@ class LinkResponseDtoFactoryTest extends TestCase
         $this->assertEquals($source->id, $dto->sourceId);
         $this->assertEquals(RefType::Task, $dto->sourceType);
         $this->assertEquals($target->id, $dto->targetId);
-        $this->assertEquals(RefType::Note, $dto->targetType);
+        $this->assertEquals(RefType::Memo, $dto->targetType);
         $this->assertEquals(LinkKind::Ownership, $dto->kind);
         $this->assertEquals($link->createdAt, $dto->createdAt);
     }

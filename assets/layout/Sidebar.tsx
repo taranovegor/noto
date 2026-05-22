@@ -31,11 +31,11 @@ function DesktopSidebar() {
           Tasks
         </button>
         <button
-          className={`${styles.navItem} ${isActive('/notes') ? styles.navItemActive : ''}`}
-          onClick={() => navigate('/notes')}
-          aria-current={isActive('/notes') ? 'page' : undefined}
+          className={`${styles.navItem} ${isActive('/memos') ? styles.navItemActive : ''}`}
+          onClick={() => navigate('/memos')}
+          aria-current={isActive('/memos') ? 'page' : undefined}
         >
-          Notes
+          Memos
         </button>
         <button
           className={`${styles.navItem} ${isActive('/stashes') ? styles.navItemActive : ''}`}
@@ -68,7 +68,7 @@ function DesktopSidebar() {
 
 const NAV_ITEMS = [
   { path: '/tasks', label: 'Tasks' },
-  { path: '/notes', label: 'Notes' },
+  { path: '/memos', label: 'Memos' },
   { path: '/stashes', label: 'Stashes' },
   { path: '/settings', label: 'Settings' },
 ];

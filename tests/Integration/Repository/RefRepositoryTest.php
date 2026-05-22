@@ -37,9 +37,9 @@ class RefRepositoryTest extends KernelTestCase
 
     public function testFindByIdsReturnsMatchingRefs(): void
     {
-        $r1 = new Ref(RefType::Note);
+        $r1 = new Ref(RefType::Memo);
         $r2 = new Ref(RefType::Task);
-        $r3 = new Ref(RefType::Note);
+        $r3 = new Ref(RefType::Memo);
 
         $this->em->persist($r1);
         $this->em->persist($r2);

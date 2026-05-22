@@ -4,7 +4,7 @@ namespace App\Tests\Unit\Service\Link;
 
 use App\Entity\Attachment;
 use App\Entity\Link;
-use App\Entity\Note;
+use App\Entity\Memo;
 use App\Enum\LinkKind;
 use App\Exception\LinkNotFoundException;
 use App\Repository\LinkRepository;
@@ -26,31 +26,31 @@ class LinkerTest extends TestCase
 
     public function testLinkPersistsCorrectLink(): void
     {
-        $note = new Note('# Test');
+        $memo = new Memo('# Test');
         $attachment = new Attachment();
 
         $this->linkRepository
             ->expects($this->once())
             ->method('add')
-            ->with($this->callback(function (Link $link) use ($note, $attachment) {
-                return $link->source->id->equals($note->ref->id)
+            ->with($this->callback(function (Link $link) use ($memo, $attachment) {
+                return $link->source->id->equals($memo->ref->id)
                     && $link->target->id->equals($attachment->ref->id)
                     && LinkKind::Ownership === $link->kind;
             }));
 
-        $this->linker->link($note->getRef(), $attachment->getRef(), LinkKind::Ownership);
+        $this->linker->link($memo->getRef(), $attachment->getRef(), LinkKind::Ownership);
     }
 
     public function testUnlinkRemovesExistingLink(): void
     {
-        $note = new Note('# Test');
+        $memo = new Memo('# Test');
         $attachment = new Attachment();
-        $link = new Link($note->ref, $attachment->ref, LinkKind::Ownership);
+        $link = new Link($memo->ref, $attachment->ref, LinkKind::Ownership);
 
         $this->linkRepository
             ->expects($this->once())
             ->method('findLink')
-            ->with($note->ref, $attachment->ref, LinkKind::Ownership)
+            ->with($memo->ref, $attachment->ref, LinkKind::Ownership)
             ->willReturn($link);
 
         $this->linkRepository
@@ -58,12 +58,12 @@ class LinkerTest extends TestCase
             ->method('remove')
             ->with($link);
 
-        $this->linker->unlink($note->getRef(), $attachment->getRef(), LinkKind::Ownership);
+        $this->linker->unlink($memo->getRef(), $attachment->getRef(), LinkKind::Ownership);
     }
 
     public function testUnlinkThrowsWhenLinkNotFound(): void
     {
-        $note = new Note('# Test');
+        $memo = new Memo('# Test');
         $attachment = new Attachment();
 
         $this->linkRepository
@@ -75,6 +75,6 @@ class LinkerTest extends TestCase
 
         $this->expectException(LinkNotFoundException::class);
 
-        $this->linker->unlink($note->getRef(), $attachment->getRef(), LinkKind::Ownership);
+        $this->linker->unlink($memo->getRef(), $attachment->getRef(), LinkKind::Ownership);
     }
 }

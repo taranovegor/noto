@@ -12,11 +12,11 @@ import { ProtectedRoute } from './shared/components/ProtectedRoute';
 import { RouteErrorBoundary } from './shared/components/RouteErrorBoundary';
 import { CentrifugoProvider } from './shared/websocket';
 import { TasksListShell } from './features/tasks/components/TasksListShell';
-import { NotesListShell } from './features/notes/components/NotesListShell';
+import { MemosListShell } from './features/memos/components/MemosListShell';
 import { StashesListShell } from './features/stashes/components/StashesListShell';
 import { SettingsPage } from './features/settings/components/SettingsPage';
 import { TaskPageSkeleton } from './features/tasks/components/TaskPageSkeleton';
-import { NotePageSkeleton } from './features/notes/components/NotePageSkeleton';
+import { MemoPageSkeleton } from './features/memos/components/MemoPageSkeleton';
 import { LOGIN_ROUTE, TASKS_ROUTE } from './features/auth';
 import { tokenStorage } from './shared/utils/tokenStorage';
 import { authApi } from './features/auth/store/api';
@@ -25,8 +25,8 @@ import { store } from './shared/store';
 const TaskPage = React.lazy(() =>
   import('./features/tasks/components/TaskPage').then((m) => ({ default: m.TaskPage })),
 );
-const NotePage = React.lazy(() =>
-  import('./features/notes/components/NotePage').then((m) => ({ default: m.NotePage })),
+const MemoPage = React.lazy(() =>
+  import('./features/memos/components/MemoPage').then((m) => ({ default: m.MemoPage })),
 );
 const RefsPage = React.lazy(() =>
   import('./features/refs/RefsPage').then((m) => ({ default: m.RefsPage })),
@@ -97,14 +97,14 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'notes',
-        element: <NotesListShell />,
+        path: 'memos',
+        element: <MemosListShell />,
       },
       {
-        path: 'notes/:id',
+        path: 'memos/:id',
         element: (
-          <Suspense fallback={<NotePageSkeleton />}>
-            <NotePage />
+          <Suspense fallback={<MemoPageSkeleton />}>
+            <MemoPage />
           </Suspense>
         ),
       },

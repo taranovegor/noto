@@ -24,7 +24,7 @@ class LinkManagerTest extends TestCase
         $flusher = $this->createMock(Flusher::class);
 
         $source = new Ref(RefType::Task);
-        $target = new Ref(RefType::Note);
+        $target = new Ref(RefType::Memo);
 
         $dto = new CreateLinkDto($source->id, $target->id, LinkKind::Reference);
 

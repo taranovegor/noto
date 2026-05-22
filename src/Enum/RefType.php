@@ -11,6 +11,6 @@ enum RefType: string
     case Project = 'project';
     case Stash = 'stash';
     case Task = 'task';
-    case Note = 'note';
+    case Memo = 'memo';
     case User = 'user';
 }

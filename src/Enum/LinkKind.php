@@ -37,7 +37,7 @@ enum LinkKind: string
     /**
      * Soft pointer: source refers to target without owning or producing it.
      *
-     * Example: a Note that mentions a Task in its body.
+     * Example: a Memo that mentions a Task in its body.
      */
     case Reference = 'reference';
 }

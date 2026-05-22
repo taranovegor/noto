@@ -4,7 +4,7 @@ namespace App\Tests\Integration\Repository;
 
 use App\Entity\Attachment;
 use App\Entity\Link;
-use App\Entity\Note;
+use App\Entity\Memo;
 use App\Enum\AttachmentStatus;
 use App\Enum\LinkKind;
 use App\Repository\AttachmentRepository;
@@ -68,9 +68,9 @@ class AttachmentRepositoryTest extends KernelTestCase
     public function testFindDanglingExcludesOwnedAttachments(): void
     {
         $attachment = $this->makeAttachment(new \DateTimeImmutable('-2 hours'));
-        $note = new Note('# Owner');
-        $this->em->persist($note);
-        $this->em->persist(new Link($note->ref, $attachment->ref, LinkKind::Ownership));
+        $memo = new Memo('# Owner');
+        $this->em->persist($memo);
+        $this->em->persist(new Link($memo->ref, $attachment->ref, LinkKind::Ownership));
         $this->em->flush();
 
         $result = $this->repository->findDangling(new \DateTimeImmutable('-1 hour'));
@@ -93,9 +93,9 @@ class AttachmentRepositoryTest extends KernelTestCase
         $owned = $this->makeAttachment(new \DateTimeImmutable('-3 hours'));
         $dangling = $this->makeAttachment(new \DateTimeImmutable('-3 hours'));
 
-        $note = new Note('# Owner');
-        $this->em->persist($note);
-        $this->em->persist(new Link($note->ref, $owned->ref, LinkKind::Ownership));
+        $memo = new Memo('# Owner');
+        $this->em->persist($memo);
+        $this->em->persist(new Link($memo->ref, $owned->ref, LinkKind::Ownership));
         $this->em->flush();
 
         $cutoff = new \DateTimeImmutable('-1 hour');

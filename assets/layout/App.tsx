@@ -7,7 +7,7 @@ import { useAppDispatch } from '../shared/store/hooks';
 import { useScrollRestoration, clearScrollKeys, createScrollKey } from '../shared/hooks';
 import {
   setTasksActiveSearch,
-  setNotesActiveSearch,
+  setMemosActiveSearch,
   setTasksSelectedProjectId,
 } from '../shared/store/uiSlice';
 import '../styles/tokens.css';
@@ -25,16 +25,16 @@ export function App() {
 
   useEffect(() => {
     const isTasksTab = currentPath.startsWith('/tasks');
-    const isNotesTab = currentPath.startsWith('/notes');
+    const isMemosTab = currentPath.startsWith('/memos');
 
     if (!isTasksTab) {
       dispatch(setTasksActiveSearch(null));
       dispatch(setTasksSelectedProjectId(null));
       clearScrollKeys('tasks');
     }
-    if (!isNotesTab) {
-      dispatch(setNotesActiveSearch(null));
-      clearScrollKeys('notes');
+    if (!isMemosTab) {
+      dispatch(setMemosActiveSearch(null));
+      clearScrollKeys('memos');
     }
   }, [currentPath, dispatch]);
 

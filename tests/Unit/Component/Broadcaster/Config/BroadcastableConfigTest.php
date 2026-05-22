@@ -24,13 +24,13 @@ class BroadcastableConfigTest extends TestCase
     public function testClassesReturnsAllRegisteredClasses(): void
     {
         $map = [
-            'App\Entity\Note' => 'notes',
+            'App\Entity\Memo' => 'memos',
             'App\Entity\Task' => 'tasks',
         ];
 
         $config = new BroadcastableConfig($map);
 
-        $this->assertSame(['App\Entity\Note', 'App\Entity\Task'], $config->classes());
+        $this->assertSame(['App\Entity\Memo', 'App\Entity\Task'], $config->classes());
     }
 
     public function testEmptyConfigReturnsEmptyClasses(): void

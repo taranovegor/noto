@@ -4,7 +4,7 @@ import { tokenStorage } from '../../shared/utils/tokenStorage';
 
 const ENTITY_PATHS: Record<string, string> = {
   task: '/tasks',
-  note: '/notes',
+  memo: '/memos',
 };
 
 export function RefsPage() {
