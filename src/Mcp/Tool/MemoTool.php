@@ -2,13 +2,15 @@
 
 namespace App\Mcp\Tool;
 
+use App\Component\Searcher\Attribute\MapSearch;
+use App\Component\Searcher\Dto\SearchQuery;
 use App\Component\Searcher\SearcherInterface;
 use App\Dto\Memo\CreateMemoDto;
-use App\Dto\Memo\SearchMemoDto;
 use App\Dto\Memo\UpdateMemoDto;
 use App\Entity\Memo;
 use App\Factory\Memo\MemoResponseDtoFactory;
 use App\Service\Memo\MemoManager;
+use App\Service\Memo\MemoSearchDefinition;
 use Mcp\Capability\Attribute\McpTool;
 use Mcp\Capability\Attribute\Schema;
 use Mcp\Schema\Result\CallToolResult;
@@ -74,9 +76,9 @@ class MemoTool extends AbstractTool
     public function search(
         RequestContext $context,
     ): CallToolResult {
-        return $this->handle($context, function (SearchMemoDto $dto): CallToolResult {
+        return $this->handle($context, function (#[MapSearch(MemoSearchDefinition::class)] SearchQuery $query): CallToolResult {
             return $this->success(
-                $this->searcher->search($dto)->map($this->factory->create(...))->getData(),
+                $this->searcher->search($query)->map($this->factory->create(...))->getData(),
                 [AbstractNormalizer::GROUPS => ['memo:list']],
             );
         });

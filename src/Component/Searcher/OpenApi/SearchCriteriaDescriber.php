@@ -3,7 +3,7 @@
 namespace App\Component\Searcher\OpenApi;
 
 use App\Component\OpenApi\RouteDescriber\RouteDescriberTrait;
-use App\Component\Searcher\Attribute\Searchable;
+use App\Component\Searcher\Attribute\MapSearch;
 use App\Component\Searcher\Configurator\SearchConfigurator;
 use App\Component\Searcher\Definition\SearchableDefinitionInterface;
 use Nelmio\ApiDocBundle\OpenApiPhp\Util;
@@ -26,45 +26,41 @@ final class SearchCriteriaDescriber implements RouteDescriberInterface
             return;
         }
 
+        $configurator = new SearchConfigurator();
+        $definition->configure($configurator);
+
         foreach ($this->getOperations($api, $route) as $operation) {
-            $this->addPaginationParameters($operation, $definition);
-            $this->addSortParameters($operation, $definition);
-            $this->addFilterParameters($operation, $definition);
+            if ($configurator->isPaginable()) {
+                $this->addPaginationParameters($operation, $configurator);
+            }
+            $this->addSortParameters($operation, $configurator);
+            $this->addFilterParameters($operation, $configurator);
         }
     }
 
     private function getSearchDefinition(\ReflectionMethod $method): ?SearchableDefinitionInterface
     {
         foreach ($method->getParameters() as $param) {
-            $type = $param->getType();
-            if (!$type instanceof \ReflectionNamedType) {
+            $attrs = $param->getAttributes(MapSearch::class);
+            if (empty($attrs)) {
                 continue;
             }
 
-            try {
-                $class = new \ReflectionClass($type->getName());
-                $attrs = $class->getAttributes(Searchable::class);
-                if (!empty($attrs)) {
-                    /** @var Searchable $attr */
-                    $attr = $attrs[0]->newInstance();
-                    /** @var SearchableDefinitionInterface $definition */
-                    $definition = new ($attr->definition)();
+            /** @var MapSearch $attr */
+            $attr = $attrs[0]->newInstance();
+            $definitionClass = $attr->definition;
+            $definition = new $definitionClass();
 
-                    return $definition;
-                }
-            } catch (\ReflectionException) {
-                // Continue to next parameter
+            if ($definition instanceof SearchableDefinitionInterface) {
+                return $definition;
             }
         }
 
         return null;
     }
 
-    private function addPaginationParameters(OA\Operation $operation, SearchableDefinitionInterface $definition): void
+    private function addPaginationParameters(OA\Operation $operation, SearchConfigurator $configurator): void
     {
-        $configurator = new SearchConfigurator();
-        $definition->configure($configurator);
-
         $limit = Util::getOperationParameter($operation, 'limit', 'query');
         $limit->description = sprintf('Number of records to return (max: %d)', $configurator->getMaxLimit() ?: 999);
         $limit->required = false;
@@ -82,11 +78,8 @@ final class SearchCriteriaDescriber implements RouteDescriberInterface
         $schema->default = 0;
     }
 
-    private function addSortParameters(OA\Operation $operation, SearchableDefinitionInterface $definition): void
+    private function addSortParameters(OA\Operation $operation, SearchConfigurator $configurator): void
     {
-        $configurator = new SearchConfigurator();
-        $definition->configure($configurator);
-
         $sortFields = array_keys($configurator->getSortDefinitions());
         if (empty($sortFields)) {
             return;
@@ -103,10 +96,8 @@ final class SearchCriteriaDescriber implements RouteDescriberInterface
         $schema->type = 'string';
     }
 
-    private function addFilterParameters(OA\Operation $operation, SearchableDefinitionInterface $definition): void
+    private function addFilterParameters(OA\Operation $operation, SearchConfigurator $configurator): void
     {
-        $configurator = new SearchConfigurator();
-        $definition->configure($configurator);
         $filterDefinitions = $configurator->getFilterDefinitions();
 
         if (empty($filterDefinitions)) {

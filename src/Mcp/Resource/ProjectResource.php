@@ -2,13 +2,14 @@
 
 namespace App\Mcp\Resource;
 
+use App\Component\Searcher\Dto\SearchQuery;
 use App\Component\Searcher\Model\PaginationDetails;
 use App\Component\Searcher\SearcherInterface;
-use App\Dto\Project\SearchProjectDto;
 use App\Entity\Project;
 use App\Exception\EntityNotFoundException;
 use App\Factory\Project\ProjectResponseDtoFactory;
 use App\Service\Project\ProjectManager;
+use App\Service\Project\ProjectSearchDefinition;
 use Mcp\Capability\Attribute\McpResource;
 use Mcp\Capability\Attribute\McpResourceTemplate;
 use Mcp\Exception\ResourceNotFoundException;
@@ -39,7 +40,7 @@ class ProjectResource extends AbstractResource
     )]
     public function list(): array
     {
-        $projects = $this->searcher->search(new SearchProjectDto([], [], PaginationDetails::unlimited()));
+        $projects = $this->searcher->search(new SearchQuery([], [], PaginationDetails::unlimited(), ProjectSearchDefinition::class));
 
         return $projects->map(
             fn (Project $p) => $this->textResource("project://{$p->id}", $this->factory->create($p)),

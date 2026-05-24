@@ -2,13 +2,15 @@
 
 namespace App\Mcp\Tool;
 
+use App\Component\Searcher\Attribute\MapSearch;
+use App\Component\Searcher\Dto\SearchQuery;
 use App\Component\Searcher\SearcherInterface;
 use App\Dto\Task\CreateTaskDto;
-use App\Dto\Task\SearchTaskDto;
 use App\Dto\Task\UpdateTaskDto;
 use App\Entity\Task;
 use App\Factory\Task\TaskResponseDtoFactory;
 use App\Service\Task\TaskManager;
+use App\Service\Task\TaskSearchDefinition;
 use Mcp\Capability\Attribute\McpTool;
 use Mcp\Capability\Attribute\Schema;
 use Mcp\Schema\Result\CallToolResult;
@@ -85,9 +87,9 @@ class TaskTool extends AbstractTool
     public function search(
         RequestContext $context,
     ): CallToolResult {
-        return $this->handle($context, function (SearchTaskDto $dto): CallToolResult {
+        return $this->handle($context, function (#[MapSearch(TaskSearchDefinition::class)] SearchQuery $query): CallToolResult {
             return $this->success(
-                $this->searcher->search($dto)->map($this->factory->create(...))->getData(),
+                $this->searcher->search($query)->map($this->factory->create(...))->getData(),
                 [AbstractNormalizer::GROUPS => ['task:list']],
             );
         });

@@ -21,7 +21,7 @@ abstract class AbstractDefinition
         return $this->property;
     }
 
-    public function setProperty(string $property): self
+    public function setProperty(string $property): static
     {
         $this->property = $property;
 

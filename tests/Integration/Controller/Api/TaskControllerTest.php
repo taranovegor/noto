@@ -373,13 +373,13 @@ class TaskControllerTest extends AuthenticatedApiTestCase
         }
         $em->flush();
 
-        $client->request('GET', '/api/tasks?limit=0');
+        $client->request('GET', '/api/tasks');
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $response = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertCount(30, $response['data']);
-        $this->assertNull($response['pagination']);
+        $this->assertCount(20, $response['data']);
+        $this->assertEquals(30, $response['pagination']['total']);
     }
 
     public function testListTasksWithFilterAndSorting(): void

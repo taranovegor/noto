@@ -2,17 +2,19 @@
 
 namespace App\Controller\Api;
 
+use App\Component\Searcher\Attribute\MapSearch;
+use App\Component\Searcher\Dto\SearchQuery;
 use App\Component\Searcher\Model\Pagination;
 use App\Component\Searcher\SearcherInterface;
 use App\Dto\Task\AttachTaskAttachmentsDto;
 use App\Dto\Task\CreateTaskDto;
-use App\Dto\Task\SearchTaskDto;
 use App\Dto\Task\TaskResponseDto;
 use App\Dto\Task\UpdateTaskDto;
 use App\Entity\Task;
 use App\Factory\Task\TaskResponseDtoFactory;
 use App\Service\Attachment\AttachmentManager;
 use App\Service\Task\TaskManager;
+use App\Service\Task\TaskSearchDefinition;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -71,7 +73,7 @@ final class TaskController extends AbstractController
             ),
         ]
     )]
-    public function list(SearchTaskDto $criteria): JsonResponse
+    public function list(#[MapSearch(TaskSearchDefinition::class)] SearchQuery $criteria): JsonResponse
     {
         $searchResult = $this->searcher->search($criteria);
 

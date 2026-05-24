@@ -37,5 +37,7 @@ final class TaskSearchDefinition implements SearchableDefinitionInterface
         $config->addSortable('updatedAt');
         $config->addSortable('createdAt');
         $config->addSortable('id');
+
+        $config->paginable();
     }
 }

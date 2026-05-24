@@ -4,7 +4,8 @@ namespace App\Component\Searcher\Resolver;
 
 use App\Component\Searcher\Configurator\SearchConfigurator;
 use App\Component\Searcher\Definition\FilterDefinition;
-use App\Component\Searcher\Dto\AbstractSearchDto;
+use App\Component\Searcher\Definition\FilterInputTransformerInterface;
+use App\Component\Searcher\Dto\SearchQuery;
 use App\Component\Searcher\Enum\FilterOperator;
 use App\Component\Searcher\Enum\OperatorInterface;
 use App\Component\Searcher\Enum\SortDirection;
@@ -14,6 +15,7 @@ use App\Component\Searcher\Model\PaginationDetails;
 use App\Component\Searcher\Model\SortInstruction;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\All;
@@ -25,27 +27,28 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 abstract class AbstractSearchDtoResolver
 {
     private const int DEFAULT_LIMIT = 20;
-    private const int DEFAULT_OFFSET = 0;
 
     public function __construct(
         private readonly ValidatorInterface $validator,
         private readonly SearchDefinitionLoader $definitionLoader,
-        private readonly ContainerInterface $container,
+        #[AutowireLocator(FilterInputTransformerInterface::class)]
+        private readonly ContainerInterface $inputTransformers,
         protected readonly ?LoggerInterface $logger = null,
     ) {
     }
 
     /**
-     * Create a SearchDto instance from HTTP request query parameters.
+     * Create a SearchQuery instance from request parameters.
      *
-     * @param class-string<AbstractSearchDto> $class
-     * @param array<string, mixed>            $parameters
+     * @param class-string<SearchQuery> $class           DTO class to instantiate (SearchQuery or a subclass)
+     * @param array<string, mixed>      $parameters
+     * @param class-string              $definitionClass SearchDefinition that configures this search
      *
      * @throws UnprocessableEntityHttpException if validation fails
      */
-    protected function create(string $class, array $parameters): AbstractSearchDto
+    protected function create(string $class, array $parameters, string $definitionClass): SearchQuery
     {
-        $filterDefinitions = $this->getFilterDefinitionsForClass($class);
+        $filterDefinitions = $this->getFilterDefinitions($definitionClass);
         $filters = $this->parseFilters($parameters, $filterDefinitions);
         $sorting = $this->parseSorting($parameters);
         $pagination = $this->parsePagination($parameters);
@@ -99,7 +102,7 @@ abstract class AbstractSearchDtoResolver
             unset($payload, $constraints);
         }
 
-        return new $class($filters, $sorting, $pagination);
+        return new $class($filters, $sorting, $pagination, $definitionClass);
     }
 
     /**
@@ -154,25 +157,20 @@ abstract class AbstractSearchDtoResolver
     }
 
     /**
-     * Get all filter definitions from SearchDefinition specified in the DTO's Searchable attribute.
+     * Get all filter definitions declared by a SearchDefinition.
      *
-     * @param class-string<AbstractSearchDto> $class
+     * @param class-string $definitionClass
      *
      * @return array<string, FilterDefinition>
      */
-    private function getFilterDefinitionsForClass(string $class): array
+    private function getFilterDefinitions(string $definitionClass): array
     {
-        $definition = $this->definitionLoader->load($class);
+        $definition = $this->definitionLoader->load($definitionClass);
 
-        $filterDefinitions = [];
         $configurator = new SearchConfigurator();
         $definition->configure($configurator);
 
-        foreach ($configurator->getFilterDefinitions() as $name => $filterDef) {
-            $filterDefinitions[$name] = $filterDef;
-        }
-
-        return $filterDefinitions;
+        return $configurator->getFilterDefinitions();
     }
 
     /**
@@ -197,15 +195,16 @@ abstract class AbstractSearchDtoResolver
     {
         $filters = [];
 
-        if (!isset($parameters['filter'])) {
+        if (isset($parameters['filter'])) {
+            $filterParams = (array) $parameters['filter'];
+        } else {
+            $filterParams = [];
             foreach ($parameters as $name => $value) {
                 if (str_starts_with($name, 'filter[') && str_ends_with($name, ']')) {
                     $key = substr($name, 7, -1);
-                    $filters[$key] = $value;
+                    $filterParams[$key] = $value;
                 }
             }
-        } else {
-            $filterParams = (array) $parameters['filter'];
         }
 
         if (empty($filterParams)) {
@@ -286,6 +285,7 @@ abstract class AbstractSearchDtoResolver
             FilterOperator::In, FilterOperator::NotIn => array_filter(
                 array_map('trim', explode(',', $value))
             ),
+            FilterOperator::Like => $value,
             default => match ($value) {
                 'true' => true,
                 'false' => false,
@@ -342,37 +342,42 @@ abstract class AbstractSearchDtoResolver
     }
 
     /**
-     * Parse pagination parameters from query.
+     * Parse pagination parameters from the request.
      *
-     * Parameters:
-     * - limit: number of records (default: 20)
-     * - offset: records to skip (default: 0)
+     * Always produces a bounded, positive limit: clients cannot request an unlimited
+     * result set (null limit is a server-only capability via PaginationDetails::unlimited()).
+     * A missing, zero or invalid limit falls back to the default; the hard cap (maxLimit)
+     * is enforced later by the searcher.
      *
      * @param array<string, mixed> $parameters
      */
     private function parsePagination(array $parameters): PaginationDetails
     {
-        $getDigits = static fn (string $key, int $default) => preg_replace(
-            '/[^[:digit:]]/',
-            '',
-            (string) ($parameters[$key] ?? $default),
+        $limit = $this->parseDigits($parameters['limit'] ?? null);
+        $offset = $this->parseDigits($parameters['offset'] ?? null);
+
+        return new PaginationDetails(
+            $limit > 0 ? $limit : self::DEFAULT_LIMIT,
+            $offset,
         );
-        $limit = $getDigits('limit', self::DEFAULT_LIMIT);
-        $offset = $getDigits('offset', self::DEFAULT_OFFSET);
-
-        if ($limit < 0) {
-            $limit = self::DEFAULT_LIMIT;
-        }
-
-        if ($offset < 0) {
-            $offset = self::DEFAULT_OFFSET;
-        }
-
-        return new PaginationDetails($limit, $offset);
     }
 
     /**
-     * Resolve a service from container (either class string or callable).
+     * Extract a non-negative integer from a raw query value (digits only); 0 if absent or invalid.
+     */
+    private function parseDigits(mixed $value): int
+    {
+        if (null === $value) {
+            return 0;
+        }
+
+        $digits = preg_replace('/[^0-9]/', '', (string) $value);
+
+        return '' === $digits ? 0 : (int) $digits;
+    }
+
+    /**
+     * Resolve an input transformer (either a closure or a service from the transformer locator).
      */
     private function resolveService(string|callable $service): callable
     {
@@ -380,6 +385,6 @@ abstract class AbstractSearchDtoResolver
             return $service;
         }
 
-        return $this->container->get($service);
+        return $this->inputTransformers->get($service);
     }
 }

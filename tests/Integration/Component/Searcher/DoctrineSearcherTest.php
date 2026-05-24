@@ -3,14 +3,15 @@
 namespace App\Tests\Integration\Component\Searcher;
 
 use App\Component\Searcher\DoctrineSearcher;
+use App\Component\Searcher\Dto\SearchQuery;
 use App\Component\Searcher\Enum\FilterOperator;
 use App\Component\Searcher\Enum\SortDirection;
 use App\Component\Searcher\Model\FilterCondition;
 use App\Component\Searcher\Model\PaginationDetails;
 use App\Component\Searcher\Model\SortInstruction;
-use App\Dto\Task\SearchTaskDto;
 use App\Entity\Task;
 use App\Enum\TaskStatus;
+use App\Service\Task\TaskSearchDefinition;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -37,6 +38,15 @@ class DoctrineSearcherTest extends KernelTestCase
         $this->em->close();
     }
 
+    /**
+     * @param FilterCondition[] $filters
+     * @param SortInstruction[] $sorting
+     */
+    private function searchQuery(array $filters, array $sorting, PaginationDetails $pagination): SearchQuery
+    {
+        return new SearchQuery($filters, $sorting, $pagination, TaskSearchDefinition::class);
+    }
+
     public function testSearchWithoutFiltersOrSorting(): void
     {
         // Create test tasks
@@ -49,7 +59,7 @@ class DoctrineSearcherTest extends KernelTestCase
         $this->em->persist($task2);
         $this->em->flush();
 
-        $dto = new SearchTaskDto([], [], new PaginationDetails(20, 0));
+        $dto = $this->searchQuery([], [], new PaginationDetails(20, 0));
         $result = $this->searcher->search($dto);
 
         $this->assertCount(2, $result->getData());
@@ -72,7 +82,7 @@ class DoctrineSearcherTest extends KernelTestCase
         $filters = [
             new FilterCondition('status', FilterOperator::Eq, 'backlog'),
         ];
-        $dto = new SearchTaskDto($filters, [], new PaginationDetails(20, 0));
+        $dto = $this->searchQuery($filters, [], new PaginationDetails(20, 0));
         $result = $this->searcher->search($dto);
 
         $this->assertCount(2, $result->getData());
@@ -95,7 +105,7 @@ class DoctrineSearcherTest extends KernelTestCase
         $filters = [
             new FilterCondition('status', FilterOperator::In, ['backlog', 'in_progress']),
         ];
-        $dto = new SearchTaskDto($filters, [], new PaginationDetails(20, 0));
+        $dto = $this->searchQuery($filters, [], new PaginationDetails(20, 0));
         $result = $this->searcher->search($dto);
 
         $this->assertCount(2, $result->getData());
@@ -118,7 +128,7 @@ class DoctrineSearcherTest extends KernelTestCase
         $sorting = [
             new SortInstruction('createdAt', SortDirection::ASC),
         ];
-        $dto = new SearchTaskDto([], $sorting, new PaginationDetails(20, 0));
+        $dto = $this->searchQuery([], $sorting, new PaginationDetails(20, 0));
         $result = $this->searcher->search($dto);
 
         $this->assertCount(3, $result->getData());
@@ -146,7 +156,7 @@ class DoctrineSearcherTest extends KernelTestCase
         $sorting = [
             new SortInstruction('id', SortDirection::DESC),
         ];
-        $dto = new SearchTaskDto([], $sorting, new PaginationDetails(20, 0));
+        $dto = $this->searchQuery([], $sorting, new PaginationDetails(20, 0));
         $result = $this->searcher->search($dto);
 
         $tasks = $result->getData();
@@ -165,7 +175,7 @@ class DoctrineSearcherTest extends KernelTestCase
         }
         $this->em->flush();
 
-        $dto = new SearchTaskDto([], [], new PaginationDetails(10, 0));
+        $dto = $this->searchQuery([], [], new PaginationDetails(10, 0));
         $result = $this->searcher->search($dto);
 
         $this->assertCount(10, $result->getData());
@@ -186,7 +196,7 @@ class DoctrineSearcherTest extends KernelTestCase
         }
         $this->em->flush();
 
-        $dto = new SearchTaskDto([], [], new PaginationDetails(10, 20));
+        $dto = $this->searchQuery([], [], new PaginationDetails(10, 20));
         $result = $this->searcher->search($dto);
 
         $this->assertCount(10, $result->getData());
@@ -205,7 +215,7 @@ class DoctrineSearcherTest extends KernelTestCase
         }
         $this->em->flush();
 
-        $dto = new SearchTaskDto([], [], new PaginationDetails(0, 0));
+        $dto = $this->searchQuery([], [], PaginationDetails::unlimited());
         $result = $this->searcher->search($dto);
 
         $this->assertCount(30, $result->getData());
@@ -239,7 +249,7 @@ class DoctrineSearcherTest extends KernelTestCase
         $sorting = [
             new SortInstruction('id', SortDirection::DESC),
         ];
-        $dto = new SearchTaskDto($filters, $sorting, new PaginationDetails(20, 0));
+        $dto = $this->searchQuery($filters, $sorting, new PaginationDetails(20, 0));
         $result = $this->searcher->search($dto);
 
         $this->assertCount(2, $result->getData());
@@ -258,7 +268,7 @@ class DoctrineSearcherTest extends KernelTestCase
         $filters = [
             new FilterCondition('status', FilterOperator::Eq, 'done'),
         ];
-        $dto = new SearchTaskDto($filters, [], new PaginationDetails(20, 0));
+        $dto = $this->searchQuery($filters, [], new PaginationDetails(20, 0));
         $result = $this->searcher->search($dto);
 
         $this->assertCount(0, $result->getData());
@@ -271,7 +281,7 @@ class DoctrineSearcherTest extends KernelTestCase
     {
         $this->expectException(\TypeError::class);
 
-        // Create a DTO without Searchable attribute (stdClass doesn't implement required interfaces)
+        // stdClass does not implement SearchableInterface
         $dto = new \stdClass();
         $this->searcher->search($dto);
     }
@@ -292,7 +302,7 @@ class DoctrineSearcherTest extends KernelTestCase
         $filters = [
             new FilterCondition('status', FilterOperator::Eq, 'in_progress'),
         ];
-        $dto = new SearchTaskDto($filters, [], new PaginationDetails(2, 0));
+        $dto = $this->searchQuery($filters, [], new PaginationDetails(2, 0));
         $result = $this->searcher->search($dto);
 
         // Should have 2 in-progress tasks
@@ -318,7 +328,7 @@ class DoctrineSearcherTest extends KernelTestCase
         $filters = [
             new FilterCondition('query', FilterOperator::Like, 'test query'),
         ];
-        $dto = new SearchTaskDto($filters, [], new PaginationDetails(20, 0));
+        $dto = $this->searchQuery($filters, [], new PaginationDetails(20, 0));
 
         // Should not throw an exception
         $result = $this->searcher->search($dto);
@@ -344,7 +354,7 @@ class DoctrineSearcherTest extends KernelTestCase
         $filters = [
             new FilterCondition('status', FilterOperator::NotIn, ['backlog', 'done']),
         ];
-        $dto = new SearchTaskDto($filters, [], new PaginationDetails(20, 0));
+        $dto = $this->searchQuery($filters, [], new PaginationDetails(20, 0));
         $result = $this->searcher->search($dto);
 
         $this->assertCount(1, $result->getData());
@@ -369,7 +379,7 @@ class DoctrineSearcherTest extends KernelTestCase
         $filters = [
             new FilterCondition('name', FilterOperator::Like, 'Task'),
         ];
-        $dto = new SearchTaskDto($filters, [], new PaginationDetails(20, 0));
+        $dto = $this->searchQuery($filters, [], new PaginationDetails(20, 0));
         $result = $this->searcher->search($dto);
 
         // All 3 tasks match because LIKE '%Task%' includes 'Apple Task', 'Banana Task'
@@ -400,7 +410,7 @@ class DoctrineSearcherTest extends KernelTestCase
         $filters = [
             new FilterCondition('status', FilterOperator::Neq, 'done'),
         ];
-        $dto = new SearchTaskDto($filters, [], new PaginationDetails(20, 0));
+        $dto = $this->searchQuery($filters, [], new PaginationDetails(20, 0));
         $result = $this->searcher->search($dto);
 
         // Should have 2 tasks that are not 'done'
@@ -429,7 +439,7 @@ class DoctrineSearcherTest extends KernelTestCase
             new FilterCondition('status', FilterOperator::Eq, 'backlog'),
             new FilterCondition('projectId', FilterOperator::Eq, $project->id->toString()),
         ];
-        $dto = new SearchTaskDto($filters, [], new PaginationDetails(20, 0));
+        $dto = $this->searchQuery($filters, [], new PaginationDetails(20, 0));
         $result = $this->searcher->search($dto);
 
         // Should have all 5 backlog tasks in this project

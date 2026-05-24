@@ -3,7 +3,6 @@
 namespace App\Tests\Unit\Component\Searcher\Loader;
 
 use App\Component\Searcher\Loader\SearchDefinitionLoader;
-use App\Dto\Task\SearchTaskDto;
 use App\Service\Task\TaskSearchDefinition;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -19,7 +18,7 @@ class SearchDefinitionLoaderTest extends TestCase
         $this->loader = new SearchDefinitionLoader($this->container);
     }
 
-    public function testLoadReturnsDefinitionFromAttribute(): void
+    public function testLoadReturnsDefinitionFromContainer(): void
     {
         $definition = new TaskSearchDefinition();
 
@@ -31,17 +30,9 @@ class SearchDefinitionLoaderTest extends TestCase
             [TaskSearchDefinition::class, $definition],
         ]);
 
-        $result = $this->loader->load(SearchTaskDto::class);
+        $result = $this->loader->load(TaskSearchDefinition::class);
 
         $this->assertSame($definition, $result);
-    }
-
-    public function testLoadThrowsIfSearchableAttributeMissing(): void
-    {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('must have #[Searchable] attribute');
-
-        $this->loader->load(\stdClass::class);
     }
 
     public function testLoadThrowsIfDefinitionNotInContainer(): void
@@ -53,7 +44,7 @@ class SearchDefinitionLoaderTest extends TestCase
             [TaskSearchDefinition::class, false],
         ]);
 
-        $this->loader->load(SearchTaskDto::class);
+        $this->loader->load(TaskSearchDefinition::class);
     }
 
     public function testLoadThrowsIfDefinitionDoesNotImplementInterface(): void
@@ -69,6 +60,6 @@ class SearchDefinitionLoaderTest extends TestCase
             [TaskSearchDefinition::class, new \stdClass()],
         ]);
 
-        $this->loader->load(SearchTaskDto::class);
+        $this->loader->load(TaskSearchDefinition::class);
     }
 }

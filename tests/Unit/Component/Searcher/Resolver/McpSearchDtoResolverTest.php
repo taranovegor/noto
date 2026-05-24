@@ -2,11 +2,11 @@
 
 namespace App\Tests\Unit\Component\Searcher\Resolver;
 
+use App\Component\Searcher\Dto\SearchQuery;
 use App\Component\Searcher\Enum\SortDirection;
 use App\Component\Searcher\Loader\SearchDefinitionLoader;
 use App\Component\Searcher\Model\SortInstruction;
 use App\Component\Searcher\Resolver\McpSearchDtoResolver;
-use App\Dto\Task\SearchTaskDto;
 use App\Service\Task\TaskSearchDefinition;
 use Mcp\Schema\Request\CallToolRequest;
 use PHPUnit\Framework\TestCase;
@@ -50,9 +50,9 @@ class McpSearchDtoResolverTest extends TestCase
             'offset' => 100,
         ]);
 
-        $dto = $this->resolver->resolve($request, SearchTaskDto::class);
+        $dto = $this->resolver->resolve($request, SearchQuery::class, TaskSearchDefinition::class);
 
-        $this->assertInstanceOf(SearchTaskDto::class, $dto);
+        $this->assertInstanceOf(SearchQuery::class, $dto);
         $this->assertEmpty($dto->getFilters());
         $this->assertEmpty($dto->getSorting());
         $this->assertEquals(50, $dto->getPagination()->limit);
@@ -63,9 +63,9 @@ class McpSearchDtoResolverTest extends TestCase
     {
         $request = new CallToolRequest('search_tasks', []);
 
-        $dto = $this->resolver->resolve($request, SearchTaskDto::class);
+        $dto = $this->resolver->resolve($request, SearchQuery::class, TaskSearchDefinition::class);
 
-        $this->assertInstanceOf(SearchTaskDto::class, $dto);
+        $this->assertInstanceOf(SearchQuery::class, $dto);
         $pagination = $dto->getPagination();
         $this->assertEquals(20, $pagination->limit);
         $this->assertEquals(0, $pagination->offset);
@@ -77,7 +77,7 @@ class McpSearchDtoResolverTest extends TestCase
             'sort' => 'name',
         ]);
 
-        $dto = $this->resolver->resolve($request, SearchTaskDto::class);
+        $dto = $this->resolver->resolve($request, SearchQuery::class, TaskSearchDefinition::class);
 
         $sorting = $dto->getSorting();
         $this->assertCount(1, $sorting);
@@ -93,7 +93,7 @@ class McpSearchDtoResolverTest extends TestCase
             'sort' => '-deadline',
         ]);
 
-        $dto = $this->resolver->resolve($request, SearchTaskDto::class);
+        $dto = $this->resolver->resolve($request, SearchQuery::class, TaskSearchDefinition::class);
 
         $sorting = $dto->getSorting();
         $this->assertCount(1, $sorting);
@@ -109,7 +109,7 @@ class McpSearchDtoResolverTest extends TestCase
             'sort' => '-priority;deadline;name',
         ]);
 
-        $dto = $this->resolver->resolve($request, SearchTaskDto::class);
+        $dto = $this->resolver->resolve($request, SearchQuery::class, TaskSearchDefinition::class);
 
         $sorting = $dto->getSorting();
         $this->assertCount(3, $sorting);
@@ -129,7 +129,7 @@ class McpSearchDtoResolverTest extends TestCase
             ],
         ]);
 
-        $dto = $this->resolver->resolve($request, SearchTaskDto::class);
+        $dto = $this->resolver->resolve($request, SearchQuery::class, TaskSearchDefinition::class);
 
         $filters = $dto->getFilters();
         $this->assertCount(1, $filters);
@@ -145,7 +145,7 @@ class McpSearchDtoResolverTest extends TestCase
             ],
         ]);
 
-        $dto = $this->resolver->resolve($request, SearchTaskDto::class);
+        $dto = $this->resolver->resolve($request, SearchQuery::class, TaskSearchDefinition::class);
 
         $filters = $dto->getFilters();
         $this->assertCount(2, $filters);
@@ -162,7 +162,7 @@ class McpSearchDtoResolverTest extends TestCase
             ],
         ]);
 
-        $dto = $this->resolver->resolve($request, SearchTaskDto::class);
+        $dto = $this->resolver->resolve($request, SearchQuery::class, TaskSearchDefinition::class);
 
         $filters = $dto->getFilters();
         $this->assertCount(1, $filters);
@@ -174,7 +174,7 @@ class McpSearchDtoResolverTest extends TestCase
     {
         $request = new CallToolRequest('search_tasks', []);
 
-        $result = $this->resolver->resolve($request, \stdClass::class);
+        $result = $this->resolver->resolve($request, \stdClass::class, TaskSearchDefinition::class);
 
         $this->assertNull($result);
     }
@@ -184,7 +184,7 @@ class McpSearchDtoResolverTest extends TestCase
         // Use a different request type (not CallToolRequest)
         $request = $this->createStub(\Mcp\Schema\JsonRpc\Request::class);
 
-        $result = $this->resolver->resolve($request, SearchTaskDto::class);
+        $result = $this->resolver->resolve($request, SearchQuery::class, TaskSearchDefinition::class);
 
         $this->assertNull($result);
     }
@@ -202,9 +202,9 @@ class McpSearchDtoResolverTest extends TestCase
             'offset' => 50,
         ]);
 
-        $dto = $this->resolver->resolve($request, SearchTaskDto::class);
+        $dto = $this->resolver->resolve($request, SearchQuery::class, TaskSearchDefinition::class);
 
-        $this->assertInstanceOf(SearchTaskDto::class, $dto);
+        $this->assertInstanceOf(SearchQuery::class, $dto);
         $this->assertCount(3, $dto->getFilters());
         $this->assertCount(2, $dto->getSorting());
         $this->assertEquals(25, $dto->getPagination()->limit);

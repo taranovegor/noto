@@ -18,5 +18,7 @@ final class StashSearchDefinition implements SearchableDefinitionInterface
         $config->addSortable('pinned');
         $config->addSortable('expiresAt');
         $config->addSortable('updatedAt');
+
+        $config->paginable();
     }
 }

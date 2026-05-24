@@ -2,21 +2,40 @@
 
 namespace App\Component\Searcher\Dto;
 
+use App\Component\Searcher\Model\FilterCondition;
+use App\Component\Searcher\Model\PaginationDetails;
+use App\Component\Searcher\Model\SortInstruction;
+
 /**
- * Base marker interface for DTO classes that support searching, filtering, and sorting.
+ * Request-side contract accepted by SearcherInterface::search().
  *
- * This is an internal interface—do NOT implement it directly in your DTO classes.
- * Instead, implement one of its child interfaces that matches your entity type.
+ * Carries the raw filters, sorting and pagination the client asked for, plus the FQCN of the
+ * SearchDefinition that decides what is actually allowed. Which capabilities are honoured is a
+ * property of the SearchDefinition, not of this type: undeclared filters/sorts are dropped and
+ * pagination is applied only when the definition opts in via SearchConfigurator::paginate().
  *
- * Child interfaces define the specific searchable fields for each domain via the #[Searchable]
- * attribute on DTO properties. The Searcher component uses these interfaces and attributes
- * to build query definitions, validate filters, and resolve field names.
+ * The default implementation is SearchQuery, bound to arguments through the #[MapSearch] attribute.
  *
- * @see \App\Component\Searcher\SearcherInterface
- * @see \App\Component\Searcher\Attribute\Searchable
- *
- * @internal
+ * @see SearcherInterface
+ * @see SearchQuery
+ * @see MapSearch
  */
 interface SearchableInterface
 {
+    /**
+     * Returns the FQCN of the SearchDefinition that configures filters, sorts and pagination.
+     */
+    public function getSearchDefinitionClass(): string;
+
+    /**
+     * @return FilterCondition[]
+     */
+    public function getFilters(): array;
+
+    /**
+     * @return SortInstruction[]
+     */
+    public function getSorting(): array;
+
+    public function getPagination(): PaginationDetails;
 }

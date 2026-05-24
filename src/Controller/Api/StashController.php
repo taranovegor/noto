@@ -2,15 +2,17 @@
 
 namespace App\Controller\Api;
 
+use App\Component\Searcher\Attribute\MapSearch;
+use App\Component\Searcher\Dto\SearchQuery;
 use App\Component\Searcher\Model\Pagination;
 use App\Component\Searcher\SearcherInterface;
 use App\Dto\Stash\CreateStashDto;
-use App\Dto\Stash\SearchStashDto;
 use App\Dto\Stash\StashResponseDto;
 use App\Dto\Stash\UpdateStashDto;
 use App\Entity\Stash;
 use App\Factory\Stash\StashResponseDtoFactory;
 use App\Service\Stash\StashManager;
+use App\Service\Stash\StashSearchDefinition;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -105,7 +107,7 @@ final class StashController extends AbstractController
             ),
         ]
     )]
-    public function list(SearchStashDto $criteria): JsonResponse
+    public function list(#[MapSearch(StashSearchDefinition::class)] SearchQuery $criteria): JsonResponse
     {
         $searchResult = $this->searcher->search($criteria);
 

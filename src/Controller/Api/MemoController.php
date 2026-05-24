@@ -2,17 +2,19 @@
 
 namespace App\Controller\Api;
 
+use App\Component\Searcher\Attribute\MapSearch;
+use App\Component\Searcher\Dto\SearchQuery;
 use App\Component\Searcher\Model\Pagination;
 use App\Component\Searcher\SearcherInterface;
 use App\Dto\Memo\AttachMemoAttachmentsDto;
 use App\Dto\Memo\CreateMemoDto;
 use App\Dto\Memo\MemoResponseDto;
-use App\Dto\Memo\SearchMemoDto;
 use App\Dto\Memo\UpdateMemoDto;
 use App\Entity\Memo;
 use App\Factory\Memo\MemoResponseDtoFactory;
 use App\Service\Attachment\AttachmentManager;
 use App\Service\Memo\MemoManager;
+use App\Service\Memo\MemoSearchDefinition;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -71,7 +73,7 @@ final class MemoController extends AbstractController
             ),
         ]
     )]
-    public function list(SearchMemoDto $criteria): JsonResponse
+    public function list(#[MapSearch(MemoSearchDefinition::class)] SearchQuery $criteria): JsonResponse
     {
         $searchResult = $this->searcher->search($criteria);
 

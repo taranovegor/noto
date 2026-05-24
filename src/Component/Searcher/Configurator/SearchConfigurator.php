@@ -26,6 +26,9 @@ class SearchConfigurator
     /** @var array<string, SortDefinition> Allowed sortable fields indexed by API name */
     private array $sortDefinitions = [];
 
+    /** Whether this search returns paginated results (opt-in via paginate()) */
+    private bool $paginable = false;
+
     /** Maximum records per request (0 = unlimited) */
     private int $maxLimit = 100;
 
@@ -64,19 +67,28 @@ class SearchConfigurator
     }
 
     /**
-     * Set pagination constraints for this entity.
+     * Enable pagination for this search and set its limits.
+     *
+     * Pagination is opt-in: without this call the search returns a plain list with no
+     * pagination metadata (and no COUNT query).
      *
      * @param int $maxLimit     Maximum limit allowed (0 = no hard limit)
      * @param int $defaultLimit Default limit if not specified by client
      *
      * @return $this
      */
-    public function setPaginationLimits(int $maxLimit, int $defaultLimit): self
+    public function paginable(int $maxLimit = 100, int $defaultLimit = 20): self
     {
+        $this->paginable = true;
         $this->maxLimit = $maxLimit;
         $this->defaultLimit = $defaultLimit;
 
         return $this;
+    }
+
+    public function isPaginable(): bool
+    {
+        return $this->paginable;
     }
 
     /**

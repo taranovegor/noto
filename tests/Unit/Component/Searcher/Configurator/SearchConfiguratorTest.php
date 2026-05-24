@@ -81,23 +81,31 @@ class SearchConfiguratorTest extends TestCase
         $this->assertNull($definition);
     }
 
-    public function testSetPaginationLimitsSetsMaxAndDefault(): void
+    public function testPaginateEnablesPaginationAndSetsLimits(): void
     {
-        $this->configurator->setPaginationLimits(50, 25);
+        $this->configurator->paginable(50, 25);
 
+        $this->assertTrue($this->configurator->isPaginable());
         $this->assertEquals(50, $this->configurator->getMaxLimit());
         $this->assertEquals(25, $this->configurator->getDefaultLimit());
     }
 
-    public function testSetPaginationLimitsReturnsThis(): void
+    public function testPaginateReturnsThis(): void
     {
-        $result = $this->configurator->setPaginationLimits(100, 20);
+        $result = $this->configurator->paginable(100, 20);
 
         $this->assertSame($this->configurator, $result);
     }
 
-    public function testDefaultPaginationLimitsAreSet(): void
+    public function testPaginationIsDisabledByDefault(): void
     {
+        $this->assertFalse($this->configurator->isPaginable());
+    }
+
+    public function testPaginateDefaultsToHundredAndTwenty(): void
+    {
+        $this->configurator->paginable();
+
         $this->assertEquals(100, $this->configurator->getMaxLimit());
         $this->assertEquals(20, $this->configurator->getDefaultLimit());
     }

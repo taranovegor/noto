@@ -25,5 +25,7 @@ final class MemoSearchDefinition implements SearchableDefinitionInterface
         $config->addSortable('createdAt');
         $config->addSortable('updatedAt');
         $config->addSortable('id');
+
+        $config->paginable();
     }
 }

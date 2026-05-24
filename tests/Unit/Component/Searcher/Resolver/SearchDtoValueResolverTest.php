@@ -2,11 +2,12 @@
 
 namespace App\Tests\Unit\Component\Searcher\Resolver;
 
+use App\Component\Searcher\Attribute\MapSearch;
+use App\Component\Searcher\Dto\SearchQuery;
 use App\Component\Searcher\Enum\SortDirection;
 use App\Component\Searcher\Loader\SearchDefinitionLoader;
 use App\Component\Searcher\Model\SortInstruction;
 use App\Component\Searcher\Resolver\SearchDtoValueResolver;
-use App\Dto\Task\SearchTaskDto;
 use App\Service\Stash\StashSearchDefinition;
 use App\Service\Task\TaskSearchDefinition;
 use PHPUnit\Framework\TestCase;
@@ -50,12 +51,12 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveWithoutFiltersOrSorting(): void
     {
         $request = Request::create('/?limit=10&offset=0');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
         $this->assertCount(1, $result);
-        $this->assertInstanceOf(SearchTaskDto::class, $result[0]);
+        $this->assertInstanceOf(SearchQuery::class, $result[0]);
         $this->assertEmpty($result[0]->getFilters());
         $this->assertEmpty($result[0]->getSorting());
         $this->assertEquals(10, $result[0]->getPagination()->limit);
@@ -65,7 +66,7 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveWithAscendingSorting(): void
     {
         $request = Request::create('/?sort=name');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -82,7 +83,7 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveWithDescendingSorting(): void
     {
         $request = Request::create('/?sort=-deadline');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -99,7 +100,7 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveWithMultipleSortFields(): void
     {
         $request = Request::create('/?sort=-priority;deadline;name');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -118,7 +119,7 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveWithPagination(): void
     {
         $request = Request::create('/?limit=50&offset=100');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -132,7 +133,7 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveWithDefaultPagination(): void
     {
         $request = Request::create('/');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -156,7 +157,7 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveWithMultipleConditionsSameField(): void
     {
         $request = Request::create('/?filter[status]=in:backlog,todo;neq:done');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -172,7 +173,7 @@ class SearchDtoValueResolverTest extends TestCase
     {
         $projectId = '550e8400-e29b-41d4-a716-446655440000';
         $request = Request::create('/?filter[projectId]='.$projectId);
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -187,7 +188,7 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveWithCommasSeparatingValues(): void
     {
         $request = Request::create('/?filter[status]=in:backlog,in_progress,done');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -202,7 +203,7 @@ class SearchDtoValueResolverTest extends TestCase
     {
         // Test that undefined filters are ignored (not in SearchDefinition)
         $request = Request::create('/?filter[unknownFilter]=value');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -216,7 +217,7 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveWithNeqOperator(): void
     {
         $request = Request::create('/?filter[status]=neq:done');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -231,7 +232,7 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveStatusWithEqOperatorExplicit(): void
     {
         $request = Request::create('/?filter[status]=eq:todo');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -247,7 +248,7 @@ class SearchDtoValueResolverTest extends TestCase
     {
         $projectId = '550e8400-e29b-41d4-a716-446655440000';
         $request = Request::create('/?filter[projectId]=eq:'.$projectId);
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -262,7 +263,7 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveIgnoresUnknownOperators(): void
     {
         $request = Request::create('/?filter[status]=unknown_op:value');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -276,7 +277,7 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveIgnoresUndefinedFilterFields(): void
     {
         $request = Request::create('/?filter[unknownField]=value');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -290,7 +291,7 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveWithEmptyFilterValue(): void
     {
         $request = Request::create('/?filter[status]=');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -304,7 +305,7 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveStringFalseIsCastToBoolFalse(): void
     {
         $request = Request::create('/?filter[status]=in:todo');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -318,7 +319,7 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveStringTrueIsCastToBoolTrue(): void
     {
         $request = Request::create('/?filter[status]=neq:done');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -333,7 +334,7 @@ class SearchDtoValueResolverTest extends TestCase
     {
         // Multiple conditions for same field separated by semicolon
         $request = Request::create('/?filter[status]=in:backlog,in_progress;neq:done');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 
@@ -351,7 +352,7 @@ class SearchDtoValueResolverTest extends TestCase
     public function testResolveWithNotInOperator(): void
     {
         $request = Request::create('/?filter[status]=notIn:backlog,done');
-        $metadata = new ArgumentMetadata('criteria', SearchTaskDto::class, false, false, null);
+        $metadata = new ArgumentMetadata('criteria', SearchQuery::class, false, false, null, false, [new MapSearch(TaskSearchDefinition::class)]);
 
         $result = iterator_to_array($this->resolver->resolve($request, $metadata));
 

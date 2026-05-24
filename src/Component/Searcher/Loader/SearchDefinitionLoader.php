@@ -2,16 +2,16 @@
 
 namespace App\Component\Searcher\Loader;
 
-use App\Component\Searcher\Attribute\Searchable;
 use App\Component\Searcher\Definition\SearchableDefinitionInterface;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 
 /**
- * Loads SearchDefinition from DTO class using Searchable attribute.
+ * Fetches a SearchDefinition instance from the service container by its class.
  *
- * Resolves the definition class specified in #[Searchable(definition: ...)]
- * and fetches it from the service container.
+ * The argument → definition mapping (the #[MapSearch] attribute) is resolved by the
+ * value resolvers; by the time a definition class reaches the loader it is the
+ * canonical FQCN returned by SearchableInterface::getSearchDefinitionClass().
  */
 final readonly class SearchDefinitionLoader
 {
@@ -22,24 +22,12 @@ final readonly class SearchDefinitionLoader
     }
 
     /**
-     * Load SearchDefinition for a DTO class.
+     * @param class-string $definitionClass
      *
-     * @param class-string $dtoClass
-     *
-     * @throws \RuntimeException if Searchable attribute is missing or definition not found
+     * @throws \RuntimeException if the definition is not registered or has the wrong type
      */
-    public function load(string $dtoClass): SearchableDefinitionInterface
+    public function load(string $definitionClass): SearchableDefinitionInterface
     {
-        $reflection = new \ReflectionClass($dtoClass);
-        $attributes = $reflection->getAttributes(Searchable::class);
-
-        if (empty($attributes)) {
-            throw new \RuntimeException(sprintf('DTO %s must have #[Searchable] attribute pointing to SearchDefinition', $dtoClass));
-        }
-
-        $attribute = $attributes[0]->newInstance();
-        $definitionClass = $attribute->definition;
-
         if (!$this->definitionContainer->has($definitionClass)) {
             throw new \RuntimeException(sprintf('SearchDefinition %s not found in service container', $definitionClass));
         }

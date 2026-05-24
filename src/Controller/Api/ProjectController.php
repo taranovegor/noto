@@ -2,12 +2,14 @@
 
 namespace App\Controller\Api;
 
+use App\Component\Searcher\Attribute\MapSearch;
+use App\Component\Searcher\Dto\SearchQuery;
 use App\Component\Searcher\Model\Pagination;
 use App\Component\Searcher\SearcherInterface;
 use App\Dto\Project\ProjectResponseDto;
-use App\Dto\Project\SearchProjectDto;
 use App\Entity\Project;
 use App\Factory\Project\ProjectResponseDtoFactory;
+use App\Service\Project\ProjectSearchDefinition;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -63,7 +65,7 @@ final class ProjectController extends AbstractController
             ),
         ]
     )]
-    public function list(SearchProjectDto $criteria): JsonResponse
+    public function list(#[MapSearch(ProjectSearchDefinition::class)] SearchQuery $criteria): JsonResponse
     {
         $searchResult = $this->searcher->search($criteria);
 

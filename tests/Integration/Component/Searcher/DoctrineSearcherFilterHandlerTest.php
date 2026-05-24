@@ -3,12 +3,13 @@
 namespace App\Tests\Integration\Component\Searcher;
 
 use App\Component\Searcher\DoctrineSearcher;
+use App\Component\Searcher\Dto\SearchQuery;
 use App\Component\Searcher\Enum\FilterOperator;
 use App\Component\Searcher\Model\FilterCondition;
 use App\Component\Searcher\Model\PaginationDetails;
-use App\Dto\Task\SearchTaskDto;
 use App\Entity\Task;
 use App\Enum\TaskStatus;
+use App\Service\Task\TaskSearchDefinition;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -52,7 +53,7 @@ class DoctrineSearcherFilterHandlerTest extends KernelTestCase
         $filters = [
             new FilterCondition('query', FilterOperator::Like, 'search term'),
         ];
-        $dto = new SearchTaskDto($filters, [], new PaginationDetails(20, 0));
+        $dto = new SearchQuery($filters, [], new PaginationDetails(20, 0), TaskSearchDefinition::class);
 
         // Should execute without exception - handler was invoked
         $result = $this->searcher->search($dto);
@@ -79,7 +80,7 @@ class DoctrineSearcherFilterHandlerTest extends KernelTestCase
         $filters = [
             new FilterCondition('query', FilterOperator::Like, 'Database'),
         ];
-        $dto = new SearchTaskDto($filters, [], new PaginationDetails(20, 0));
+        $dto = new SearchQuery($filters, [], new PaginationDetails(20, 0), TaskSearchDefinition::class);
 
         $result = $this->searcher->search($dto);
 
@@ -103,7 +104,7 @@ class DoctrineSearcherFilterHandlerTest extends KernelTestCase
             new FilterCondition('status', FilterOperator::Eq, 'backlog'),
             new FilterCondition('query', FilterOperator::Like, 'Task'),
         ];
-        $dto = new SearchTaskDto($filters, [], new PaginationDetails(20, 0));
+        $dto = new SearchQuery($filters, [], new PaginationDetails(20, 0), TaskSearchDefinition::class);
 
         $result = $this->searcher->search($dto);
 

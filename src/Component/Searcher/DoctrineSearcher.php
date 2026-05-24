@@ -4,11 +4,9 @@ namespace App\Component\Searcher;
 
 use App\Component\Searcher\Configurator\SearchConfigurator;
 use App\Component\Searcher\Context\DoctrineFilterContext;
+use App\Component\Searcher\Definition\FilterHandlerInterface;
 use App\Component\Searcher\Definition\SearchableDefinitionInterface;
-use App\Component\Searcher\Dto\FilterableInterface;
-use App\Component\Searcher\Dto\PaginableInterface;
 use App\Component\Searcher\Dto\SearchableInterface;
-use App\Component\Searcher\Dto\SortableInterface;
 use App\Component\Searcher\Enum\FilterOperator;
 use App\Component\Searcher\Loader\SearchDefinitionLoader;
 use App\Component\Searcher\Model\Pagination;
@@ -17,6 +15,7 @@ use App\Component\Searcher\Model\SearchResult;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Psr\Container\ContainerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 
 /**
  * Doctrine ORM implementation of the search interface.
@@ -33,16 +32,17 @@ final readonly class DoctrineSearcher implements SearcherInterface
     public function __construct(
         private EntityManagerInterface $entityManager,
         private SearchDefinitionLoader $searchDefinitionLoader,
-        private ContainerInterface $container,
+        #[AutowireLocator(FilterHandlerInterface::class)]
+        private ContainerInterface $filterHandlers,
     ) {
     }
 
     /**
      * @return SearchResult<T>
      */
-    public function search(FilterableInterface|SortableInterface|PaginableInterface $searchable): SearchResult
+    public function search(SearchableInterface $searchable): SearchResult
     {
-        $definition = $this->searchDefinitionLoader->load($searchable::class);
+        $definition = $this->searchDefinitionLoader->load($searchable->getSearchDefinitionClass());
         $configurator = new SearchConfigurator();
         $definition->configure($configurator);
 
@@ -52,12 +52,16 @@ final readonly class DoctrineSearcher implements SearcherInterface
 
         $criteria = $this->buildCriteria($searchable, $definition, $configurator);
 
-        if ($searchable instanceof FilterableInterface && $criteria->hasFilters()) {
+        if ($criteria->hasFilters()) {
             $this->applyFilters($qb, $criteria, $configurator);
         }
 
-        if ($searchable instanceof SortableInterface && $criteria->hasSorting()) {
+        if ($criteria->hasSorting()) {
             $this->applySorting($qb, $criteria);
+        }
+
+        if (!$criteria->hasPagination()) {
+            return new SearchResult($qb->getQuery()->getResult(), null);
         }
 
         $countQb = clone $qb;
@@ -68,17 +72,12 @@ final readonly class DoctrineSearcher implements SearcherInterface
             ->getQuery()
             ->getSingleScalarResult();
 
-        $hasPagination = $searchable instanceof PaginableInterface && $criteria->hasPagination();
-        if ($hasPagination) {
-            $qb->setMaxResults($criteria->getLimit());
-            $qb->setFirstResult($criteria->getOffset());
-        }
-
-        $data = $qb->getQuery()->getResult();
+        $qb->setMaxResults($criteria->getLimit());
+        $qb->setFirstResult($criteria->getOffset());
 
         return new SearchResult(
-            $data,
-            $hasPagination ? new Pagination($criteria->getLimit(), $criteria->getOffset(), $total) : null,
+            $qb->getQuery()->getResult(),
+            new Pagination($criteria->getLimit(), $criteria->getOffset(), $total),
         );
     }
 
@@ -93,43 +92,35 @@ final readonly class DoctrineSearcher implements SearcherInterface
         $limit = null;
         $offset = 0;
 
-        if ($searchable instanceof FilterableInterface) {
-            foreach ($searchable->getFilters() as $filterCondition) {
-                $name = $filterCondition->name;
+        foreach ($searchable->getFilters() as $filterCondition) {
+            $name = $filterCondition->name;
 
-                if (!$configurator->isFilterAllowed($name)) {
-                    continue;
-                }
-
-                $propertyName = $configurator->getFilterDefinition($name)?->getProperty() ?? $name;
-                $filters[$propertyName] = $filterCondition;
+            if (!$configurator->isFilterAllowed($name)) {
+                continue;
             }
+
+            $propertyName = $configurator->getFilterDefinition($name)?->getProperty() ?? $name;
+            $filters[$propertyName] = $filterCondition;
         }
 
-        if ($searchable instanceof SortableInterface) {
-            foreach ($searchable->getSorting() as $sortInstruction) {
-                $name = $sortInstruction->name;
+        foreach ($searchable->getSorting() as $sortInstruction) {
+            $name = $sortInstruction->name;
 
-                if (!$configurator->isSortAllowed($name)) {
-                    continue;
-                }
-
-                $propertyName = $configurator->getSortDefinition($name)?->getProperty() ?? $name;
-                $sorting[$propertyName] = $sortInstruction->direction;
+            if (!$configurator->isSortAllowed($name)) {
+                continue;
             }
+
+            $propertyName = $configurator->getSortDefinition($name)?->getProperty() ?? $name;
+            $sorting[$propertyName] = $sortInstruction->direction;
         }
 
-        if ($searchable instanceof PaginableInterface) {
+        if ($configurator->isPaginable()) {
             $paginationDetails = $searchable->getPagination();
             $limit = $paginationDetails->limit;
             $offset = $paginationDetails->offset;
 
-            if ($configurator->getMaxLimit() > 0 && $limit > $configurator->getMaxLimit()) {
+            if (null !== $limit && $configurator->getMaxLimit() > 0 && $limit > $configurator->getMaxLimit()) {
                 $limit = $configurator->getMaxLimit();
-            }
-
-            if (0 === $limit) {
-                $limit = null;
             }
         }
 
@@ -222,7 +213,7 @@ final readonly class DoctrineSearcher implements SearcherInterface
     }
 
     /**
-     * Resolve a service from container (either class string or callable).
+     * Resolve a filter handler (either a closure or a service from the handler locator).
      */
     private function resolveService(string|callable $service): callable
     {
@@ -230,6 +221,6 @@ final readonly class DoctrineSearcher implements SearcherInterface
             return $service;
         }
 
-        return $this->container->get($service);
+        return $this->filterHandlers->get($service);
     }
 }

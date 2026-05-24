@@ -50,13 +50,6 @@ final class FilterDefinition extends AbstractDefinition
         return $this->constraints;
     }
 
-    public function setProperty(string $property): self
-    {
-        parent::setProperty($property);
-
-        return $this;
-    }
-
     public function getInputTransformer(): \Closure|string|null
     {
         return $this->inputTransformer;

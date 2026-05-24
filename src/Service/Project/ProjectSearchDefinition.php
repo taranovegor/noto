@@ -17,5 +17,7 @@ final class ProjectSearchDefinition implements SearchableDefinitionInterface
     {
         $config->addSortable('createdAt');
         $config->addSortable('id');
+
+        $config->paginable();
     }
 }

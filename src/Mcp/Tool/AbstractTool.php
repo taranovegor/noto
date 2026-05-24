@@ -2,7 +2,9 @@
 
 namespace App\Mcp\Tool;
 
-use App\Component\Searcher\Dto\AbstractSearchDto;
+use App\Component\Searcher\Attribute\MapSearch;
+use App\Component\Searcher\Dto\SearchableInterface;
+use App\Component\Searcher\Dto\SearchQuery;
 use App\Component\Searcher\Resolver\McpSearchDtoResolver;
 use App\Mcp\AbstractMcpComponent;
 use Mcp\Schema\Content\TextContent;
@@ -88,17 +90,19 @@ class AbstractTool extends AbstractMcpComponent
         if (empty($parameters)) {
             $result = $handler();
         } else {
-            $paramType = $parameters[0]->getType();
+            $param = $parameters[0];
+            $paramType = $param->getType();
 
             if ($paramType instanceof \ReflectionNamedType && class_exists($paramType->getName())) {
                 $dtoFqcn = $paramType->getName();
+                $mapSearch = ($param->getAttributes(MapSearch::class)[0] ?? null)?->newInstance();
 
-                if (is_a($dtoFqcn, AbstractSearchDto::class, true)) {
+                if ($mapSearch instanceof MapSearch && is_a($dtoFqcn, SearchableInterface::class, true)) {
                     /** @var McpSearchDtoResolver $resolver */
                     $resolver = $this->container->get('search_dto_validator');
                     try {
                         /** @var object $dto */
-                        $dto = $resolver->resolve($context->getRequest(), $dtoFqcn);
+                        $dto = $resolver->resolve($context->getRequest(), SearchQuery::class, $mapSearch->definition);
                     } catch (ValidationFailedException $e) {
                         return $this->validationError($e->getViolations());
                     }
