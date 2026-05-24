@@ -13,10 +13,13 @@ import { RouteErrorBoundary } from './shared/components/RouteErrorBoundary';
 import { CentrifugoProvider } from './shared/websocket';
 import { TasksListShell } from './features/tasks/components/TasksListShell';
 import { MemosListShell } from './features/memos/components/MemosListShell';
+import { NotebooksListShell } from './features/notebooks/components/NotebooksListShell';
 import { StashesListShell } from './features/stashes/components/StashesListShell';
 import { SettingsPage } from './features/settings/components/SettingsPage';
 import { TaskPageSkeleton } from './features/tasks/components/TaskPageSkeleton';
 import { MemoPageSkeleton } from './features/memos/components/MemoPageSkeleton';
+import { NotebookPageSkeleton } from './features/notebooks/components/NotebookPageSkeleton';
+import { NotePageSkeleton } from './features/notebooks/components/NotePageSkeleton';
 import { LOGIN_ROUTE, TASKS_ROUTE } from './features/auth';
 import { tokenStorage } from './shared/utils/tokenStorage';
 import { authApi } from './features/auth/store/api';
@@ -27,6 +30,12 @@ const TaskPage = React.lazy(() =>
 );
 const MemoPage = React.lazy(() =>
   import('./features/memos/components/MemoPage').then((m) => ({ default: m.MemoPage })),
+);
+const NotebookPage = React.lazy(() =>
+  import('./features/notebooks/components/NotebookPage').then((m) => ({ default: m.NotebookPage })),
+);
+const NotePage = React.lazy(() =>
+  import('./features/notebooks/components/NotePage').then((m) => ({ default: m.NotePage })),
 );
 const RefsPage = React.lazy(() =>
   import('./features/refs/RefsPage').then((m) => ({ default: m.RefsPage })),
@@ -105,6 +114,26 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<MemoPageSkeleton />}>
             <MemoPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'notebooks',
+        element: <NotebooksListShell />,
+      },
+      {
+        path: 'notebooks/:id',
+        element: (
+          <Suspense fallback={<NotebookPageSkeleton />}>
+            <NotebookPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'notebooks/:notebookId/notes/:id',
+        element: (
+          <Suspense fallback={<NotePageSkeleton />}>
+            <NotePage />
           </Suspense>
         ),
       },

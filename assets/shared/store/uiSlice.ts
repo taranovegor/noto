@@ -3,12 +3,14 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface UIState {
   tasksActiveSearch: string | null;
   memosActiveSearch: string | null;
+  notebooksActiveSearch: string | null;
   tasksSelectedProjectId: string | null;
 }
 
 const initialState: UIState = {
   tasksActiveSearch: null,
   memosActiveSearch: null,
+  notebooksActiveSearch: null,
   tasksSelectedProjectId: null,
 };
 
@@ -22,12 +24,19 @@ const uiSlice = createSlice({
     setMemosActiveSearch(state, action: PayloadAction<string | null>) {
       state.memosActiveSearch = action.payload;
     },
+    setNotebooksActiveSearch(state, action: PayloadAction<string | null>) {
+      state.notebooksActiveSearch = action.payload;
+    },
     setTasksSelectedProjectId(state, action: PayloadAction<string | null>) {
       state.tasksSelectedProjectId = action.payload;
     },
   },
 });
 
-export const { setTasksActiveSearch, setMemosActiveSearch, setTasksSelectedProjectId } =
-  uiSlice.actions;
+export const {
+  setTasksActiveSearch,
+  setMemosActiveSearch,
+  setNotebooksActiveSearch,
+  setTasksSelectedProjectId,
+} = uiSlice.actions;
 export default uiSlice.reducer;

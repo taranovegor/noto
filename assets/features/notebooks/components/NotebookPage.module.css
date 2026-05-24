@@ -1,0 +1,61 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.titleInput {
+  width: 100%;
+  font-size: var(--text-2xl);
+  font-family: var(--font-serif);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.02em;
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+}
+
+.titleInput::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.descriptionInput {
+  width: 100%;
+  min-height: 60px;
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+  resize: vertical;
+}
+
+.descriptionInput::placeholder {
+  color: var(--color-text-secondary);
+  opacity: 0.6;
+}
+
+.notesSection {
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-xl);
+  border-top: 1px solid var(--color-border);
+}
+
+.notesSearch {
+  margin-bottom: var(--space-lg);
+}
+
+.skeletonForm {
+  max-width: 64rem;
+  position: relative;
+}
+
+.skeletonBody {
+  margin-top: var(--space-xl);
+}

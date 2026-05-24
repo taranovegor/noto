@@ -38,6 +38,13 @@ function DesktopSidebar() {
           Memos
         </button>
         <button
+          className={`${styles.navItem} ${isActive('/notebooks') ? styles.navItemActive : ''}`}
+          onClick={() => navigate('/notebooks')}
+          aria-current={isActive('/notebooks') ? 'page' : undefined}
+        >
+          Notebooks
+        </button>
+        <button
           className={`${styles.navItem} ${isActive('/stashes') ? styles.navItemActive : ''}`}
           onClick={() => navigate('/stashes')}
           aria-current={isActive('/stashes') ? 'page' : undefined}
@@ -69,6 +76,7 @@ function DesktopSidebar() {
 const NAV_ITEMS = [
   { path: '/tasks', label: 'Tasks' },
   { path: '/memos', label: 'Memos' },
+  { path: '/notebooks', label: 'Notebooks' },
   { path: '/stashes', label: 'Stashes' },
   { path: '/settings', label: 'Settings' },
 ];
