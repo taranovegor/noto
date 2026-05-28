@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Component\Ai\Prompt\DependencyInjection as AiPrompt;
 use App\Component\Ai\Store\DependencyInjection as AiStore;
 use App\Component\Broadcaster\DependencyInjection as Broadcaster;
 use App\Component\Searcher\DependencyInjection as Searcher;
@@ -17,6 +18,7 @@ class Kernel extends BaseKernel
     protected function build(ContainerBuilder $container): void
     {
         $container->addCompilerPass(new AiStore\IndexableCompilerPass());
+        $container->addCompilerPass(new AiPrompt\PromptCompilerPass());
         $container->addCompilerPass(new Broadcaster\BroadcastableCompilerPass());
         $container->addCompilerPass(new Searcher\NelmioApiDocCompilerPass());
         $container->addCompilerPass(new App\ReferenceableEntityPass());

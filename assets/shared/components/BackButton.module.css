@@ -1,0 +1,33 @@
+.backBtn {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .backBtn {
+    position: absolute;
+    left: -2.75rem;
+    top: calc(var(--space-3xl) + 3px);
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition:
+      color 150ms var(--ease-out),
+      background-color 150ms var(--ease-out);
+  }
+
+  .backBtn:hover {
+    color: var(--color-text);
+    background-color: var(--color-hover);
+  }
+
+  .backBtn:disabled {
+    cursor: default;
+    opacity: 0.35;
+  }
+}

@@ -15,6 +15,7 @@ readonly class NotebookResponseDtoFactory
             $notebook->description,
             $notebook->createdAt,
             $notebook->updatedAt,
+            $notebook->extractionInstructions,
         );
     }
 }

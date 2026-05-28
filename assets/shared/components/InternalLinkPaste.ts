@@ -30,7 +30,16 @@ export const InternalLinkPaste = Extension.create({
                 .chain()
                 .focus()
                 .setTextSelection({ from, to })
-                .insertContent(`[${title}](/refs/${parsed.uuid})`)
+                .insertContent({
+                  type: 'text',
+                  text: title,
+                  marks: [
+                    {
+                      type: 'link',
+                      attrs: { href: `/refs/${parsed.uuid}` },
+                    },
+                  ],
+                })
                 .run();
             });
 

@@ -20,7 +20,7 @@ final readonly class NotebookManager
 
     public function create(CreateNotebookDto $dto): Notebook
     {
-        $notebook = new Notebook($dto->title, $dto->description);
+        $notebook = new Notebook($dto->title, $dto->description, $dto->extractionInstructions);
 
         $this->notebookRepository->add($notebook);
         $this->flusher->flush();
@@ -41,6 +41,10 @@ final readonly class NotebookManager
 
         if (null !== $dto->description) {
             $notebook->description = $dto->description;
+        }
+
+        if (null !== $dto->extractionInstructions) {
+            $notebook->extractionInstructions = $dto->extractionInstructions;
         }
 
         $this->flusher->flush();

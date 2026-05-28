@@ -20,6 +20,7 @@ import { TaskPageSkeleton } from './features/tasks/components/TaskPageSkeleton';
 import { MemoPageSkeleton } from './features/memos/components/MemoPageSkeleton';
 import { NotebookPageSkeleton } from './features/notebooks/components/NotebookPageSkeleton';
 import { NotePageSkeleton } from './features/notebooks/components/NotePageSkeleton';
+import { ExtractNotePageSkeleton } from './features/notebooks/components/ExtractNotePageSkeleton';
 import { LOGIN_ROUTE, TASKS_ROUTE } from './features/auth';
 import { tokenStorage } from './shared/utils/tokenStorage';
 import { authApi } from './features/auth/store/api';
@@ -34,8 +35,18 @@ const MemoPage = React.lazy(() =>
 const NotebookPage = React.lazy(() =>
   import('./features/notebooks/components/NotebookPage').then((m) => ({ default: m.NotebookPage })),
 );
+const NotebookEditPage = React.lazy(() =>
+  import('./features/notebooks/components/NotebookEditPage').then((m) => ({
+    default: m.NotebookEditPage,
+  })),
+);
 const NotePage = React.lazy(() =>
   import('./features/notebooks/components/NotePage').then((m) => ({ default: m.NotePage })),
+);
+const ExtractNotePage = React.lazy(() =>
+  import('./features/notebooks/components/ExtractNotePage').then((m) => ({
+    default: m.ExtractNotePage,
+  })),
 );
 const RefsPage = React.lazy(() =>
   import('./features/refs/RefsPage').then((m) => ({ default: m.RefsPage })),
@@ -122,10 +133,34 @@ const router = createBrowserRouter([
         element: <NotebooksListShell />,
       },
       {
+        path: 'notebooks/new',
+        element: (
+          <Suspense fallback={<NotebookPageSkeleton />}>
+            <NotebookEditPage />
+          </Suspense>
+        ),
+      },
+      {
         path: 'notebooks/:id',
         element: (
           <Suspense fallback={<NotebookPageSkeleton />}>
             <NotebookPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'notebooks/:id/edit',
+        element: (
+          <Suspense fallback={<NotebookPageSkeleton />}>
+            <NotebookEditPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'notebooks/:notebookId/extract',
+        element: (
+          <Suspense fallback={<ExtractNotePageSkeleton />}>
+            <ExtractNotePage />
           </Suspense>
         ),
       },

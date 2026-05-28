@@ -2,6 +2,8 @@ monolog:
     channels:
         - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
         - ai_index
+        - extractor
+        - extraction
         - s3
         - attachment
         - link

@@ -18,6 +18,8 @@ readonly class NotebookResponseDto
         public \DateTimeInterface $createdAt,
         #[Groups(['notebook:read', 'notebook:list'])]
         public \DateTimeInterface $updatedAt,
+        #[Groups(['notebook:read', 'notebook:list'])]
+        public ?string $extractionInstructions = null,
     ) {
     }
 }

@@ -68,22 +68,31 @@ services:
         arguments:
             - '@League\CommonMark\Environment\EnvironmentInterface'
 
-    cloudflare_r2_client:
+    storage.s3_client:
         class: 'AsyncAws\S3\S3Client'
         arguments:
             $configuration:
               {
-                endpoint: '%env(CLOUDFLARE_R2_ENDPOINT)%',
-                accessKeyId: '%env(CLOUDFLARE_R2_ID)%',
-                accessKeySecret: '%env(CLOUDFLARE_R2_SECRET)%'
+                endpoint: '%env(S3_ENDPOINT)%',
+                accessKeyId: '%env(S3_ACCESS_KEY_ID)%',
+                accessKeySecret: '%env(S3_SECRET_ACCESS_KEY)%'
               }
             $httpClient: '@http_client'
             $logger: '@monolog.logger.s3'
 
     App\Component\Storage\ObjectStorage:
         arguments:
-            $s3Client: '@cloudflare_r2_client'
-            $bucket: '%env(CLOUDFLARE_R2_BUCKET)%'
+            $s3Client: '@storage.s3_client'
+            $bucket: '%env(S3_BUCKET_ATTACHMENTS)%'
+
+    storage.temp:
+        class: App\Component\Storage\ObjectStorage
+        arguments:
+            $s3Client: '@storage.s3_client'
+            $bucket: '%env(S3_BUCKET_TEMP)%'
+
+    # Inject the throwaway bucket with a `ObjectStorage $tempStorage` parameter.
+    App\Component\Storage\ObjectStorage $tempStorage: '@storage.temp'
 
     phpcent\Client:
         arguments:
@@ -96,6 +105,43 @@ services:
     App\Component\Centrifugo\EventSubscriber\AttachConnectionTokenOnAuthenticationSuccess:
         arguments:
             $centrifugoUrl: '%env(CENTRIFUGO_WS_URL)%'
+
+    ai.http_client.psr18:
+        class: Symfony\Component\HttpClient\Psr18Client
+
+    App\Component\Ai\Client\AiClientFactory:
+        arguments:
+            $httpClient: '@ai.http_client.psr18'
+
+    ai.client.extractor:
+        class: OpenAI\Client
+        factory: ['@App\Component\Ai\Client\AiClientFactory', 'fromDsn']
+        arguments:
+            $dsn: '%env(APP_EXTRACTOR_DSN)%'
+
+    ai.client.transcriber:
+        class: OpenAI\Client
+        factory: ['@App\Component\Ai\Client\AiClientFactory', 'fromDsn']
+        arguments:
+            $dsn: '%env(APP_TRANSCRIBER_DSN)%'
+
+    App\Component\Ai\Extractor\Extractor:
+        arguments:
+            $openai: '@ai.client.extractor'
+            $model: '%env(key:model:query_string:APP_EXTRACTOR_DSN)%'
+
+    App\Component\Ai\Transcriber\Transcriber:
+        arguments:
+            $openai: '@ai.client.transcriber'
+            $model: '%env(key:model:query_string:APP_TRANSCRIBER_DSN)%'
+
+    FFMpeg\FFProbe:
+        factory: ['FFMpeg\FFProbe', 'create']
+
+    FFMpeg\FFMpeg:
+        factory: ['FFMpeg\FFMpeg', 'create']
+        arguments:
+            $probe: '@FFMpeg\FFProbe'
 
     App\Component\Broadcaster\Broadcaster:
         arguments:

@@ -4,6 +4,7 @@ export interface NotebookResponseDto {
   id: string;
   title: string;
   description: string;
+  extractionInstructions: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -11,11 +12,13 @@ export interface NotebookResponseDto {
 export interface CreateNotebookDto {
   title: string;
   description: string;
+  extractionInstructions?: string | null;
 }
 
 export interface UpdateNotebookDto {
   title?: string | null;
   description?: string | null;
+  extractionInstructions?: string | null;
 }
 
 export interface NoteResponseDto {
@@ -37,4 +40,23 @@ export interface CreateNoteDto {
 export interface UpdateNoteDto {
   title?: string | null;
   content?: string | null;
+}
+
+export interface ExtractionResponseDto {
+  id: string;
+  status: 'pending' | 'processing' | 'done' | 'failed';
+  targetType: 'note';
+  errorMessage: string | null;
+  createdAt: string;
+  updatedAt: string;
+  targetParentId: string | null;
+  prompt: string | null;
+  sources?: AttachmentResponseDto[] | null;
+}
+
+export interface CreateExtractionDto {
+  attachments: string[];
+  targetType: 'note';
+  targetParent: string;
+  prompt?: string | null;
 }

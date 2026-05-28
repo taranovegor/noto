@@ -61,7 +61,7 @@
 }
 
 .section {
-  margin-top: var(--space-md);
+  margin-top: 0;
 }
 
 .sectionHeader {
@@ -76,4 +76,10 @@
   font-size: var(--text-lg);
   font-weight: var(--weight-semibold);
   color: var(--color-text);
+}
+
+.sectionActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
 }

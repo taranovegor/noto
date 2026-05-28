@@ -4,8 +4,10 @@ import Document from '@tiptap/extension-document';
 import { Placeholder } from '@tiptap/extension-placeholder';
 import type { Level } from '@tiptap/extension-heading';
 import StarterKit from '@tiptap/starter-kit';
-import { Markdown } from 'tiptap-markdown';
+import { Markdown } from '@tiptap/markdown';
+import { Mathematics } from '@tiptap/extension-mathematics';
 import { InternalLinkPaste } from './InternalLinkPaste';
+import 'katex/dist/katex.min.css';
 
 interface MarkdownEditorProps {
   value: string;
@@ -44,13 +46,14 @@ export function MarkdownEditor({
             }),
           ]
         : []),
+      Mathematics,
       Markdown,
       InternalLinkPaste,
     ],
     content: value,
+    contentType: 'markdown',
     onUpdate({ editor }) {
-      const storage = editor.storage as unknown as Record<string, { getMarkdown: () => string }>;
-      const markdown = storage.markdown.getMarkdown();
+      const markdown = editor.getMarkdown();
       lastInternalValue.current = markdown;
       onChange(markdown);
     },
@@ -65,7 +68,7 @@ export function MarkdownEditor({
   useEffect(() => {
     if (editor && value !== lastInternalValue.current) {
       lastInternalValue.current = value;
-      editor.commands.setContent(value);
+      editor.commands.setContent(value, { contentType: 'markdown' });
     }
   }, [editor, value]);
 

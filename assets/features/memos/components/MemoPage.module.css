@@ -28,34 +28,8 @@
   position: relative;
 }
 
-.skeletonBackBtn {
-  position: absolute;
-  left: -1.5rem;
-  top: 0;
-  background: none;
-  border: none;
-  font-size: var(--text-lg);
-  line-height: 1.2;
-  color: var(--color-border);
-  padding: 0;
-  min-width: 44px;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .skeletonBody {
   margin-top: var(--space-xl);
-}
-
-@media (min-width: 769px) {
-  .skeletonBackBtn {
-    left: -2.75rem;
-    min-width: auto;
-    min-height: auto;
-    padding: 6px 12px;
-  }
 }
 
 @media (min-width: 769px) {

@@ -10,6 +10,7 @@ ai:
     vectorizer:
         voyage:
             model: '%env(APP_VECTORIZER_MODEL)%'
+            platform: 'ai.platform.voyage'
 
     indexer:
         default:

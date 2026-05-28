@@ -1,6 +1,8 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+import { useBackNavigation } from '../hooks';
 import styles from './FormShell.module.css';
+import backStyles from './BackButton.module.css';
 
 interface FormShellProps {
   backTo: string;
@@ -8,6 +10,7 @@ interface FormShellProps {
   error?: string | null;
   saving?: boolean;
   showSaveBar: boolean;
+  submitLabel?: string;
   onSubmit: (e: React.SyntheticEvent) => void;
   extraActions?: React.ReactNode;
 }
@@ -18,20 +21,21 @@ export function FormShell({
   error,
   saving,
   showSaveBar,
+  submitLabel,
   onSubmit,
   extraActions,
 }: FormShellProps) {
-  const navigate = useNavigate();
+  const handleBack = useBackNavigation(backTo);
 
   return (
     <form onSubmit={onSubmit} className={styles.form}>
       <button
         type="button"
-        onClick={() => (history.length > 1 ? navigate(-1) : navigate(backTo))}
-        className={styles.backBtn}
+        onClick={handleBack}
+        className={backStyles.backBtn}
         aria-label="Go back"
       >
-        ←
+        <ArrowLeft size={20} strokeWidth={1.75} />
       </button>
       {children}
       {error && (
@@ -43,7 +47,7 @@ export function FormShell({
         <div className={styles.saveArea}>
           {showSaveBar && (
             <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? 'Saving...' : 'Save'}
+              {saving ? 'Saving...' : (submitLabel ?? 'Save')}
             </button>
           )}
           {extraActions}

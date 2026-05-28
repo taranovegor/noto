@@ -15,7 +15,7 @@ function AttachmentItem({
   onRemove,
 }: {
   attachment: AttachmentResponseDto;
-  onRemove: () => void;
+  onRemove?: () => void;
 }) {
   const [fetchDownloadUrl, { isFetching }] = useLazyGetAttachmentDownloadUrlQuery();
 
@@ -45,14 +45,16 @@ function AttachmentItem({
         >
           <Download size={14} strokeWidth={1.75} />
         </button>
-        <button
-          type="button"
-          className={styles.attachmentAction}
-          onClick={onRemove}
-          aria-label={`Remove ${attachment.originFilename}`}
-        >
-          <Trash size={14} strokeWidth={1.75} />
-        </button>
+        {onRemove && (
+          <button
+            type="button"
+            className={styles.attachmentAction}
+            onClick={onRemove}
+            aria-label={`Remove ${attachment.originFilename}`}
+          >
+            <Trash size={14} strokeWidth={1.75} />
+          </button>
+        )}
       </div>
     </div>
   );
@@ -61,7 +63,7 @@ function AttachmentItem({
 interface AttachmentsListProps {
   attachments: AttachmentResponseDto[];
   uploading?: boolean;
-  onRemove: (attachmentId: string) => void;
+  onRemove?: (attachmentId: string) => void;
 }
 
 export function AttachmentsList({
@@ -77,7 +79,7 @@ export function AttachmentsList({
         <AttachmentItem
           key={attachment.id}
           attachment={attachment}
-          onRemove={() => onRemove(attachment.id)}
+          onRemove={onRemove ? () => onRemove(attachment.id) : undefined}
         />
       ))}
       {uploading && (

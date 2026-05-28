@@ -13,6 +13,8 @@ final readonly class CreateNotebookDto
         #[Assert\NotBlank]
         #[Assert\Length(max: 65535)]
         public string $description,
+        #[Assert\Length(max: 65535)]
+        public ?string $extractionInstructions = null,
     ) {
     }
 }

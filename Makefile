@@ -49,7 +49,10 @@ dotenv-dump: ## Merge envs. Arguments: src=<source file> dest=<destination file>
 		$(src) - $(src) > $(dest)
 
 test: ## Run all tests
-	$(DOCKER_COMPOSE) exec app bin/phpunit --display-phpunit-notices
+	$(DOCKER_COMPOSE) exec app bin/phpunit \
+		--display-deprecations \
+		--display-phpunit-notices \
+		--display-phpunit-deprecations
 
 test-unit: ## Run unit tests only
 	$(DOCKER_COMPOSE) exec app bin/phpunit tests/Unit

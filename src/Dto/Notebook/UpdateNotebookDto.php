@@ -11,6 +11,8 @@ final readonly class UpdateNotebookDto
         public ?string $title = null,
         #[Assert\Length(max: 65535)]
         public ?string $description = null,
+        #[Assert\Length(max: 65535)]
+        public ?string $extractionInstructions = null,
     ) {
     }
 }

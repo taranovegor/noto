@@ -18,6 +18,7 @@ ENV USERNAME=appuser
 RUN apt-get update && apt-get install -y \
     git \
     curl \
+    ffmpeg \
     postgresql-client \
     libpq-dev \
     libicu-dev \

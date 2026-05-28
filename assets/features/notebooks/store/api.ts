@@ -7,6 +7,8 @@ import type {
   NoteResponseDto,
   CreateNoteDto,
   UpdateNoteDto,
+  ExtractionResponseDto,
+  CreateExtractionDto,
 } from '../types';
 
 const NOTEBOOK_PAGE_SIZE = 10;
@@ -30,8 +32,8 @@ const notebooksApi = api.injectEndpoints({
       keepUnusedDataFor: 1800,
       query: ({ queryArg: search, pageParam: offset }) => {
         const params = search
-          ? `?filter[query]=${encodeURIComponent(search)}&limit=${NOTEBOOK_PAGE_SIZE}&offset=${offset}&sort=title`
-          : `?limit=${NOTEBOOK_PAGE_SIZE}&offset=${offset}&sort=title`;
+          ? `?filter[query]=${encodeURIComponent(search)}&limit=${NOTEBOOK_PAGE_SIZE}&offset=${offset}&sort=-updatedAt`
+          : `?limit=${NOTEBOOK_PAGE_SIZE}&offset=${offset}&sort=-updatedAt`;
         return `/notebooks${params}`;
       },
       transformResponse: (res: ListResponse<NotebookResponseDto>) => ({
@@ -103,8 +105,8 @@ const notebooksApi = api.injectEndpoints({
         const { notebookId, search } = queryArg;
         const base = `/notebooks/${notebookId}/notes`;
         const params = search
-          ? `?filter[query]=${encodeURIComponent(search)}&limit=${NOTE_PAGE_SIZE}&offset=${offset}&sort=title`
-          : `?limit=${NOTE_PAGE_SIZE}&offset=${offset}&sort=title`;
+          ? `?filter[query]=${encodeURIComponent(search)}&limit=${NOTE_PAGE_SIZE}&offset=${offset}&sort=-title`
+          : `?limit=${NOTE_PAGE_SIZE}&offset=${offset}&sort=-title`;
         return `${base}${params}`;
       },
       transformResponse: (res: ListResponse<NoteResponseDto>) => ({
@@ -193,6 +195,15 @@ const notebooksApi = api.injectEndpoints({
       }),
       invalidatesTags: (_, __, { noteId }) => [{ type: 'Notes', id: noteId }],
     }),
+
+    createExtraction: builder.mutation<ExtractionResponseDto, CreateExtractionDto>({
+      query: (body) => ({ url: '/extractions', method: 'POST', body }),
+      invalidatesTags: ['Notes'],
+    }),
+
+    getExtraction: builder.query<ExtractionResponseDto, string>({
+      query: (id) => `/extractions/${id}`,
+    }),
   }),
 });
 
@@ -207,4 +218,6 @@ export const {
   useUpdateNoteMutation,
   useAttachNoteAttachmentsMutation,
   useDetachNoteAttachmentMutation,
+  useCreateExtractionMutation,
+  useGetExtractionQuery,
 } = notebooksApi;

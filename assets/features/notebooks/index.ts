@@ -5,4 +5,6 @@ export type {
   NoteResponseDto,
   CreateNoteDto,
   UpdateNoteDto,
+  ExtractionResponseDto,
+  CreateExtractionDto,
 } from './types';

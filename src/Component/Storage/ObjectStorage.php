@@ -43,6 +43,66 @@ readonly class ObjectStorage
         );
     }
 
+    /**
+     * Streams the stored item into a local temp file, preserving the filename
+     * extension.
+     */
+    public function download(string $key, string $filename): \SplFileInfo
+    {
+        $result = $this->s3Client->getObject(
+            new GetObjectRequest([
+                'Bucket' => $this->bucket,
+                'Key' => $key,
+            ]),
+        );
+
+        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+        $suffix = '' !== $extension ? '.'.$extension : '';
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'storage_dl_');
+
+        if ('' !== $suffix) {
+            $renamed = $tempFile.$suffix;
+            rename($tempFile, $renamed);
+            $tempFile = $renamed;
+        }
+
+        $target = fopen($tempFile, 'w');
+
+        try {
+            stream_copy_to_stream($result->getBody()->getContentAsResource(), $target);
+        } finally {
+            fclose($target);
+        }
+
+        return new \SplFileInfo($tempFile);
+    }
+
+    /**
+     * Streams a local file into storage under the given key.
+     */
+    public function upload(string $key, \SplFileInfo $file): void
+    {
+        $contentType = mime_content_type($file->getPathname());
+        $body = fopen($file->getPathname(), 'r');
+
+        try {
+            $this->s3Client->putObject(
+                new PutObjectRequest([
+                    'Bucket' => $this->bucket,
+                    'Key' => $key,
+                    'ContentType' => $contentType,
+                    'ContentLength' => (int) $file->getSize(),
+                    'Body' => $body,
+                ]),
+            )->resolve();
+        } finally {
+            if (is_resource($body)) {
+                fclose($body);
+            }
+        }
+    }
+
     public function delete(string $key): void
     {
         $this->s3Client->deleteObject(

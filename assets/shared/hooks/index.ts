@@ -1,4 +1,5 @@
 export { useAutoResize } from './useAutoResize';
+export { useBackNavigation } from './useBackNavigation';
 export { useMediaQuery } from './useMediaQuery';
 export { useSearchState } from './useSearchState';
 export { useDraftSave } from './useDraftSave';

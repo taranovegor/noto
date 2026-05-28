@@ -283,16 +283,15 @@ button.card {
   background: color-mix(in srgb, var(--color-link) 16%, transparent);
 }
 
-.markdown-body {
+/* ─── Markdown typography ─────────────────────────────────────────────────── */
+
+:is(.markdown-body, .tiptap-editor) {
   font-size: var(--text-base);
   color: var(--color-text);
   line-height: 1.7;
 }
 
-.markdown-body h1,
-.markdown-body h2,
-.markdown-body h3,
-.markdown-body h4 {
+:is(.markdown-body, .tiptap-editor) :is(h1, h2, h3, h4, h5, h6) {
   font-family: var(--font-serif);
   letter-spacing: -0.02em;
   color: var(--color-text);
@@ -300,39 +299,108 @@ button.card {
   margin-bottom: 0.5em;
 }
 
-.markdown-body h1 {
+:is(.markdown-body, .tiptap-editor) h1 {
   font-size: 1.6rem;
 }
-.markdown-body h2 {
+:is(.markdown-body, .tiptap-editor) h2 {
   font-size: 1.3rem;
 }
-.markdown-body h3 {
+:is(.markdown-body, .tiptap-editor) h3 {
   font-size: 1.1rem;
 }
+:is(.markdown-body, .tiptap-editor) h4 {
+  font-size: 1rem;
+}
+:is(.markdown-body, .tiptap-editor) h5 {
+  font-size: 0.95rem;
+}
+:is(.markdown-body, .tiptap-editor) h6 {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
 
-.markdown-body p {
+:is(.markdown-body, .tiptap-editor) p {
   color: var(--color-text);
   margin-bottom: 1em;
 }
 
-.markdown-body ul,
-.markdown-body ol {
+:is(.markdown-body, .tiptap-editor) :is(strong, b) {
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+:is(.markdown-body, .tiptap-editor) :is(em, i) {
+  font-style: italic;
+}
+
+:is(.markdown-body, .tiptap-editor) :is(s, del, strike) {
+  text-decoration: line-through;
+  color: var(--color-text-secondary);
+}
+
+:is(.markdown-body, .tiptap-editor) mark {
+  background-color: rgba(255, 200, 0, 0.2);
+  border-radius: 2px;
+  padding: 0.1em 0.2em;
+}
+
+:is(.markdown-body, .tiptap-editor) sub {
+  font-size: 0.75em;
+  vertical-align: sub;
+  position: relative;
+  bottom: -0.25em;
+}
+
+:is(.markdown-body, .tiptap-editor) sup {
+  font-size: 0.75em;
+  vertical-align: super;
+  position: relative;
+  top: -0.5em;
+}
+
+:is(.markdown-body, .tiptap-editor) :is(ul, ol) {
   padding-left: 1.5em;
   margin-bottom: 1em;
   color: var(--color-text);
 }
 
-.markdown-body li {
+:is(.markdown-body, .tiptap-editor) ul[data-type='taskList'] {
+  padding-left: 0;
+  list-style: none;
+}
+
+:is(.markdown-body, .tiptap-editor) ul[data-type='taskList'] li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+:is(.markdown-body, .tiptap-editor) ul[data-type='taskList'] li > label {
+  flex-shrink: 0;
+  margin-top: 0.25em;
+}
+
+:is(.markdown-body, .tiptap-editor) ul[data-type='taskList'] li > label input[type='checkbox'] {
+  accent-color: var(--color-text);
+  cursor: pointer;
+}
+
+:is(.markdown-body, .tiptap-editor) ul[data-type='taskList'] li > div {
+  flex: 1;
+  min-width: 0;
+}
+
+:is(.markdown-body, .tiptap-editor) li {
   margin-bottom: 0.25em;
 }
 
-.markdown-body a {
+:is(.markdown-body, .tiptap-editor) a {
   color: var(--color-link);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-.markdown-body blockquote {
+:is(.markdown-body, .tiptap-editor) blockquote {
   border-left: 3px solid var(--color-border);
   padding-left: 1em;
   margin: 1em 0;
@@ -340,7 +408,7 @@ button.card {
   font-style: italic;
 }
 
-.markdown-body code {
+:is(.markdown-body, .tiptap-editor) :not(pre) > code {
   font-family: var(--font-mono);
   font-size: 0.875em;
   background-color: var(--color-surface);
@@ -349,7 +417,7 @@ button.card {
   border: 1px solid var(--color-border);
 }
 
-.markdown-body pre {
+:is(.markdown-body, .tiptap-editor) pre {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 6px;
@@ -358,39 +426,89 @@ button.card {
   margin-bottom: 1em;
 }
 
-.markdown-body pre code {
+:is(.markdown-body, .tiptap-editor) pre code {
   background: none;
   border: none;
   padding: 0;
   font-size: var(--text-sm);
 }
 
-.markdown-body hr {
+:is(.markdown-body, .tiptap-editor) hr {
   border: none;
   border-top: 1px solid var(--color-border);
   margin: 1.5em 0;
 }
 
-.markdown-body table {
+:is(.markdown-body, .tiptap-editor) img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 1em 0;
+}
+
+:is(.markdown-body, .tiptap-editor) table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 1em;
   font-size: var(--text-sm);
 }
 
-.markdown-body th,
-.markdown-body td {
+:is(.markdown-body, .tiptap-editor) :is(th, td) {
   text-align: left;
   padding: 8px 12px;
   border-bottom: 1px solid var(--color-border);
 }
 
-.markdown-body th {
+:is(.markdown-body, .tiptap-editor) th {
   font-weight: var(--weight-semibold);
   color: var(--color-text-secondary);
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: var(--tracking-uppercase);
+}
+
+:is(.markdown-body, .tiptap-editor) td {
+  color: var(--color-text);
+}
+
+:is(.markdown-body, .tiptap-editor) kbd {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: 0 1px 0 var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+/* KaTeX math */
+:is(.markdown-body, .tiptap-editor) .katex {
+  font-size: 1.05em;
+}
+
+:is(.markdown-body, .tiptap-editor) .katex-display {
+  margin: 1em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+:is(.markdown-body, .tiptap-editor) .katex-display > .katex {
+  display: block;
+  text-align: center;
+}
+
+.tiptap-editor .tiptap-mathematics-render {
+  display: inline;
+}
+
+.tiptap-editor .tiptap-mathematics-render--editable {
+  cursor: pointer;
+}
+
+.tiptap-editor .inline-math-error,
+.tiptap-editor .block-math-error {
+  color: var(--color-danger);
 }
 
 .error-message {

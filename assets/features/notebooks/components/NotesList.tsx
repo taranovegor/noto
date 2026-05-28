@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { SquarePen } from 'lucide-react';
+import { SquarePen, Sparkles } from 'lucide-react';
 import {
   formatDateTime,
   parseError,
@@ -40,13 +40,22 @@ export function NotesList({ notebookId, search = null }: NotesListProps) {
     <div className={styles.section}>
       <div className={styles.sectionHeader}>
         <h2 className={styles.sectionTitle}>Notes</h2>
-        <button
-          className="btn btn-primary btn-icon hide-on-mobile"
-          onClick={() => navigate(`/notebooks/${notebookId}/notes/new`)}
-          aria-label="New note"
-        >
-          <SquarePen size={16} strokeWidth={1.75} />
-        </button>
+        <div className={styles.sectionActions}>
+          <button
+            className="btn btn-icon hide-on-mobile"
+            onClick={() => navigate(`/notebooks/${notebookId}/extract`)}
+            aria-label="Extract note"
+          >
+            <Sparkles size={16} strokeWidth={1.75} />
+          </button>
+          <button
+            className="btn btn-primary btn-icon hide-on-mobile"
+            onClick={() => navigate(`/notebooks/${notebookId}/notes/new`)}
+            aria-label="New note"
+          >
+            <SquarePen size={16} strokeWidth={1.75} />
+          </button>
+        </div>
       </div>
 
       {errorMessage && (

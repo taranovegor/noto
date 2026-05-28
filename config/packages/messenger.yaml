@@ -12,6 +12,9 @@ framework:
         routing:
             App\Component\Ai\Store\Message\IndexObject: async
             App\Message\Attachment\DeleteFile: async
+            App\Message\Extraction\ProcessExtraction: async
+            App\Message\Extraction\ProcessAudioChunk: async
+            App\Message\Extraction\MergeExtractionResults: async
             Symfony\Component\Notifier\Message\MessageInterface: async
 
 when@test:

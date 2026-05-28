@@ -1,51 +1,26 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { flushSync } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, SquarePen, Search } from 'lucide-react';
-import {
-  useGetNotebookQuery,
-  useCreateNotebookMutation,
-  useUpdateNotebookMutation,
-} from '../store/api';
-import { useDraftSave, useDraftRestore, useFormDirty } from '../../../shared/hooks';
+import { ArrowLeft, Search, SquarePen, Sparkles, MoreVertical } from 'lucide-react';
+import { useGetNotebookQuery } from '../store/api';
 import { useActionBar } from '../../../layout/ActionBarContext';
-import { FormShell, SearchBar } from '../../../shared/components';
-import { NOTEBOOK_DRAFT_KEY } from '../constants';
-import { parseError } from '../../../shared/utils';
+import { SearchBar } from '../../../shared/components';
+import { useBackNavigation } from '../../../shared/hooks';
+import backStyles from '../../../shared/components/BackButton.module.css';
 import { NotesList } from './NotesList';
 import { NotebookPageSkeleton } from './NotebookPageSkeleton';
 import styles from './NotebookPage.module.css';
 
-interface FormState {
-  title: string;
-  description: string;
-}
-
 export function NotebookPage() {
   const { id: notebookId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const isNew = !notebookId || notebookId === 'new';
+  const handleBack = useBackNavigation('/notebooks');
+  const { data: notebook, isLoading } = useGetNotebookQuery(notebookId ?? '');
 
-  const {
-    data: notebook,
-    isLoading,
-    error: loadError,
-  } = useGetNotebookQuery(notebookId ?? '', { skip: isNew || !notebookId });
-
-  const [createNotebook, { isLoading: isCreating }] = useCreateNotebookMutation();
-  const [updateNotebook, { isLoading: isUpdating }] = useUpdateNotebookMutation();
-
-  const [form, setForm] = useState<FormState>({ title: '', description: '' });
-  const [error, setError] = useState<string | null>(null);
   const [notesSearchInput, setNotesSearchInput] = useState('');
   const [notesSearch, setNotesSearch] = useState<string | null>(null);
-
-  const saving = isCreating || isUpdating;
-
-  const { restore, clear } = useDraftSave(NOTEBOOK_DRAFT_KEY, form, isNew);
-  const { isDirty, markSaved } = useFormDirty(form);
-
-  const showSave = isNew || isDirty;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const mobileSearchRef = useRef<HTMLInputElement>(null);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -71,83 +46,39 @@ export function NotebookPage() {
   }, []);
 
   useEffect(() => {
-    if (notebook) {
-      const state = { title: notebook.title, description: notebook.description };
-      setForm(state);
-      markSaved(state);
-    }
-  }, [notebook, markSaved]);
-
-  useDraftRestore(isNew, restore, setForm, markSaved);
-
-  const handleSave = async () => {
-    if (!form.title.trim()) {
-      setError('Title is required');
-      return;
-    }
-
-    setError(null);
-
-    try {
-      if (isNew) {
-        const created = await createNotebook({
-          title: form.title.trim(),
-          description: form.description.trim(),
-        }).unwrap();
-        clear();
-        navigate(`/notebooks/${created.id}`);
-      } else {
-        if (!notebookId) return;
-        await updateNotebook({
-          id: notebookId,
-          body: {
-            title: form.title.trim(),
-            description: form.description.trim(),
-          },
-        }).unwrap();
-        markSaved({ title: form.title.trim(), description: form.description.trim() });
+    if (!menuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
       }
-    } catch (err: unknown) {
-      setError(parseError(err).message);
-    }
-  };
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [menuOpen]);
 
   useActionBar({
     backButton: {
       icon: ArrowLeft,
       label: 'Back',
-      onPress: () => (history.length > 1 ? navigate(-1) : navigate('/notebooks')),
+      onPress: handleBack,
     },
     buttons: [
-      ...(showSave
-        ? [
-            {
-              icon: Save,
-              label: 'Save',
-              primary: true,
-              disabled: saving,
-              onPress: handleSave,
-            },
-          ]
-        : !isNew
-          ? [
-              {
-                icon: SquarePen,
-                label: 'New note',
-                primary: true,
-                onPress: () => navigate(`/notebooks/${notebookId}/notes/new`),
-              },
-            ]
-          : []),
-      ...(!isNew
-        ? [
-            {
-              icon: Search,
-              label: 'Search',
-              onPress: openMobileSearch,
-            },
-          ]
-        : []),
+      {
+        icon: SquarePen,
+        label: 'New note',
+        primary: true,
+        onPress: () => navigate(`/notebooks/${notebookId}/notes/new`),
+      },
+      {
+        icon: Sparkles,
+        label: 'Extract note',
+        onPress: () => navigate(`/notebooks/${notebookId}/extract`),
+      },
+      {
+        icon: Search,
+        label: 'Search',
+        onPress: openMobileSearch,
+      },
     ],
     input: mobileSearchOpen
       ? {
@@ -165,54 +96,78 @@ export function NotebookPage() {
     return <NotebookPageSkeleton />;
   }
 
-  const loadErrorMessage = loadError ? 'Failed to load notebook' : null;
+  if (!notebook) {
+    return (
+      <div className={styles.pageContainer}>
+        <div>Notebook not found</div>
+      </div>
+    );
+  }
 
   return (
-    <FormShell
-      backTo="/notebooks"
-      error={error ?? loadErrorMessage}
-      saving={saving}
-      showSaveBar={isNew || isDirty}
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSave();
-      }}
-    >
-      <div className={styles.form}>
-        <input
-          className={styles.titleInput}
-          type="text"
-          value={form.title}
-          onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-          placeholder="Notebook title"
-          autoFocus={isNew}
-        />
-
-        <textarea
-          className={styles.descriptionInput}
-          value={form.description}
-          onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
-          placeholder="Description..."
-        />
+    <div className={styles.pageContainer}>
+      <button
+        type="button"
+        onClick={handleBack}
+        className={backStyles.backBtn}
+        aria-label="Go back"
+      >
+        <ArrowLeft size={20} strokeWidth={1.75} />
+      </button>
+      <div className={styles.notebookHeader}>
+        <div className={styles.notebookContent}>
+          <h1 className={styles.notebookTitle}>{notebook.title}</h1>
+          {notebook.description && (
+            <p className={styles.notebookDescription}>{notebook.description}</p>
+          )}
+        </div>
+        <div className={styles.notebookMenu} ref={menuRef}>
+          <button
+            type="button"
+            className={styles.menuButton}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMenuOpen(!menuOpen);
+            }}
+            aria-label="More options"
+          >
+            <MoreVertical size={18} strokeWidth={1.75} />
+          </button>
+          {menuOpen && (
+            <div className={styles.menuDropdown}>
+              <button
+                type="button"
+                className={styles.menuItem}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  navigate(`/notebooks/${notebookId}/edit`);
+                  setMenuOpen(false);
+                }}
+              >
+                Edit
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {!isNew && notebookId && (
-        <div className={styles.notesSection}>
-          <SearchBar
-            className="hide-on-mobile"
-            value={notesSearchInput}
-            onChange={setNotesSearchInput}
-            onSearch={() => setNotesSearch(notesSearchInput.trim() || null)}
-            onClear={() => {
-              setNotesSearchInput('');
-              setNotesSearch(null);
-            }}
-            placeholder="Search notes..."
-            hasActiveSearch={notesSearch !== null}
-          />
-          <NotesList notebookId={notebookId} search={notesSearch} />
-        </div>
-      )}
-    </FormShell>
+      <div className={styles.notesSection}>
+        <SearchBar
+          className="hide-on-mobile"
+          value={notesSearchInput}
+          onChange={setNotesSearchInput}
+          onSearch={() => setNotesSearch(notesSearchInput.trim() || null)}
+          onClear={() => {
+            setNotesSearchInput('');
+            setNotesSearch(null);
+          }}
+          placeholder="Search notes..."
+          hasActiveSearch={notesSearch !== null}
+        />
+        <NotesList notebookId={notebookId!} search={notesSearch} />
+      </div>
+    </div>
   );
 }
