@@ -10,20 +10,26 @@
 .card {
   width: 100%;
   max-width: 360px;
-  padding: var(--space-2xl);
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-xl);
+  }
+
+  .card {
+    max-width: none;
+  }
 }
 
 .title {
   margin: 0 0 var(--space-2xl) 0;
-  font-size: 1.875rem;
-  font-weight: 600;
-  font-family: 'Newsreader', 'Playfair Display', serif;
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  font-family: var(--font-serif);
   color: var(--color-fg);
-  line-height: 1.2;
+  line-height: var(--leading-tight);
   letter-spacing: -0.02em;
 }
 
@@ -33,11 +39,10 @@
 }
 
 .input {
-  font-size: var(--text-base);
-  font-family: 'Geist Sans', 'Helvetica Neue', 'SF Pro Display', sans-serif;
+  font-family: var(--font-sans);
   padding: 11px 12px;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--color-bg);
   color: var(--color-text);
   line-height: var(--leading-relaxed);
@@ -88,7 +93,7 @@
 .rememberLabel {
   font-size: var(--text-sm);
   font-weight: var(--weight-normal);
-  font-family: 'Geist Sans', 'Helvetica Neue', 'SF Pro Display', sans-serif;
+  font-family: var(--font-sans);
   color: var(--color-text-secondary);
   cursor: pointer;
   user-select: none;
@@ -100,10 +105,10 @@
   height: 44px;
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  font-family: 'Geist Sans', 'Helvetica Neue', 'SF Pro Display', sans-serif;
+  font-family: var(--font-sans);
   letter-spacing: 0;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--color-fg);
   color: var(--color-fg-inverse);
   cursor: pointer;
@@ -128,6 +133,17 @@
 .submitButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.9;
+  }
 }
 
 .errorMessage {
