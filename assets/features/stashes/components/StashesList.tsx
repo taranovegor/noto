@@ -3,7 +3,7 @@ import { parseError } from '../../../shared/utils';
 import { useAppDispatch } from '../../../shared/store/hooks';
 import { useGetBatchAttachmentDownloadUrlMutation } from '../../attachments';
 import { useRealtimeEvents } from '../../../shared/websocket';
-import { StashCard } from './StashCard';
+import { StashRow, PendingStashRow } from './StashRow';
 import { StashesListSkeleton } from './StashesListSkeleton';
 import {
   stashesApi,
@@ -12,6 +12,7 @@ import {
   useDeleteStashMutation,
 } from '../store/api';
 import type { StashResponseDto } from '../types';
+import type { PendingStashUpload } from '../hooks/useCreateStash';
 import styles from './StashesList.module.css';
 
 const STASHES_QUERY_PARAMS = { limit: 200 };
@@ -26,14 +27,19 @@ function downloadUrls(results: { downloadUrl: string }[]) {
   }
 }
 
-export function StashesList() {
+interface StashesListProps {
+  pending: PendingStashUpload[];
+  onCancelUpload: (id: string) => void;
+}
+
+export function StashesList({ pending, onCancelUpload }: StashesListProps) {
   const { data, isLoading, error } = useGetStashesQuery(STASHES_QUERY_PARAMS);
 
   const dispatch = useAppDispatch();
   const [updateStash] = useUpdateStashMutation();
   const [deleteStash] = useDeleteStashMutation();
   const [fetchBatchDownloadUrl] = useGetBatchAttachmentDownloadUrlMutation();
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [archivingId, setArchivingId] = useState<string | null>(null);
 
   useRealtimeEvents('stashes', {
     onCreated: useCallback(() => {
@@ -62,6 +68,9 @@ export function StashesList() {
   const now = Date.now();
   const activeStashes = all.filter((s) => !s.expiresAt || Date.parse(s.expiresAt) >= now);
   const expiredStashes = all.filter((s) => s.expiresAt && Date.parse(s.expiresAt) < now);
+
+  const pinnedActive = activeStashes.filter((s) => s.pinned);
+  const unpinnedActive = activeStashes.filter((s) => !s.pinned);
 
   const handleDownload = useCallback(
     async (attachmentIds: string[]) => {
@@ -107,15 +116,15 @@ export function StashesList() {
     [updateStash],
   );
 
-  const handleDelete = useCallback(
+  const handleArchive = useCallback(
     async (stash: StashResponseDto) => {
-      setDeletingId(stash.id);
+      setArchivingId(stash.id);
       try {
         await deleteStash(stash.id).unwrap();
       } catch {
-        // Delete failed — button returns to normal, user can retry
+        // Archive/delete failed — button returns to normal, user can retry
       } finally {
-        setDeletingId(null);
+        setArchivingId(null);
       }
     },
     [deleteStash],
@@ -127,6 +136,9 @@ export function StashesList() {
     return <StashesListSkeleton />;
   }
 
+  const activeCount = activeStashes.length + pending.length;
+  const hasActive = activeCount > 0;
+
   return (
     <div className={styles.container}>
       {errorMessage && (
@@ -135,49 +147,68 @@ export function StashesList() {
         </div>
       )}
 
-      {/* Active Section */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Active</h2>
-        {activeStashes.length > 0 ? (
-          <div className={styles.grid} role="list">
-            {activeStashes.map((stash) => (
-              <div key={stash.id} role="listitem">
-                <StashCard
-                  stash={stash}
-                  onDownload={handleDownload}
-                  onCopy={handleCopy}
-                  onPin={handlePin}
-                  onDelete={handleDelete}
-                  isDeleting={deletingId === stash.id}
-                  isExpired={false}
-                />
-              </div>
+      {hasActive && (
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Active</h2>
+          <div className={styles.list} role="list">
+            {pinnedActive.map((stash, i) => (
+              <StashRow
+                key={stash.id}
+                stash={stash}
+                onDownload={handleDownload}
+                onCopy={handleCopy}
+                onPin={handlePin}
+                onArchive={handleArchive}
+                isArchiving={archivingId === stash.id}
+                isExpired={false}
+                last={
+                  i === pinnedActive.length - 1 &&
+                  pending.length === 0 &&
+                  unpinnedActive.length === 0
+                }
+              />
+            ))}
+            {pending.map((upload, i) => (
+              <PendingStashRow
+                key={upload.id}
+                upload={upload}
+                onCancel={onCancelUpload}
+                last={i === pending.length - 1 && unpinnedActive.length === 0}
+              />
+            ))}
+            {unpinnedActive.map((stash, i) => (
+              <StashRow
+                key={stash.id}
+                stash={stash}
+                onDownload={handleDownload}
+                onCopy={handleCopy}
+                onPin={handlePin}
+                onArchive={handleArchive}
+                isArchiving={archivingId === stash.id}
+                isExpired={false}
+                last={i === unpinnedActive.length - 1}
+              />
             ))}
           </div>
-        ) : (
-          <div className={styles.emptyState}>
-            <p>No active stashes yet.</p>
-          </div>
-        )}
-      </section>
+        </section>
+      )}
 
-      {/* Expired Section */}
       {expiredStashes.length > 0 && (
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Expired</h2>
-          <div className={styles.grid} role="list">
-            {expiredStashes.map((stash) => (
-              <div key={stash.id} role="listitem">
-                <StashCard
-                  stash={stash}
-                  onDownload={handleDownload}
-                  onCopy={handleCopy}
-                  onPin={handlePin}
-                  onDelete={handleDelete}
-                  isDeleting={deletingId === stash.id}
-                  isExpired={true}
-                />
-              </div>
+          <div className={styles.list} role="list">
+            {expiredStashes.map((stash, i) => (
+              <StashRow
+                key={stash.id}
+                stash={stash}
+                onDownload={handleDownload}
+                onCopy={handleCopy}
+                onPin={handlePin}
+                onArchive={handleArchive}
+                isArchiving={archivingId === stash.id}
+                isExpired={true}
+                last={i === expiredStashes.length - 1}
+              />
             ))}
           </div>
         </section>

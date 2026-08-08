@@ -2,13 +2,8 @@ import React from 'react';
 import { Paperclip, Trash, Download } from 'lucide-react';
 import { useLazyGetAttachmentDownloadUrlQuery } from '../../features/attachments';
 import type { AttachmentResponseDto } from '../../features/attachments';
+import { formatFileSize } from '../utils';
 import styles from './AttachmentsList.module.css';
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
 
 function AttachmentItem({
   attachment,

@@ -28,7 +28,7 @@ function parseClipboardItems(items: DataTransferItemList): {
 }
 
 export function StashesListShell() {
-  const { create, isLoading, error } = useCreateStash();
+  const { create, cancel, pending, isLoading, error } = useCreateStash();
 
   // Mobile ActionBar: text input fallback
   const textInputRef = useRef<HTMLInputElement>(null);
@@ -145,7 +145,7 @@ export function StashesListShell() {
         style={{ display: 'none' }}
       />
 
-      <DragDropZone onDrop={handleDrop} disabled={isLoading} uploading={isLoading} />
+      <DragDropZone onDrop={handleDrop} />
 
       {error && (
         <div className="error-message" role="alert">
@@ -153,7 +153,7 @@ export function StashesListShell() {
         </div>
       )}
 
-      <StashesList />
+      <StashesList pending={pending} onCancelUpload={cancel} />
     </PageShell>
   );
 }
