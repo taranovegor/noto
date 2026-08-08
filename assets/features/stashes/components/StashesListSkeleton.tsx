@@ -5,9 +5,9 @@ export function StashesListSkeleton() {
     <div className={styles.container}>
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Active</h2>
-        <div className={styles.grid}>
+        <div className={styles.list}>
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className={styles.skeletonCard}>
+            <div key={i} className={`${styles.skeletonRow} ${i === 4 ? styles.last : ''}`}>
               <div className={`skeleton ${styles.skeletonIcon}`} />
               <div
                 className={`skeleton ${styles.skeletonTitle}`}

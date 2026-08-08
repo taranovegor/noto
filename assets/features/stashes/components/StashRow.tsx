@@ -10,30 +10,35 @@ import {
   Archive,
   Trash,
   Loader2,
+  X,
 } from 'lucide-react';
 import { getMimeTypeIcon, type StashResponseDto } from '../index';
+import type { PendingStashUpload } from '../hooks/useCreateStash';
 import { RelativeTime } from '../../../shared/components';
-import styles from './StashCard.module.css';
+import { formatFileSize } from '../../../shared/utils';
+import styles from './StashRow.module.css';
 
-interface StashCardProps {
+interface StashRowProps {
   stash: StashResponseDto;
   onDownload?: (attachmentIds: string[]) => void;
   onCopy?: (stash: StashResponseDto) => void;
   onPin?: (stash: StashResponseDto) => void;
-  onDelete?: (stash: StashResponseDto) => void;
-  isDeleting?: boolean;
+  onArchive?: (stash: StashResponseDto) => void;
+  isArchiving?: boolean;
   isExpired?: boolean;
+  last?: boolean;
 }
 
-export function StashCard({
+export function StashRow({
   stash,
   onDownload,
   onCopy,
   onPin,
-  onDelete,
-  isDeleting,
+  onArchive,
+  isArchiving,
   isExpired,
-}: StashCardProps) {
+  last,
+}: StashRowProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
@@ -74,15 +79,20 @@ export function StashCard({
     if (stash.content.length > 80) title += '...';
   }
 
+  const singleFileSize = isFileStash && !isMultiFile ? firstAttachment?.size : undefined;
+
   const rowContent = (
     <>
       <div className={styles.icon}>
-        <IconComponent size={18} />
+        <IconComponent size={18} strokeWidth={1.75} />
       </div>
 
       <div className={styles.titleBlock}>
         <span className={styles.title}>{title || 'n/a'}</span>
         {isMultiFile && <span className={styles.badge}>{attachmentCount}</span>}
+        {singleFileSize !== undefined && (
+          <span className={styles.size}>{formatFileSize(singleFileSize)}</span>
+        )}
       </div>
 
       <div className={styles.meta}>
@@ -90,7 +100,7 @@ export function StashCard({
           <RelativeTime date={stash.createdAt} />
         </span>
         {stash.expiresAt && (
-          <span className={styles.expires}>
+          <span className={`${styles.expires} ${isExpired ? styles.expiresDanger : ''}`}>
             {isExpired ? 'expired' : 'expires'} <RelativeTime date={stash.expiresAt} />
           </span>
         )}
@@ -107,7 +117,7 @@ export function StashCard({
             title={isMultiFile ? 'Download all' : 'Download'}
             aria-label={isMultiFile ? 'Download all' : 'Download'}
           >
-            <Download size={15} />
+            <Download size={15} strokeWidth={1.75} />
           </button>
         ) : (
           <button
@@ -116,36 +126,44 @@ export function StashCard({
             title="Copy"
             aria-label="Copy"
           >
-            {copied ? <Check size={15} /> : <Copy size={15} />}
+            {copied ? (
+              <Check size={15} strokeWidth={1.75} />
+            ) : (
+              <Copy size={15} strokeWidth={1.75} />
+            )}
           </button>
         )}
         <button
-          className={`${styles.bookmarkButton} ${stash.pinned ? styles.bookmarked : ''}`}
+          className={`${styles.iconToggle} ${stash.pinned ? styles.pinned : ''}`}
           onClick={(e) => {
             e.stopPropagation();
             onPin?.(stash);
           }}
-          title={stash.pinned ? 'Unbookmark' : 'Bookmark'}
-          aria-label={stash.pinned ? 'Unbookmark' : 'Bookmark'}
+          title={stash.pinned ? 'Unpin' : 'Pin'}
+          aria-label={stash.pinned ? 'Unpin' : 'Pin'}
         >
-          {stash.pinned ? <BookmarkCheck size={15} /> : <Bookmark size={15} />}
+          {stash.pinned ? (
+            <BookmarkCheck size={15} strokeWidth={1.75} />
+          ) : (
+            <Bookmark size={15} strokeWidth={1.75} />
+          )}
         </button>
         <button
-          className={`btn btn-ghost ${isExpired ? styles.deleteBtn : styles.archiveBtn}`}
+          className={`btn btn-ghost ${styles.actionBtn} ${isExpired ? styles.deleteBtn : ''}`}
           onClick={(e) => {
             e.stopPropagation();
-            onDelete?.(stash);
+            onArchive?.(stash);
           }}
-          disabled={isDeleting}
+          disabled={isArchiving}
           title={isExpired ? 'Delete' : 'Archive'}
           aria-label={isExpired ? 'Delete' : 'Archive'}
         >
-          {isDeleting ? (
-            <Loader2 size={15} className={styles.deleteSpinner} />
+          {isArchiving ? (
+            <Loader2 size={15} strokeWidth={1.75} className={styles.spinner} />
           ) : isExpired ? (
-            <Trash size={15} />
+            <Trash size={15} strokeWidth={1.75} />
           ) : (
-            <Archive size={15} />
+            <Archive size={15} strokeWidth={1.75} />
           )}
         </button>
       </div>
@@ -153,7 +171,7 @@ export function StashCard({
   );
 
   return (
-    <div className={styles.card}>
+    <div className={`${styles.row} ${last ? styles.last : ''}`}>
       {isMultiFile ? (
         <div
           className={`${styles.mainRow} ${styles.mainRowClickable}`}
@@ -181,22 +199,67 @@ export function StashCard({
             return (
               <div key={attachment.id} className={styles.fileRow}>
                 <div className={styles.fileRowIcon}>
-                  <FileIcon size={14} />
+                  <FileIcon size={14} strokeWidth={1.75} />
                 </div>
                 <span className={styles.fileRowName}>{attachment.originFilename}</span>
+                <span className={styles.fileRowSize}>{formatFileSize(attachment.size)}</span>
                 <button
                   className={`btn btn-ghost ${styles.fileRowAction}`}
                   onClick={() => onDownload?.([attachment.id])}
                   title={`Download ${attachment.originFilename}`}
                   aria-label={`Download ${attachment.originFilename}`}
                 >
-                  <Download size={13} />
+                  <Download size={13} strokeWidth={1.75} />
                 </button>
               </div>
             );
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+interface PendingStashRowProps {
+  upload: PendingStashUpload;
+  onCancel: (id: string) => void;
+  last?: boolean;
+}
+
+export function PendingStashRow({ upload, onCancel, last }: PendingStashRowProps) {
+  const Icon = upload.icon;
+  const progress = upload.totalSize > 0 ? upload.loadedSize / upload.totalSize : 0;
+
+  return (
+    <div className={`${styles.row} ${last ? styles.last : ''}`}>
+      <div className={styles.mainRow}>
+        <div className={styles.icon}>
+          <Icon size={18} strokeWidth={1.75} />
+        </div>
+
+        <div className={styles.titleBlock}>
+          <span className={styles.title}>{upload.title}</span>
+          {upload.count && <span className={styles.badge}>{upload.count}</span>}
+        </div>
+
+        <div className={styles.meta}>
+          <span className={styles.date}>{Math.round(progress * 100)}%</span>
+        </div>
+
+        <div className={styles.actions}>
+          <button
+            className={`btn btn-ghost ${styles.actionBtn}`}
+            onClick={() => onCancel(upload.id)}
+            title="Cancel"
+            aria-label="Cancel"
+          >
+            <X size={15} strokeWidth={1.75} />
+          </button>
+        </div>
+      </div>
+      <div className={styles.progressTrack}>
+        <div className={styles.progressFill} style={{ width: `${Math.max(4, progress * 100)}%` }} />
+      </div>
     </div>
   );
 }
