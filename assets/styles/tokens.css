@@ -35,6 +35,7 @@
   --leading-relaxed: 1.6;
 
   --tracking-uppercase: 0.05em;
+  --tracking-tight: -0.02em;
 
   --radius-xs: 3px;
   --radius-sm: 6px;
