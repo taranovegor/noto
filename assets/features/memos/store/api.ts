@@ -2,7 +2,7 @@ import { api } from '../../../shared/store/api';
 import type { ListResponse } from '../../../shared/types/api';
 import type { MemoResponseDto, CreateMemoDto, UpdateMemoDto } from '../types';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 20;
 
 const memosApi = api.injectEndpoints({
   endpoints: (builder) => ({
