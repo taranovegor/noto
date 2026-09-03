@@ -38,14 +38,10 @@ export function MarkdownEditor({
         ...(enforceFirstLineHeading ? { trailingNode: { node: 'paragraph' } } : {}),
       }),
       ...(enforceFirstLineHeading ? [FirstLineHeadingDocument] : []),
-      ...(enforceFirstLineHeading
-        ? [
-            Placeholder.configure({
-              placeholder: ({ node }) =>
-                node.type.name === 'heading' ? 'Memo' : (placeholder ?? ''),
-            }),
-          ]
-        : []),
+      Placeholder.configure({
+        placeholder: ({ node }) =>
+          enforceFirstLineHeading && node.type.name === 'heading' ? 'Memo' : (placeholder ?? ''),
+      }),
       Mathematics,
       Markdown,
       InternalLinkPaste,
@@ -60,7 +56,6 @@ export function MarkdownEditor({
     editorProps: {
       attributes: {
         class: 'tiptap-editor',
-        ...(enforceFirstLineHeading ? {} : { 'data-placeholder': placeholder ?? '' }),
       },
     },
   });

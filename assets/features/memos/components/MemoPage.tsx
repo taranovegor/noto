@@ -15,7 +15,6 @@ import { useActionBar } from '../../../layout/ActionBarContext';
 import { MEMO_DRAFT_KEY } from '../constants';
 import { parseError } from '../../../shared/utils';
 import { MemoPageSkeleton } from './MemoPageSkeleton';
-import styles from './MemoPage.module.css';
 
 interface FormState {
   content: string;
@@ -44,6 +43,8 @@ export function MemoPage() {
     attachments,
     pendingAttachments,
     uploading: attachUploading,
+    uploadProgress,
+    uploadingFileName,
     fileInputRef,
     handleFileSelect,
     handleDetach,
@@ -149,14 +150,12 @@ export function MemoPage() {
         </button>
       }
     >
-      <div className={styles.editor}>
-        <MarkdownEditor
-          value={form.content}
-          onChange={(content) => setForm((p) => ({ ...p, content }))}
-          headingLevels={[1]}
-          enforceFirstLineHeading
-        />
-      </div>
+      <MarkdownEditor
+        value={form.content}
+        onChange={(content) => setForm((p) => ({ ...p, content }))}
+        headingLevels={[1]}
+        enforceFirstLineHeading
+      />
 
       <input
         ref={fileInputRef}
@@ -168,6 +167,8 @@ export function MemoPage() {
       <AttachmentsList
         attachments={attachments}
         uploading={attachUploading}
+        uploadProgress={attachUploading ? uploadProgress : undefined}
+        uploadingFileName={uploadingFileName}
         onRemove={handleDetach}
       />
     </FormShell>

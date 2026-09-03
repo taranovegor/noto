@@ -76,6 +76,8 @@ function NotePageInner({ notebookId, noteId, isNew, navigate }: NotePageInnerPro
     attachments,
     pendingAttachments,
     uploading: attachUploading,
+    uploadProgress,
+    uploadingFileName,
     fileInputRef,
     handleFileSelect,
     handleDetach,
@@ -204,6 +206,7 @@ function NotePageInner({ notebookId, noteId, isNew, navigate }: NotePageInnerPro
           value={form.content}
           onChange={(content) => setForm((p) => ({ ...p, content }))}
           headingLevels={[1, 2, 3]}
+          placeholder="Start writing..."
         />
       </div>
 
@@ -217,6 +220,8 @@ function NotePageInner({ notebookId, noteId, isNew, navigate }: NotePageInnerPro
       <AttachmentsList
         attachments={attachments}
         uploading={attachUploading}
+        uploadProgress={attachUploading ? uploadProgress : undefined}
+        uploadingFileName={uploadingFileName}
         onRemove={handleDetach}
       />
     </FormShell>

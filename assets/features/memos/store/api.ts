@@ -52,7 +52,10 @@ const memosApi = api.injectEndpoints({
         method: 'POST',
         body: { attachments },
       }),
-      invalidatesTags: (_, __, { memoId }) => [{ type: 'Memos', id: memoId }],
+      async onQueryStarted({ memoId }, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled;
+        dispatch(memosApi.util.updateQueryData('getMemo', memoId, () => data));
+      },
     }),
 
     detachMemoAttachment: builder.mutation<void, { memoId: string; attachmentId: string }>({
@@ -60,7 +63,20 @@ const memosApi = api.injectEndpoints({
         url: `/memos/${memoId}/attachments/${attachmentId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (_, __, { memoId }) => [{ type: 'Memos', id: memoId }],
+      async onQueryStarted({ memoId, attachmentId }, { dispatch, queryFulfilled }) {
+        const patch = dispatch(
+          memosApi.util.updateQueryData('getMemo', memoId, (draft) => {
+            if (draft.attachments) {
+              draft.attachments = draft.attachments.filter((a) => a.id !== attachmentId);
+            }
+          }),
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
     }),
 
     updateMemo: builder.mutation<MemoResponseDto, { id: string; body: UpdateMemoDto }>({
