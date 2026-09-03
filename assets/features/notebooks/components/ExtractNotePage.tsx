@@ -5,6 +5,7 @@ import { useCreateExtractionMutation, useGetExtractionQuery } from '../store/api
 import { useCreateAttachmentMutation, useConfirmAttachmentUploadMutation } from '../../attachments';
 import type { AttachmentResponseDto } from '../../attachments';
 import { FormShell, AttachmentsList } from '../../../shared/components';
+import { DragDropZone } from '../../../shared/components/DragDropZone';
 import { useActionBar } from '../../../layout/ActionBarContext';
 import { parseError } from '../../../shared/utils';
 import styles from './ExtractNotePage.module.css';
@@ -79,34 +80,36 @@ function ExtractNotePageInner({ notebookId }: { notebookId: string }) {
     }
   }, [extraction]);
 
-  const handleFileSelect = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      e.target.value = '';
+  const handleFilesUpload = useCallback(
+    async (files: File[]) => {
+      if (files.length === 0) return;
 
       setAttachUploading(true);
       setError(null);
 
       try {
-        const { uploadUrl, id } = await createAttachment({
-          originFilename: file.name,
-          mimeType: file.type || 'application/octet-stream',
-          size: file.size,
-        }).unwrap();
+        const uploaded = await Promise.all(
+          files.map(async (file) => {
+            const { uploadUrl, id } = await createAttachment({
+              originFilename: file.name,
+              mimeType: file.type || 'application/octet-stream',
+              size: file.size,
+            }).unwrap();
 
-        const putRes = await fetch(uploadUrl, {
-          method: 'PUT',
-          body: file,
-          headers: { 'Content-Type': file.type || 'application/octet-stream' },
-        });
+            const putRes = await fetch(uploadUrl, {
+              method: 'PUT',
+              body: file,
+              headers: { 'Content-Type': file.type || 'application/octet-stream' },
+            });
 
-        if (!putRes.ok) {
-          throw new Error('Failed to upload file to storage');
-        }
+            if (!putRes.ok) {
+              throw new Error('Failed to upload file to storage');
+            }
 
-        const confirmed = await confirmAttachmentUpload(id).unwrap();
-        setPendingAttachments((prev) => [...prev, confirmed]);
+            return confirmAttachmentUpload(id).unwrap();
+          }),
+        );
+        setPendingAttachments((prev) => [...prev, ...uploaded]);
       } catch (err: unknown) {
         setError(parseError(err).message || 'Failed to upload attachment');
       } finally {
@@ -114,6 +117,15 @@ function ExtractNotePageInner({ notebookId }: { notebookId: string }) {
       }
     },
     [confirmAttachmentUpload, createAttachment],
+  );
+
+  const handleFileInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files ?? []);
+      e.target.value = '';
+      void handleFilesUpload(files);
+    },
+    [handleFilesUpload],
   );
 
   const handleDetach = useCallback((attachmentId: string) => {
@@ -193,48 +205,44 @@ function ExtractNotePageInner({ notebookId }: { notebookId: string }) {
     <FormShell
       backTo={`/notebooks/${notebookId}`}
       error={error}
-      saving={!canAct}
-      showSaveBar={canAct}
-      submitLabel="Start extraction"
+      showSaveBar={false}
       onSubmit={(e) => {
         e.preventDefault();
         handleStartExtraction();
       }}
       extraActions={
-        canAct ? (
-          <button
-            type="button"
-            className="btn"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={attachUploading}
-          >
-            <Paperclip size={16} strokeWidth={1.75} />
-            <span style={{ marginLeft: 6 }}>Attach file</span>
-          </button>
-        ) : undefined
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={!canAct || pendingAttachments.length === 0}
+        >
+          {actionLabel}
+        </button>
       }
     >
-      <h1>Extract Note</h1>
+      <h1>Extract note</h1>
 
       <div className={styles.section}>
-        <div className={styles.sectionHeader}>Files</div>
         <input
           ref={fileInputRef}
           type="file"
+          multiple
           style={{ display: 'none' }}
-          onChange={handleFileSelect}
+          onChange={handleFileInputChange}
           disabled={!canAct}
+        />
+        <DragDropZone
+          onDrop={handleFilesUpload}
+          disabled={!canAct}
+          uploading={attachUploading}
+          hideOnMobile={false}
+          hint="Drop files, or click to browse"
         />
         <AttachmentsList
           attachments={pendingAttachments}
           uploading={attachUploading}
           onRemove={canAct ? handleDetach : undefined}
         />
-        {pendingAttachments.length === 0 && canAct && (
-          <p className={styles.hint}>
-            Select files to extract content from. AI will analyze and create a note.
-          </p>
-        )}
       </div>
 
       <div className={styles.section}>

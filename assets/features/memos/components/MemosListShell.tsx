@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { SquarePen, Search } from 'lucide-react';
 import { useAppSelector } from '../../../shared/store/hooks';
 import { setMemosActiveSearch } from '../../../shared/store/uiSlice';
-import { SearchBar } from '../../../shared/components';
+import { Toolbar } from '../../../shared/components';
 import { useSearchState, useMobileSearch } from '../../../shared/hooks';
 import { useActionBar } from '../../../layout/ActionBarContext';
 import { PageShell } from '../../../shared/components/PageShell';
@@ -47,19 +47,8 @@ export function MemosListShell() {
   });
 
   return (
-    <PageShell
-      title="Memos"
-      actions={
-        <button
-          className="btn btn-primary btn-icon hide-on-mobile"
-          onClick={() => navigate('/memos/new')}
-          aria-label="New memo"
-        >
-          <SquarePen size={16} strokeWidth={1.75} />
-        </button>
-      }
-    >
-      <SearchBar
+    <PageShell title="Memos">
+      <Toolbar
         className="hide-on-mobile"
         value={searchInput}
         onChange={setSearchInput}
@@ -67,6 +56,7 @@ export function MemosListShell() {
         onClear={handleClear}
         placeholder="Search memos..."
         hasActiveSearch={activeSearch !== null}
+        actions={[{ icon: SquarePen, label: 'New memo', onClick: () => navigate('/memos/new') }]}
       />
 
       <MemosList />

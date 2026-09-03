@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { SquarePen, Sparkles } from 'lucide-react';
 import {
   formatDateTime,
   parseError,
@@ -8,7 +7,7 @@ import {
 } from '../../../shared/utils';
 import { useNotes } from '../store/api';
 import { useInfiniteScroll, useIsDataStale } from '../../../shared/hooks';
-import { ListCardSkeleton } from '../../../shared/components';
+import { ListCardSkeleton, ListRow } from '../../../shared/components';
 
 import styles from './NotesList.module.css';
 
@@ -37,26 +36,6 @@ export function NotesList({ notebookId, search = null }: NotesListProps) {
 
   return (
     <div className={styles.section}>
-      <div className={styles.sectionHeader}>
-        <h2 className={styles.sectionTitle}>Notes</h2>
-        <div className={styles.sectionActions}>
-          <button
-            className="btn btn-icon hide-on-mobile"
-            onClick={() => navigate(`/notebooks/${notebookId}/extract`)}
-            aria-label="Extract note"
-          >
-            <Sparkles size={16} strokeWidth={1.75} />
-          </button>
-          <button
-            className="btn btn-primary btn-icon hide-on-mobile"
-            onClick={() => navigate(`/notebooks/${notebookId}/notes/new`)}
-            aria-label="New note"
-          >
-            <SquarePen size={16} strokeWidth={1.75} />
-          </button>
-        </div>
-      </div>
-
       {errorMessage && (
         <div className="error-message" role="alert">
           {errorMessage}
@@ -64,22 +43,20 @@ export function NotesList({ notebookId, search = null }: NotesListProps) {
       )}
 
       {shouldShowSkeleton(isLoading, isFetching, isFetchingNextPage, !!data && !isDataStale) ? (
-        <ListCardSkeleton count={5} />
+        <div className={styles.list}>
+          <ListCardSkeleton count={5} />
+        </div>
       ) : notes.length > 0 ? (
         <div className={styles.list} role="list">
-          {notes.map((note) => (
-            <button
+          {notes.map((note, i) => (
+            <ListRow
               key={note.id}
-              className={`card ${styles.card}`}
+              title={note.title || 'Untitled'}
+              description={note.content ? renderPlainText(note.content) : undefined}
+              date={formatDateTime(note.updatedAt)}
+              last={i === notes.length - 1 && !isFetchingNextPage}
               onClick={() => navigate(`/notebooks/${notebookId}/notes/${note.id}`)}
-              role="listitem"
-            >
-              <div className={styles.cardTitle}>{note.title || 'Untitled'}</div>
-              <div className={styles.cardPreview}>
-                {note.content ? renderPlainText(note.content) : ''}
-              </div>
-              <div className={styles.cardDate}>{formatDateTime(note.updatedAt)}</div>
-            </button>
+            />
           ))}
 
           {isFetchingNextPage && <ListCardSkeleton count={3} />}

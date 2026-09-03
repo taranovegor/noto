@@ -1,7 +1,3 @@
-.editor {
-  min-height: 300px;
-}
-
 .editor :global(.ProseMirror) > :last-child {
   margin-bottom: 0;
 }
@@ -25,10 +21,4 @@
 
 .skeletonBody {
   margin-top: var(--space-xl);
-}
-
-@media (min-width: 769px) {
-  .editor {
-    min-height: 400px;
-  }
 }

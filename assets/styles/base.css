@@ -48,7 +48,7 @@ h4,
 h5,
 h6 {
   font-family: var(--font-serif);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tracking-tight);
   line-height: var(--leading-tight);
   margin-bottom: var(--space-lg);
   color: var(--color-text);
@@ -304,7 +304,7 @@ button.card {
 
 :is(.markdown-body, .tiptap-editor) :is(h1, h2, h3, h4, h5, h6) {
   font-family: var(--font-serif);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tracking-tight);
   color: var(--color-text);
   margin-top: 1.5em;
   margin-bottom: 0.5em;

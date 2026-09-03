@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { BookPlus, Search } from 'lucide-react';
 import { useAppSelector } from '../../../shared/store/hooks';
 import { setNotebooksActiveSearch } from '../../../shared/store/uiSlice';
-import { SearchBar } from '../../../shared/components';
+import { Toolbar } from '../../../shared/components';
 import { useSearchState, useMobileSearch } from '../../../shared/hooks';
 import { useActionBar } from '../../../layout/ActionBarContext';
 import { PageShell } from '../../../shared/components/PageShell';
@@ -52,19 +52,8 @@ export function NotebooksListShell() {
   });
 
   return (
-    <PageShell
-      title="Notebooks"
-      actions={
-        <button
-          className="btn btn-primary btn-icon hide-on-mobile"
-          onClick={() => navigate('/notebooks/new')}
-          aria-label="New notebook"
-        >
-          <BookPlus size={16} strokeWidth={1.75} />
-        </button>
-      }
-    >
-      <SearchBar
+    <PageShell title="Notebooks">
+      <Toolbar
         className="hide-on-mobile"
         value={searchInput}
         onChange={setSearchInput}
@@ -72,6 +61,9 @@ export function NotebooksListShell() {
         onClear={handleClear}
         placeholder="Search notebooks..."
         hasActiveSearch={activeSearch !== null}
+        actions={[
+          { icon: BookPlus, label: 'New notebook', onClick: () => navigate('/notebooks/new') },
+        ]}
       />
 
       <NotebooksList />
