@@ -11,8 +11,8 @@ import type {
   CreateExtractionDto,
 } from '../types';
 
-const NOTEBOOK_PAGE_SIZE = 10;
-const NOTE_PAGE_SIZE = 10;
+const NOTEBOOK_PAGE_SIZE = 20;
+const NOTE_PAGE_SIZE = 20;
 
 const notebooksApi = api.injectEndpoints({
   endpoints: (builder) => ({

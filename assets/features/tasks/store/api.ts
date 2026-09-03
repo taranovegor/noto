@@ -2,7 +2,7 @@ import { api } from '../../../shared/store/api';
 import type { ListResponse } from '../../../shared/types/api';
 import type { TaskResponseDto, CreateTaskDto, UpdateTaskDto, TaskStatus } from '../types';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 30;
 
 const tasksApi = api.injectEndpoints({
   endpoints: (builder) => ({
