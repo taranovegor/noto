@@ -137,7 +137,7 @@ export function NotebookEditPage() {
           type="text"
           value={form.title}
           onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-          placeholder="Notebook title"
+          placeholder="Untitled notebook"
           autoFocus={isNew}
         />
 
