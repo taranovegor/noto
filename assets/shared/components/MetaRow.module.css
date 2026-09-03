@@ -6,6 +6,10 @@
   align-items: center;
 }
 
+.row.noDivider {
+  border-bottom: none;
+}
+
 .label {
   width: 120px;
   flex-shrink: 0;

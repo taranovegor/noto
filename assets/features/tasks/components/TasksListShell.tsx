@@ -2,13 +2,11 @@ import { useNavigate } from 'react-router-dom';
 import { SquarePen, Search } from 'lucide-react';
 import { useAppSelector } from '../../../shared/store/hooks';
 import { setTasksActiveSearch } from '../../../shared/store/uiSlice';
-import { SearchBar } from '../../../shared/components';
+import { Toolbar } from '../../../shared/components';
 import { PageShell } from '../../../shared/components/PageShell';
 import { useSearchState, useMobileSearch } from '../../../shared/hooks';
-import { useLayoutMode } from '../../../layout/LayoutContext';
 import { useActionBar } from '../../../layout/ActionBarContext';
 import { TasksList } from './TasksList';
-import styles from './TasksList.module.css';
 
 export function TasksListShell() {
   const navigate = useNavigate();
@@ -32,7 +30,6 @@ export function TasksListShell() {
   } = useMobileSearch(activeSearch, setTasksActiveSearch);
 
   const isSearchActive = activeSearch !== null;
-  useLayoutMode(isSearchActive ? 'scroll' : 'fixed');
 
   useActionBar({
     buttons: [
@@ -52,21 +49,8 @@ export function TasksListShell() {
   });
 
   return (
-    <PageShell
-      title="Tasks"
-      actions={
-        <button
-          className="btn btn-primary btn-icon hide-on-mobile"
-          onClick={() => navigate('/tasks/new')}
-          aria-label="New task"
-        >
-          <SquarePen size={16} strokeWidth={1.75} />
-        </button>
-      }
-      className={isSearchActive ? styles.shellSearch : styles.shell}
-      padBottom={isSearchActive}
-    >
-      <SearchBar
+    <PageShell title="Tasks">
+      <Toolbar
         className="hide-on-mobile"
         value={searchInput}
         onChange={setSearchInput}
@@ -74,11 +58,10 @@ export function TasksListShell() {
         onClear={handleClear}
         placeholder="Search tasks..."
         hasActiveSearch={isSearchActive}
+        actions={[{ icon: SquarePen, label: 'New task', onClick: () => navigate('/tasks/new') }]}
       />
 
-      <div className={styles.content}>
-        <TasksList />
-      </div>
+      <TasksList />
     </PageShell>
   );
 }

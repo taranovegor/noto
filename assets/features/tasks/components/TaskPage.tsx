@@ -264,7 +264,7 @@ export function TaskPage() {
             ref={nameInputRef}
             value={form.name}
             onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-            placeholder="Task"
+            placeholder="Untitled task"
             autoFocus={isNew}
             className={styles.nameInput}
             rows={1}
@@ -302,7 +302,7 @@ export function TaskPage() {
           />
         </MetaRow>
 
-        <MetaRow label="Project">
+        <MetaRow label="Project" divider={false}>
           <select
             value={form.projectId ?? ''}
             onChange={(e) => setForm((p) => ({ ...p, projectId: e.target.value || undefined }))}
@@ -320,11 +320,10 @@ export function TaskPage() {
       </div>
 
       <div className={styles.noteSection}>
-        <p className={styles.noteLabel}>Note</p>
         <MarkdownEditor
           value={form.note}
           onChange={(markdown) => setForm((p) => ({ ...p, note: markdown }))}
-          placeholder="Write..."
+          placeholder="Start writing..."
         />
       </div>
 
