@@ -122,4 +122,11 @@ jobs:
 
             - name: Inspect image
               run: |
-                  docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:build-${{ github.run_number }}
+                  for attempt in 1 2 3 4 5; do
+                    if docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:build-${{ github.run_number }}; then
+                      exit 0
+                    fi
+                    echo "Attempt $attempt failed, GHCR may still be propagating the manifest, retrying in 5s..."
+                    sleep 5
+                  done
+                  exit 1
