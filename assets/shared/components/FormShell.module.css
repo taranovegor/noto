@@ -7,15 +7,13 @@
 
 @media (min-width: 769px) {
   .form {
-    padding-top: var(--space-3xl);
+    padding-top: var(--space-xl);
     padding-bottom: calc(var(--space-3xl) + env(safe-area-inset-bottom, 0px));
   }
 }
 
 .saveArea {
-  margin-top: var(--space-3xl);
-  padding-top: var(--space-xl);
-  border-top: 1px solid var(--color-border);
+  margin-top: var(--space-xl);
   display: flex;
   align-items: center;
   gap: var(--space-md);

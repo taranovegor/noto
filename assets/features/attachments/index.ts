@@ -12,3 +12,5 @@ export {
   useLazyGetAttachmentDownloadUrlQuery,
   useGetBatchAttachmentDownloadUrlMutation,
 } from './store/api';
+
+export { useAttachmentUpload } from './hooks/useAttachmentUpload';

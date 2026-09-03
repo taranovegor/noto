@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, SquarePen, Sparkles } from 'lucide-react';
 import { useGetNotebookQuery } from '../store/api';
 import { useActionBar } from '../../../layout/ActionBarContext';
-import { SearchBar, BackButton, Menu } from '../../../shared/components';
+import { Toolbar, BackButton, Menu } from '../../../shared/components';
 import { useBackNavigation } from '../../../shared/hooks';
 import { NotesList } from './NotesList';
 import { NotebookPageSkeleton } from './NotebookPageSkeleton';
@@ -106,7 +106,7 @@ export function NotebookPage() {
       </div>
 
       <div className={styles.notesSection}>
-        <SearchBar
+        <Toolbar
           className="hide-on-mobile"
           value={notesSearchInput}
           onChange={setNotesSearchInput}
@@ -117,6 +117,18 @@ export function NotebookPage() {
           }}
           placeholder="Search notes..."
           hasActiveSearch={notesSearch !== null}
+          actions={[
+            {
+              icon: Sparkles,
+              label: 'Extract note',
+              onClick: () => navigate(`/notebooks/${notebookId}/extract`),
+            },
+            {
+              icon: SquarePen,
+              label: 'New note',
+              onClick: () => navigate(`/notebooks/${notebookId}/notes/new`),
+            },
+          ]}
         />
         <NotesList notebookId={notebookId!} search={notesSearch} />
       </div>

@@ -3,7 +3,7 @@ import { parseError, shouldShowSkeleton } from '../../../shared/utils';
 import { useAppSelector } from '../../../shared/store/hooks';
 import { useNotebooks } from '../store/api';
 import { useInfiniteScroll, useIsDataStale } from '../../../shared/hooks';
-import { ListCardSkeleton } from '../../../shared/components';
+import { ListCardSkeleton, ListRow } from '../../../shared/components';
 
 import styles from './NotebooksList.module.css';
 
@@ -35,24 +35,22 @@ export function NotebooksList() {
       )}
 
       {shouldShowSkeleton(isLoading, isFetching, isFetchingNextPage, !!data && !isDataStale) ? (
-        <ListCardSkeleton count={5} />
+        <div className={styles.list}>
+          <ListCardSkeleton count={5} showDate={false} />
+        </div>
       ) : notebooks.length > 0 ? (
         <div className={styles.list} role="list">
-          {notebooks.map((notebook) => (
-            <button
+          {notebooks.map((notebook, i) => (
+            <ListRow
               key={notebook.id}
-              className={`card ${styles.card}`}
+              title={notebook.title}
+              description={notebook.description}
+              last={i === notebooks.length - 1 && !isFetchingNextPage}
               onClick={() => navigate(`/notebooks/${notebook.id}`)}
-              role="listitem"
-            >
-              <div className={styles.cardTitle}>{notebook.title}</div>
-              {notebook.description && (
-                <div className={styles.cardPreview}>{notebook.description}</div>
-              )}
-            </button>
+            />
           ))}
 
-          {isFetchingNextPage && <ListCardSkeleton count={3} />}
+          {isFetchingNextPage && <ListCardSkeleton count={3} showDate={false} />}
 
           <div ref={sentinelRef} className={styles.observerSentinel} />
         </div>

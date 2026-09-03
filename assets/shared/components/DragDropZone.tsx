@@ -6,9 +6,17 @@ interface DragDropZoneProps {
   onDrop: (files: File[], text?: string) => void;
   disabled?: boolean;
   uploading?: boolean;
+  hideOnMobile?: boolean;
+  hint?: string;
 }
 
-export function DragDropZone({ onDrop, disabled = false, uploading = false }: DragDropZoneProps) {
+export function DragDropZone({
+  onDrop,
+  disabled = false,
+  uploading = false,
+  hideOnMobile = true,
+  hint = 'Also supports paste (Ctrl+V)',
+}: DragDropZoneProps) {
   const dropZoneRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isDraggingRef = useRef(false);
@@ -95,7 +103,7 @@ export function DragDropZone({ onDrop, disabled = false, uploading = false }: Dr
       />
       <div
         ref={dropZoneRef}
-        className={`${styles.zone} ${disabled ? styles.disabled : ''} ${uploading ? styles.uploading : ''}`}
+        className={`${styles.zone} ${disabled ? styles.disabled : ''} ${uploading ? styles.uploading : ''} ${!hideOnMobile ? styles.alwaysVisible : ''}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -107,8 +115,8 @@ export function DragDropZone({ onDrop, disabled = false, uploading = false }: Dr
       >
         {uploading ? (
           <div className={styles.content}>
-            <div className={`${styles.icon} ${styles.spinner}`}>
-              <Loader2 size={28} />
+            <div className={`${styles.iconBadge} ${styles.spinner}`}>
+              <Loader2 size={17} strokeWidth={1.75} />
             </div>
             <div className={styles.text}>
               <p className={styles.primary}>Uploading...</p>
@@ -119,12 +127,12 @@ export function DragDropZone({ onDrop, disabled = false, uploading = false }: Dr
           </div>
         ) : (
           <div className={styles.content}>
-            <div className={styles.icon}>
-              <Upload size={40} />
+            <div className={styles.iconBadge}>
+              <Upload size={17} strokeWidth={1.75} />
             </div>
             <div className={styles.text}>
               <p className={styles.primary}>Drag files here or click to select</p>
-              <p className={styles.secondary}>Also supports paste (Ctrl+V)</p>
+              <p className={styles.secondary}>{hint}</p>
             </div>
           </div>
         )}

@@ -1,14 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import {
-  formatDateTime,
-  parseError,
-  shouldShowSkeleton,
-  renderPlainText,
-} from '../../../shared/utils';
+import { parseError, shouldShowSkeleton, renderPlainText } from '../../../shared/utils';
 import { useAppSelector } from '../../../shared/store/hooks';
 import { useMemos } from '../store/api';
 import { useInfiniteScroll, useIsDataStale } from '../../../shared/hooks';
-import { ListCardSkeleton } from '../../../shared/components';
+import { ListCardSkeleton, ListRow } from '../../../shared/components';
 
 import styles from './MemosList.module.css';
 
@@ -51,27 +46,26 @@ export function MemosList() {
       )}
 
       {shouldShowSkeleton(isLoading, isFetching, isFetchingNextPage, !!data && !isDataStale) ? (
-        <ListCardSkeleton count={5} />
+        <div className={styles.list}>
+          <ListCardSkeleton count={5} showDate={false} />
+        </div>
       ) : memos.length > 0 ? (
         <div className={styles.list} role="list">
-          {memos.map((memo) => {
+          {memos.map((memo, i) => {
             const { title, body } = extractMemoTitle(memo.content);
 
             return (
-              <button
+              <ListRow
                 key={memo.id}
-                className={`card ${styles.card}`}
+                title={title}
+                description={body ? renderPlainText(body) : undefined}
+                last={i === memos.length - 1 && !isFetchingNextPage}
                 onClick={() => navigate(`/memos/${memo.id}`)}
-                role="listitem"
-              >
-                <div className={styles.cardTitle}>{title}</div>
-                <div className={styles.cardPreview}>{body ? renderPlainText(body) : ''}</div>
-                <div className={styles.cardDate}>{formatDateTime(memo.updatedAt)}</div>
-              </button>
+              />
             );
           })}
 
-          {isFetchingNextPage && <ListCardSkeleton count={3} />}
+          {isFetchingNextPage && <ListCardSkeleton count={3} showDate={false} />}
 
           <div ref={sentinelRef} className={styles.observerSentinel} />
         </div>

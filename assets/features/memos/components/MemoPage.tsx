@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Paperclip } from 'lucide-react';
 import {
@@ -8,8 +8,7 @@ import {
   useAttachMemoAttachmentsMutation,
   useDetachMemoAttachmentMutation,
 } from '../store/api';
-import { useCreateAttachmentMutation, useConfirmAttachmentUploadMutation } from '../../attachments';
-import type { AttachmentResponseDto } from '../../attachments';
+import { useAttachmentUpload } from '../../attachments';
 import { MarkdownEditor, FormShell, AttachmentsList } from '../../../shared/components';
 import { useDraftSave, useDraftRestore, useFormDirty } from '../../../shared/hooks';
 import { useActionBar } from '../../../layout/ActionBarContext';
@@ -37,18 +36,27 @@ export function MemoPage() {
   const [updateMemo, { isLoading: isUpdating }] = useUpdateMemoMutation();
   const [attachMemoAttachments] = useAttachMemoAttachmentsMutation();
   const [detachMemoAttachment] = useDetachMemoAttachmentMutation();
-  const [createAttachment] = useCreateAttachmentMutation();
-  const [confirmAttachmentUpload] = useConfirmAttachmentUploadMutation();
 
   const [form, setForm] = useState<FormState>({ content: isNew ? '# ' : '' });
   const [error, setError] = useState<string | null>(null);
-  const [pendingAttachments, setPendingAttachments] = useState<AttachmentResponseDto[]>([]);
-  const [attachUploading, setAttachUploading] = useState(false);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const {
+    attachments,
+    pendingAttachments,
+    uploading: attachUploading,
+    fileInputRef,
+    handleFileSelect,
+    handleDetach,
+  } = useAttachmentUpload({
+    isNew,
+    existingAttachments: memo?.attachments,
+    onAttach: (attachmentId) =>
+      attachMemoAttachments({ memoId: memoId!, attachments: [attachmentId] }).unwrap(),
+    onDetach: (attachmentId) => detachMemoAttachment({ memoId: memoId!, attachmentId }).unwrap(),
+    onError: setError,
+  });
+
   const saving = isCreating || isUpdating;
-
-  const attachments = isNew ? pendingAttachments : (memo?.attachments ?? []);
 
   const { restore, clear } = useDraftSave(MEMO_DRAFT_KEY, form, isNew);
   const { isDirty, markSaved } = useFormDirty(form);
@@ -87,59 +95,6 @@ export function MemoPage() {
         }).unwrap();
         markSaved({ content: form.content.trim() });
       }
-    } catch (err: unknown) {
-      setError(parseError(err).message);
-    }
-  };
-
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    e.target.value = '';
-
-    setAttachUploading(true);
-    setError(null);
-
-    try {
-      const { uploadUrl, id } = await createAttachment({
-        originFilename: file.name,
-        mimeType: file.type || 'application/octet-stream',
-        size: file.size,
-      }).unwrap();
-
-      const putRes = await fetch(uploadUrl, {
-        method: 'PUT',
-        body: file,
-        headers: { 'Content-Type': file.type || 'application/octet-stream' },
-      });
-
-      if (!putRes.ok) {
-        throw new Error('Failed to upload file to storage');
-      }
-
-      const confirmed = await confirmAttachmentUpload(id).unwrap();
-
-      if (isNew) {
-        setPendingAttachments((prev) => [...prev, confirmed]);
-      } else {
-        await attachMemoAttachments({ memoId: memoId!, attachments: [id] }).unwrap();
-      }
-    } catch (err: unknown) {
-      setError(parseError(err).message || 'Failed to upload attachment');
-    } finally {
-      setAttachUploading(false);
-    }
-  };
-
-  const handleDetach = async (attachmentId: string) => {
-    if (isNew) {
-      setPendingAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
-      return;
-    }
-
-    setError(null);
-    try {
-      await detachMemoAttachment({ memoId: memoId!, attachmentId }).unwrap();
     } catch (err: unknown) {
       setError(parseError(err).message);
     }
