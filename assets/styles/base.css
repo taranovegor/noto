@@ -77,7 +77,7 @@ code {
   font-size: 0.9em;
   background-color: var(--color-surface);
   padding: 2px 4px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
 }
 
 .text-secondary {
@@ -128,7 +128,7 @@ code {
 
 .card {
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: var(--space-xl);
   background-color: var(--color-bg);
   transition: all 150ms var(--ease-out);
@@ -156,7 +156,7 @@ button.card {
 
 .btn {
   padding: var(--space-md) var(--space-xl);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   transition: all 120ms var(--ease-out);
@@ -212,16 +212,6 @@ button.card {
   transition: transform 100ms ease-out;
 }
 
-.tag {
-  display: inline-block;
-  padding: var(--space-xs) var(--space-md);
-  border-radius: 9999px;
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--tracking-uppercase);
-  text-transform: uppercase;
-}
-
 .form-group {
   margin-bottom: var(--space-lg);
 }
@@ -235,7 +225,7 @@ button.card {
 .input-bordered {
   padding: var(--space-md) var(--space-md);
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   transition: all 150ms var(--ease-out);
 }
 
@@ -413,14 +403,14 @@ button.card {
   font-size: 0.875em;
   background-color: var(--color-surface);
   padding: 2px 6px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   border: 1px solid var(--color-border);
 }
 
 :is(.markdown-body, .tiptap-editor) pre {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 16px;
   overflow-x: auto;
   margin-bottom: 1em;
@@ -513,10 +503,10 @@ button.card {
 
 .error-message {
   padding: var(--space-md) var(--space-lg);
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
-  color: #7f1d1d;
+  background-color: color-mix(in srgb, var(--color-danger) 5%, var(--color-bg));
+  border: 1px solid color-mix(in srgb, var(--color-danger) 20%, transparent);
+  border-radius: var(--radius-sm);
+  color: var(--color-danger);
   font-size: var(--text-sm);
   margin-bottom: var(--space-xl);
   animation: slideInError 200ms var(--ease-out) forwards;
@@ -528,7 +518,7 @@ button.card {
   color: var(--color-text-secondary);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   animation: fadeIn 300ms var(--ease-out) forwards;
 }
 
@@ -541,7 +531,7 @@ button.card {
   position: relative;
   overflow: hidden;
   background-color: var(--color-surface);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .skeleton::after {
@@ -575,7 +565,7 @@ button.card {
 
 .skeleton-card {
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: var(--space-lg);
   background-color: var(--color-bg);
   margin-bottom: var(--space-md);

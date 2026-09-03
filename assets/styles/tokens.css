@@ -14,6 +14,10 @@
   --color-success: #16a34a;
   --color-warning: #92400e;
 
+  --green-400: #7fb285;
+  --amber-400: #e8b558;
+  --red-400: #e8837f;
+
   --font-sans: sans-serif;
   --font-serif: serif;
   --font-mono: monospace;
@@ -31,6 +35,12 @@
   --leading-relaxed: 1.6;
 
   --tracking-uppercase: 0.05em;
+
+  --radius-xs: 3px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
 
   --weight-normal: 400;
   --weight-medium: 500;
