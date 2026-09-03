@@ -6,9 +6,8 @@ import { useTasks } from '../store/api';
 import { useProjects } from '../../projects/hooks/useProjects';
 import { useInfiniteScroll, useIsDataStale } from '../../../shared/hooks';
 import { parseError, shouldShowSkeleton } from '../../../shared/utils';
-import { TaskKanban } from './TaskKanban';
-import { TaskSearchResults } from './TaskSearchResults';
-import { TasksSearchSkeleton } from './TasksSearchSkeleton';
+import { TaskRow } from './TaskRow';
+import { TaskRowSkeleton } from './TaskRowSkeleton';
 import { ProjectsFilterBar } from './ProjectsFilterBar';
 import styles from './TasksList.module.css';
 
@@ -18,8 +17,6 @@ export function TasksList() {
   const activeSearch = useAppSelector((state) => state.ui.tasksActiveSearch);
   const selectedProjectId = useAppSelector((state) => state.ui.tasksSelectedProjectId);
 
-  const isSearching = activeSearch !== null;
-
   const {
     data,
     isLoading,
@@ -28,11 +25,10 @@ export function TasksList() {
     hasNextPage,
     fetchNextPage,
     error: tasksError,
-  } = useTasks({ search: activeSearch, projectId: selectedProjectId }, { skip: !isSearching });
+  } = useTasks({ search: activeSearch, projectId: selectedProjectId });
 
-  // Both activeSearch and selectedProjectId affect the query args.
   const isDataStale = useIsDataStale(
-    isSearching ? `${activeSearch}:${selectedProjectId ?? 'all'}` : null,
+    `${activeSearch ?? ''}:${selectedProjectId ?? 'all'}`,
     isFetching,
   );
 
@@ -41,7 +37,12 @@ export function TasksList() {
   const tasks = React.useMemo(() => {
     const all = data?.pages.flat() ?? [];
     const seen = new Set<string>();
-    return all.filter((t) => !seen.has(t.id) && seen.add(t.id));
+    const deduped = all.filter((t) => !seen.has(t.id) && seen.add(t.id));
+    return deduped.sort((a, b) => {
+      const aDone = a.status === 'done';
+      const bDone = b.status === 'done';
+      return aDone === bDone ? 0 : aDone ? 1 : -1;
+    });
   }, [data?.pages]);
 
   const { sentinelRef } = useInfiniteScroll(
@@ -71,27 +72,41 @@ export function TasksList() {
         onToggle={handleProjectClick}
       />
 
-      {isSearching ? (
-        <>
-          {shouldShowSkeleton(isLoading, isFetching, isFetchingNextPage, !!data && !isDataStale) ? (
-            <TasksSearchSkeleton />
-          ) : tasks.length === 0 ? (
-            <div className="empty-state">
-              <p>No tasks found.</p>
-            </div>
-          ) : (
-            <TaskSearchResults tasks={tasks} onTaskClick={handleTaskClick} />
+      {shouldShowSkeleton(isLoading, isFetching, isFetchingNextPage, !!data && !isDataStale) ? (
+        <div className={styles.list}>
+          <TaskRowSkeleton />
+        </div>
+      ) : tasks.length === 0 ? (
+        <div className="empty-state">
+          <p>
+            {activeSearch
+              ? 'No tasks found.'
+              : "No tasks in any project yet. Add the first one, and it'll show up here."}
+          </p>
+          {!activeSearch && (
+            <button
+              className={`btn btn-primary ${styles.emptyButton}`}
+              onClick={() => navigate('/tasks/new')}
+            >
+              New task
+            </button>
           )}
-          {isFetchingNextPage && (
-            <div style={{ marginTop: 'var(--space-md)' }}>
-              <TasksSearchSkeleton count={2} />
-            </div>
-          )}
-          <div ref={sentinelRef} className={styles.observerSentinel} />
-        </>
+        </div>
       ) : (
-        <TaskKanban onTaskClick={handleTaskClick} />
+        <div className={styles.list} role="list">
+          {tasks.map((task, i) => (
+            <TaskRow
+              key={task.id}
+              task={task}
+              last={i === tasks.length - 1 && !isFetchingNextPage}
+              onClick={handleTaskClick}
+            />
+          ))}
+          {isFetchingNextPage && <TaskRowSkeleton count={3} />}
+        </div>
       )}
+
+      <div ref={sentinelRef} className={styles.observerSentinel} />
     </>
   );
 }

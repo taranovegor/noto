@@ -1,4 +1,5 @@
 export { SearchBar } from './SearchBar';
+export { Toolbar } from './Toolbar';
 export { BackButton } from './BackButton';
 export { Skeleton } from './Skeleton';
 export { ListCardSkeleton } from './ListCardSkeleton';

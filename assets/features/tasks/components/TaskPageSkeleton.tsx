@@ -34,7 +34,6 @@ export function TaskPageSkeleton() {
         ))}
       </div>
       <div className={styles.skeletonNoteSection}>
-        <div className={`skeleton skeleton-text ${styles.skeletonNoteLabel}`} />
         <div className={`skeleton skeleton-text ${styles.skeletonNoteBody}`} />
       </div>
     </div>

@@ -1,0 +1,29 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.last {
+  border-bottom: none;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.title {
+  flex: 1;
+  height: calc(var(--text-sm) * var(--leading-relaxed));
+}
+
+.meta {
+  width: 56px;
+  flex-shrink: 0;
+  height: calc(var(--text-xs) * var(--leading-relaxed));
+}

@@ -5,7 +5,7 @@
 
 @media (min-width: 769px) {
   .shell {
-    padding-top: var(--space-3xl);
+    padding-top: var(--space-xl);
     padding-bottom: calc(var(--space-3xl) + env(safe-area-inset-bottom, 0px));
   }
 }
@@ -18,7 +18,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-xl);
+  margin-bottom: var(--space-lg);
 }
 
 .title {

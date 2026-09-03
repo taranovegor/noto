@@ -1,0 +1,23 @@
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.low {
+  background-color: var(--green-400);
+}
+
+.medium {
+  background-color: var(--amber-400);
+}
+
+.high {
+  background-color: var(--red-400);
+}
+
+.none {
+  border: 1.5px solid var(--color-border);
+}
