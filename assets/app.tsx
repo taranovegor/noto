@@ -199,6 +199,6 @@ const reactRoot = (container as any).__r ?? ((container as any).__r = createRoot
 
 reactRoot.render(
   <Provider store={store}>
-    <RouterProvider router={router} future={{ v7_startTransition: true }} />
+    <RouterProvider router={router} />
   </Provider>,
 );
