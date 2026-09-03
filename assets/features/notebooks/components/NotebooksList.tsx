@@ -3,8 +3,7 @@ import { parseError, shouldShowSkeleton } from '../../../shared/utils';
 import { useAppSelector } from '../../../shared/store/hooks';
 import { useNotebooks } from '../store/api';
 import { useInfiniteScroll, useIsDataStale } from '../../../shared/hooks';
-import { NotebooksListSkeleton } from './NotebooksListSkeleton';
-import { NotebooksLoadingMoreSkeleton } from './NotebooksLoadingMoreSkeleton';
+import { ListCardSkeleton } from '../../../shared/components';
 
 import styles from './NotebooksList.module.css';
 
@@ -36,7 +35,7 @@ export function NotebooksList() {
       )}
 
       {shouldShowSkeleton(isLoading, isFetching, isFetchingNextPage, !!data && !isDataStale) ? (
-        <NotebooksListSkeleton />
+        <ListCardSkeleton count={5} />
       ) : notebooks.length > 0 ? (
         <div className={styles.list} role="list">
           {notebooks.map((notebook) => (
@@ -53,7 +52,7 @@ export function NotebooksList() {
             </button>
           ))}
 
-          {isFetchingNextPage && <NotebooksLoadingMoreSkeleton />}
+          {isFetchingNextPage && <ListCardSkeleton count={3} />}
 
           <div ref={sentinelRef} className={styles.observerSentinel} />
         </div>

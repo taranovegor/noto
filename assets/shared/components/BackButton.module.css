@@ -6,7 +6,7 @@
   .backBtn {
     position: absolute;
     left: -2.75rem;
-    top: calc(var(--space-3xl) + 3px);
+    margin-top: 2px;
     background: none;
     border: none;
     color: var(--color-text-secondary);

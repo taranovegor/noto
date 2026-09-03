@@ -1,8 +1,7 @@
 import React from 'react';
-import { ArrowLeft } from 'lucide-react';
 import { useBackNavigation } from '../hooks';
+import { BackButton } from './BackButton';
 import styles from './FormShell.module.css';
-import backStyles from './BackButton.module.css';
 
 interface FormShellProps {
   backTo: string;
@@ -29,14 +28,7 @@ export function FormShell({
 
   return (
     <form onSubmit={onSubmit} className={styles.form}>
-      <button
-        type="button"
-        onClick={handleBack}
-        className={backStyles.backBtn}
-        aria-label="Go back"
-      >
-        <ArrowLeft size={20} strokeWidth={1.75} />
-      </button>
+      <BackButton onClick={handleBack} />
       {children}
       {error && (
         <div className={`error-message ${styles.error}`} role="alert">

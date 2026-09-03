@@ -8,8 +8,7 @@ import {
 } from '../../../shared/utils';
 import { useNotes } from '../store/api';
 import { useInfiniteScroll, useIsDataStale } from '../../../shared/hooks';
-import { NotesListSkeleton } from './NotesListSkeleton';
-import { NotesLoadingMoreSkeleton } from './NotesLoadingMoreSkeleton';
+import { ListCardSkeleton } from '../../../shared/components';
 
 import styles from './NotesList.module.css';
 
@@ -65,7 +64,7 @@ export function NotesList({ notebookId, search = null }: NotesListProps) {
       )}
 
       {shouldShowSkeleton(isLoading, isFetching, isFetchingNextPage, !!data && !isDataStale) ? (
-        <NotesListSkeleton />
+        <ListCardSkeleton count={5} />
       ) : notes.length > 0 ? (
         <div className={styles.list} role="list">
           {notes.map((note) => (
@@ -83,7 +82,7 @@ export function NotesList({ notebookId, search = null }: NotesListProps) {
             </button>
           ))}
 
-          {isFetchingNextPage && <NotesLoadingMoreSkeleton />}
+          {isFetchingNextPage && <ListCardSkeleton count={3} />}
 
           <div ref={sentinelRef} className={styles.observerSentinel} />
         </div>
