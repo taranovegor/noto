@@ -182,7 +182,10 @@ const notebooksApi = api.injectEndpoints({
         method: 'POST',
         body: { attachments },
       }),
-      invalidatesTags: (_, __, { noteId }) => [{ type: 'Notes', id: noteId }],
+      async onQueryStarted({ notebookId, noteId }, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled;
+        dispatch(notebooksApi.util.updateQueryData('getNote', { notebookId, noteId }, () => data));
+      },
     }),
 
     detachNoteAttachment: builder.mutation<
@@ -193,7 +196,20 @@ const notebooksApi = api.injectEndpoints({
         url: `/notebooks/${notebookId}/notes/${noteId}/attachments/${attachmentId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (_, __, { noteId }) => [{ type: 'Notes', id: noteId }],
+      async onQueryStarted({ notebookId, noteId, attachmentId }, { dispatch, queryFulfilled }) {
+        const patch = dispatch(
+          notebooksApi.util.updateQueryData('getNote', { notebookId, noteId }, (draft) => {
+            if (draft.attachments) {
+              draft.attachments = draft.attachments.filter((a) => a.id !== attachmentId);
+            }
+          }),
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
     }),
 
     createExtraction: builder.mutation<ExtractionResponseDto, CreateExtractionDto>({

@@ -8,9 +8,11 @@ import styles from './AttachmentsList.module.css';
 function AttachmentItem({
   attachment,
   onRemove,
+  last,
 }: {
   attachment: AttachmentResponseDto;
   onRemove?: () => void;
+  last?: boolean;
 }) {
   const [fetchDownloadUrl, { isFetching }] = useLazyGetAttachmentDownloadUrlQuery();
 
@@ -24,7 +26,7 @@ function AttachmentItem({
   };
 
   return (
-    <div className={styles.attachmentItem}>
+    <div className={`${styles.attachmentItem} ${last ? styles.last : ''}`}>
       <Paperclip size={14} strokeWidth={1.75} className={styles.attachmentIcon} />
       <div className={styles.attachmentMeta}>
         <span className={styles.attachmentName}>{attachment.originFilename}</span>
@@ -58,37 +60,59 @@ function AttachmentItem({
 interface AttachmentsListProps {
   attachments: AttachmentResponseDto[];
   uploading?: boolean;
+  uploadProgress?: number;
+  uploadingFileName?: string | null;
   onRemove?: (attachmentId: string) => void;
 }
 
 export function AttachmentsList({
   attachments,
   uploading = false,
+  uploadProgress,
+  uploadingFileName,
   onRemove,
 }: AttachmentsListProps) {
   if (!attachments.length && !uploading) return null;
 
   return (
-    <div className={styles.attachments}>
-      {attachments.map((attachment) => (
+    <div className={styles.attachments} role="list">
+      {attachments.map((attachment, i) => (
         <AttachmentItem
           key={attachment.id}
           attachment={attachment}
           onRemove={onRemove ? () => onRemove(attachment.id) : undefined}
+          last={i === attachments.length - 1 && !uploading}
         />
       ))}
-      {uploading && (
-        <div className={styles.attachmentUploading}>
-          <div
-            className="skeleton"
-            style={{ width: 14, height: 14, borderRadius: 2, flexShrink: 0 }}
-          />
-          <div className={styles.attachmentMeta}>
-            <div className="skeleton skeleton-text" style={{ width: 140 }} />
-            <div className="skeleton skeleton-text" style={{ width: 60, marginTop: 2 }} />
+      {uploading &&
+        (uploadProgress !== undefined ? (
+          <div className={`${styles.attachmentUploadingWrap} ${styles.last}`}>
+            <div className={styles.attachmentUploadingRow}>
+              <Paperclip size={14} strokeWidth={1.75} className={styles.attachmentIcon} />
+              <div className={styles.attachmentMeta}>
+                <span className={styles.attachmentName}>{uploadingFileName ?? 'Uploading…'}</span>
+              </div>
+              <span className={styles.uploadPercent}>{Math.round(uploadProgress * 100)}%</span>
+            </div>
+            <div className={styles.progressTrack}>
+              <div
+                className={styles.progressFill}
+                style={{ width: `${Math.max(4, uploadProgress * 100)}%` }}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className={`${styles.attachmentUploading} ${styles.last}`}>
+            <div
+              className="skeleton"
+              style={{ width: 14, height: 14, borderRadius: 2, flexShrink: 0 }}
+            />
+            <div className={styles.attachmentMeta}>
+              <div className="skeleton skeleton-text" style={{ width: 140 }} />
+              <div className="skeleton skeleton-text" style={{ width: 40 }} />
+            </div>
+          </div>
+        ))}
     </div>
   );
 }

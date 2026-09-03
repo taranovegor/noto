@@ -310,23 +310,43 @@ button.card {
   margin-bottom: 0.5em;
 }
 
+:is(.markdown-body, .tiptap-editor) > *:first-child {
+  margin-top: 0;
+}
+
+.tiptap-editor.ProseMirror > :last-child {
+  margin-bottom: 0;
+}
+
+.tiptap-editor p {
+  color: var(--color-text);
+}
+
+.tiptap-editor .is-empty[data-placeholder]::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+  height: 0;
+}
+
 :is(.markdown-body, .tiptap-editor) h1 {
-  font-size: 1.6rem;
+  font-size: var(--text-2xl);
 }
 :is(.markdown-body, .tiptap-editor) h2 {
-  font-size: 1.3rem;
+  font-size: var(--text-xl);
 }
 :is(.markdown-body, .tiptap-editor) h3 {
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
 }
 :is(.markdown-body, .tiptap-editor) h4 {
-  font-size: 1rem;
+  font-size: var(--text-base);
 }
 :is(.markdown-body, .tiptap-editor) h5 {
-  font-size: 0.95rem;
+  font-size: var(--text-sm);
 }
 :is(.markdown-body, .tiptap-editor) h6 {
-  font-size: 0.875rem;
+  font-size: var(--text-xs);
   color: var(--color-text-secondary);
 }
 
