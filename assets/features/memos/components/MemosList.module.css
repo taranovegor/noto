@@ -28,24 +28,8 @@
   margin-top: var(--space-xs);
 }
 
-.skeletonList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-}
-
-.skeletonCard {
-  height: 100px;
-}
-
 .emptyButton {
   margin-top: var(--space-lg);
-}
-
-.loadingMore {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
 }
 
 .observerSentinel {

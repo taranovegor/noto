@@ -8,8 +8,7 @@ import {
 import { useAppSelector } from '../../../shared/store/hooks';
 import { useMemos } from '../store/api';
 import { useInfiniteScroll, useIsDataStale } from '../../../shared/hooks';
-import { MemosListSkeleton } from './MemosListSkeleton';
-import { MemosLoadingMoreSkeleton } from './MemosLoadingMoreSkeleton';
+import { ListCardSkeleton } from '../../../shared/components';
 
 import styles from './MemosList.module.css';
 
@@ -52,7 +51,7 @@ export function MemosList() {
       )}
 
       {shouldShowSkeleton(isLoading, isFetching, isFetchingNextPage, !!data && !isDataStale) ? (
-        <MemosListSkeleton />
+        <ListCardSkeleton count={5} />
       ) : memos.length > 0 ? (
         <div className={styles.list} role="list">
           {memos.map((memo) => {
@@ -72,7 +71,7 @@ export function MemosList() {
             );
           })}
 
-          {isFetchingNextPage && <MemosLoadingMoreSkeleton />}
+          {isFetchingNextPage && <ListCardSkeleton count={3} />}
 
           <div ref={sentinelRef} className={styles.observerSentinel} />
         </div>

@@ -1,12 +1,11 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, SquarePen, Sparkles, MoreVertical } from 'lucide-react';
+import { ArrowLeft, Search, SquarePen, Sparkles } from 'lucide-react';
 import { useGetNotebookQuery } from '../store/api';
 import { useActionBar } from '../../../layout/ActionBarContext';
-import { SearchBar } from '../../../shared/components';
+import { SearchBar, BackButton, Menu } from '../../../shared/components';
 import { useBackNavigation } from '../../../shared/hooks';
-import backStyles from '../../../shared/components/BackButton.module.css';
 import { NotesList } from './NotesList';
 import { NotebookPageSkeleton } from './NotebookPageSkeleton';
 import styles from './NotebookPage.module.css';
@@ -19,8 +18,6 @@ export function NotebookPage() {
 
   const [notesSearchInput, setNotesSearchInput] = useState('');
   const [notesSearch, setNotesSearch] = useState<string | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
 
   const mobileSearchRef = useRef<HTMLInputElement>(null);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -44,17 +41,6 @@ export function NotebookPage() {
     setMobileSearchOpen(false);
     setMobileSearchValue('');
   }, []);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [menuOpen]);
 
   useActionBar({
     backButton: {
@@ -106,14 +92,7 @@ export function NotebookPage() {
 
   return (
     <div className={styles.pageContainer}>
-      <button
-        type="button"
-        onClick={handleBack}
-        className={backStyles.backBtn}
-        aria-label="Go back"
-      >
-        <ArrowLeft size={20} strokeWidth={1.75} />
-      </button>
+      <BackButton onClick={handleBack} />
       <div className={styles.notebookHeader}>
         <div className={styles.notebookContent}>
           <h1 className={styles.notebookTitle}>{notebook.title}</h1>
@@ -121,36 +100,9 @@ export function NotebookPage() {
             <p className={styles.notebookDescription}>{notebook.description}</p>
           )}
         </div>
-        <div className={styles.notebookMenu} ref={menuRef}>
-          <button
-            type="button"
-            className={styles.menuButton}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setMenuOpen(!menuOpen);
-            }}
-            aria-label="More options"
-          >
-            <MoreVertical size={18} strokeWidth={1.75} />
-          </button>
-          {menuOpen && (
-            <div className={styles.menuDropdown}>
-              <button
-                type="button"
-                className={styles.menuItem}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  navigate(`/notebooks/${notebookId}/edit`);
-                  setMenuOpen(false);
-                }}
-              >
-                Edit
-              </button>
-            </div>
-          )}
-        </div>
+        <Menu
+          items={[{ label: 'Edit', onClick: () => navigate(`/notebooks/${notebookId}/edit`) }]}
+        />
       </div>
 
       <div className={styles.notesSection}>
