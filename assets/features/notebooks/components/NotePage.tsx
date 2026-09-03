@@ -197,7 +197,7 @@ function NotePageInner({ notebookId, noteId, isNew, navigate }: NotePageInnerPro
         type="text"
         value={form.title}
         onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-        placeholder="Note title"
+        placeholder="Untitled note"
         autoFocus={isNew}
       />
 

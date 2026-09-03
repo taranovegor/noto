@@ -40,7 +40,9 @@ export function MarkdownEditor({
       ...(enforceFirstLineHeading ? [FirstLineHeadingDocument] : []),
       Placeholder.configure({
         placeholder: ({ node }) =>
-          enforceFirstLineHeading && node.type.name === 'heading' ? 'Memo' : (placeholder ?? ''),
+          enforceFirstLineHeading && node.type.name === 'heading'
+            ? 'Untitled memo'
+            : (placeholder ?? ''),
       }),
       Mathematics,
       Markdown,
