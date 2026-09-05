@@ -10,12 +10,12 @@ centrifugo_controllers:
     prefix: /api/centrifugo
     name_prefix: api_centrifugo_
 
+mcp:
+    resource: '../src/Mcp/'
+    type: mcp
+
 app_controllers:
     resource: '../src/Controller/App/'
     type: attribute
     prefix: /
     name_prefix: app_
-
-mcp:
-    resource: '../src/Mcp/'
-    type: mcp
