@@ -6,23 +6,20 @@ use App\Dto\User\UserResponseDto;
 use App\Entity\User;
 use App\Factory\User\UserResponseDtoFactory;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Uid\Uuid;
 
 class UserResponseDtoFactoryTest extends TestCase
 {
     private UserResponseDtoFactory $factory;
-    private UserPasswordHasherInterface $passwordHasher;
 
     protected function setUp(): void
     {
-        $this->passwordHasher = $this->createStub(UserPasswordHasherInterface::class);
         $this->factory = new UserResponseDtoFactory();
     }
 
     public function testCreateReturnsUserResponseDto(): void
     {
-        $user = new User('test@example.com', 'password', $this->passwordHasher);
+        $user = new User('test@example.com');
 
         $dto = $this->factory->create($user);
 
@@ -32,7 +29,7 @@ class UserResponseDtoFactoryTest extends TestCase
     public function testCreatePreservesUserEmail(): void
     {
         $email = 'john@example.com';
-        $user = new User($email, 'password', $this->passwordHasher);
+        $user = new User($email);
 
         $dto = $this->factory->create($user);
 
@@ -41,7 +38,7 @@ class UserResponseDtoFactoryTest extends TestCase
 
     public function testCreatePreservesUserId(): void
     {
-        $user = new User('test@example.com', 'password', $this->passwordHasher);
+        $user = new User('test@example.com');
 
         $dto = $this->factory->create($user);
 
@@ -54,7 +51,7 @@ class UserResponseDtoFactoryTest extends TestCase
         $emails = ['alice@example.com', 'bob@example.com', 'charlie@example.com'];
 
         foreach ($emails as $email) {
-            $user = new User($email, 'password', $this->passwordHasher);
+            $user = new User($email);
             $dto = $this->factory->create($user);
 
             $this->assertEquals($email, $dto->email);

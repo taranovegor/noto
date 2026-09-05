@@ -3,7 +3,6 @@ import { User } from '../types';
 
 interface UseAuthReturn {
   user: User | null;
-  accessToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -11,14 +10,11 @@ interface UseAuthReturn {
 }
 
 export function useAuth(): UseAuthReturn {
-  const { user, accessToken, isLoading, error, isInitialized } = useAppSelector(
-    (state) => state.auth,
-  );
+  const { user, isLoading, error, isInitialized } = useAppSelector((state) => state.auth);
 
   return {
     user,
-    accessToken,
-    isAuthenticated: !!user && !!accessToken,
+    isAuthenticated: !!user,
     isLoading,
     error,
     isInitialized,

@@ -13,7 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:user:create',
-    description: 'Create a new user with email and password',
+    description: 'Create a new user by email',
 )]
 final class CreateUserCommand extends Command
 {
@@ -42,24 +42,8 @@ final class CreateUserCommand extends Command
             // User does not exist, proceed with creation
         }
 
-        $password = $io->askHidden('Enter password');
-
-        if (!$password) {
-            $io->error('Password cannot be empty');
-
-            return Command::FAILURE;
-        }
-
-        $confirmedPassword = $io->askHidden('Confirm password');
-
-        if ($password !== $confirmedPassword) {
-            $io->error('Passwords do not match');
-
-            return Command::FAILURE;
-        }
-
         try {
-            $user = $this->userManager->create($email, $password);
+            $user = $this->userManager->create($email);
             $io->success(sprintf('User "%s" created successfully', $user->getUserIdentifier()));
 
             return Command::SUCCESS;

@@ -10,21 +10,6 @@ centrifugo_controllers:
     prefix: /api/centrifugo
     name_prefix: api_centrifugo_
 
-api_auth_login:
-    path: /api/auth/login
-    methods: [ POST ]
-    name_prefix: api_auth_login
-
-api_auth_refresh:
-    path: /api/auth/refresh
-    methods: [ POST ]
-    name_prefix: api_auth_refresh
-
-api_auth_logout:
-    path: /api/auth/logout
-    methods: [ POST ]
-    name_prefix: api_auth_logout
-
 app_controllers:
     resource: '../src/Controller/App/'
     type: attribute

@@ -9,8 +9,7 @@ class UserControllerTest extends AuthenticatedApiTestCase
     public function testGetCurrentUserProfile(): void
     {
         $email = 'john@example.com';
-        $password = 'password123';
-        $client = $this->getAuthenticatedClient($email, $password);
+        $client = $this->getAuthenticatedClient($email);
 
         $client->request('GET', '/api/users/me');
 
@@ -34,7 +33,18 @@ class UserControllerTest extends AuthenticatedApiTestCase
     public function testGetCurrentUserWithInvalidToken(): void
     {
         $client = self::createClient();
-        $client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer invalid.token.here');
+        $client->setServerParameter('HTTP_'.strtoupper(str_replace('-', '_', $_ENV['OAUTH_ACCESS_TOKEN_HEADER'])), 'invalid.token.here');
+
+        $client->request('GET', '/api/users/me');
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+    }
+
+    public function testGetCurrentUserWithTokenForUnprovisionedUser(): void
+    {
+        $client = self::createClient();
+        $this->cleanupUsers();
+        $this->authenticateClient($client, 'never-created@example.com');
 
         $client->request('GET', '/api/users/me');
 
@@ -43,7 +53,7 @@ class UserControllerTest extends AuthenticatedApiTestCase
 
     public function testGetCurrentUserResponseStructure(): void
     {
-        $client = $this->getAuthenticatedClient('test@example.com', 'password');
+        $client = $this->getAuthenticatedClient('test@example.com');
 
         $client->request('GET', '/api/users/me');
 

@@ -17,6 +17,7 @@
         <link rel="apple-touch-startup-image" href="/splash/splash-430x932.png" media="(device-width: 430px) and (device-height: 932px)">
         <link rel="manifest" href="/manifest.webmanifest">
         <meta name="vapid-public-key" content="{{ bentools_webpush.server_key }}">
+        <meta name="oauth-issuer" content="{{ oauthIssuer }}">
         {% block stylesheets %}
             {{ vite_entry_link_tags('app') }}
         {% endblock %}

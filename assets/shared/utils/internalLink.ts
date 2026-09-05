@@ -1,5 +1,3 @@
-import { tokenStorage } from './tokenStorage';
-
 interface EntityDescriptor {
   path: string;
   fallback: string;
@@ -73,12 +71,8 @@ export async function resolveInternalLink(uuid: string, type: string): Promise<R
   const descriptor = ENTITY_REGISTRY[type];
   if (!descriptor) return { title: `${type}/${uuid}` };
 
-  const token = tokenStorage.getAccessToken();
-  const headers: Record<string, string> = {};
-  if (token) headers['Authorization'] = `Bearer ${token}`;
-
   try {
-    const res = await fetch(`/api/${descriptor.path}/${uuid}`, { headers });
+    const res = await fetch(`/api/${descriptor.path}/${uuid}`);
     if (!res.ok) return { title: descriptor.fallback };
     const data: Record<string, unknown> = await res.json();
     const title = descriptor.extractTitle(data);

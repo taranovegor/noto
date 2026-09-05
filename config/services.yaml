@@ -102,10 +102,6 @@ services:
 
     App\Component\Centrifugo\CentrifugalInterface: '@App\Component\Centrifugo\Centrifugo'
 
-    App\Component\Centrifugo\EventSubscriber\AttachConnectionTokenOnAuthenticationSuccess:
-        arguments:
-            $centrifugoUrl: '%env(CENTRIFUGO_WS_URL)%'
-
     ai.http_client.psr18:
         class: Symfony\Component\HttpClient\Psr18Client
 
@@ -148,3 +144,8 @@ services:
             $namespacePrefix: '%app.name%'
 
     App\Component\Broadcaster\BroadcasterInterface: '@App\Component\Broadcaster\Broadcaster'
+
+    App\Security\HeaderOrCookieAccessTokenExtractor:
+        arguments:
+            $headerName: '%env(OAUTH_ACCESS_TOKEN_HEADER)%'
+            $cookieName: '%env(OAUTH_ACCESS_TOKEN_COOKIE)%'

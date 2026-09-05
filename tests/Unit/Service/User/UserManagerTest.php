@@ -8,21 +8,12 @@ use App\Repository\UserRepository;
 use App\Service\Flusher;
 use App\Service\User\UserManager;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserManagerTest extends TestCase
 {
-    private UserPasswordHasherInterface $passwordHasher;
-
-    protected function setUp(): void
-    {
-        $this->passwordHasher = $this->createStub(UserPasswordHasherInterface::class);
-    }
-
     public function testCreateUserPersistsAndFlushes(): void
     {
         $email = 'test@example.com';
-        $password = 'test123';
 
         $repositoryMock = $this->createMock(UserRepository::class);
         $repositoryMock->expects(self::once())
@@ -34,11 +25,10 @@ class UserManagerTest extends TestCase
 
         $userManager = new UserManager(
             $repositoryMock,
-            $this->passwordHasher,
             $flusherMock
         );
 
-        $user = $userManager->create($email, $password);
+        $user = $userManager->create($email);
 
         $this->assertEquals($email, $user->getUserIdentifier());
     }
@@ -58,7 +48,6 @@ class UserManagerTest extends TestCase
 
         $userManager = new UserManager(
             $repositoryMock,
-            $this->passwordHasher,
             $flusherStub
         );
 
@@ -81,7 +70,6 @@ class UserManagerTest extends TestCase
 
         $userManager = new UserManager(
             $repositoryMock,
-            $this->passwordHasher,
             $flusherStub
         );
 
@@ -104,7 +92,6 @@ class UserManagerTest extends TestCase
 
         $userManager = new UserManager(
             $repositoryMock,
-            $this->passwordHasher,
             $flusherStub
         );
 

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
-import { tokenStorage } from '../../shared/utils/tokenStorage';
 
 const ENTITY_PATHS: Record<string, string> = {
   task: '/tasks',
@@ -18,13 +17,7 @@ export function RefsPage() {
       return;
     }
 
-    const token = tokenStorage.getAccessToken();
-    const headers: Record<string, string> = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    fetch(`/api/refs/${id}`, { headers })
+    fetch(`/api/refs/${id}`)
       .then((r) => {
         if (!r.ok) throw new Error('not found');
         return r.json() as Promise<{ id: string; type: string }>;

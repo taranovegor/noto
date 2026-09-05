@@ -1,6 +1,5 @@
-import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../features/auth/hooks/useAuth';
-import { LOGIN_ROUTE } from '../../features/auth';
+import { AccessDeniedPage } from './AccessDeniedPage';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -14,7 +13,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to={LOGIN_ROUTE} replace />;
+    return <AccessDeniedPage />;
   }
 
   return <>{children}</>;

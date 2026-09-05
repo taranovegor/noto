@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     libzip-dev \
     librabbitmq-dev \
+    libgmp-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-configure intl \
@@ -34,7 +35,8 @@ RUN docker-php-ext-configure intl \
     opcache \
     intl \
     sockets \
-    zip
+    zip \
+    gmp
 
 RUN pecl install amqp && docker-php-ext-enable amqp
 

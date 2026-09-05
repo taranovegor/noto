@@ -19,9 +19,7 @@
         "doctrine/doctrine-migrations-bundle": "^4.0.1",
         "doctrine/orm": "^3.6.8",
         "dragonmantank/cron-expression": "^3.6",
-        "gesdinet/jwt-refresh-token-bundle": "^2.2.2",
         "league/commonmark": "^2.10.0",
-        "lexik/jwt-authentication-bundle": "^3.2",
         "nyholm/psr7": "^1.8.2",
         "openai-php/client": "^0.19.2",
         "partitech/doctrine-pgvector": ">=0.0.8",
@@ -37,6 +35,7 @@
         "symfony/asset": "8.0.*",
         "symfony/console": "8.0.*",
         "symfony/debug-bundle": "8.0.*",
+        "symfony/doctrine-bridge": ">=8.0,<8.0.14",
         "symfony/dotenv": "8.0.*",
         "symfony/expression-language": "8.0.*",
         "symfony/flex": "^2.11",
@@ -50,11 +49,13 @@
         "symfony/psr-http-message-bridge": "8.0.*",
         "symfony/runtime": "8.0.*",
         "symfony/scheduler": "8.0.*",
+        "symfony/security-bundle": "8.0.*",
         "symfony/serializer": "8.0.*",
         "symfony/twig-bundle": "8.0.*",
         "symfony/uid": "8.0.*",
         "symfony/validator": "8.0.*",
-        "symfony/yaml": "8.0.*"
+        "symfony/yaml": "8.0.*",
+        "web-token/jwt-library": "^4.2.2"
     },
     "config": {
         "allow-plugins": {
@@ -101,7 +102,6 @@
         ],
         "init-scripts": [
             "bin/console cache:warmup",
-            "bin/console lexik:jwt:generate-keypair --skip-if-exists",
             "bin/console doctrine:migrations:migrate --no-interaction",
             "bin/console assets:install public"
         ]

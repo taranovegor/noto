@@ -5,7 +5,6 @@ namespace App\Tests\Integration\Repository;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserRepositoryTest extends KernelTestCase
 {
@@ -27,7 +26,6 @@ class UserRepositoryTest extends KernelTestCase
     private function cleanup(): void
     {
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $em->createQuery('DELETE FROM App\Entity\RefreshToken')->execute();
         $em->createQuery('DELETE FROM App\Entity\User')->execute();
         $em->createQuery('DELETE FROM App\Entity\Ref')->execute();
     }
@@ -35,9 +33,8 @@ class UserRepositoryTest extends KernelTestCase
     public function testFindByEmailReturnsUser(): void
     {
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $hasher = self::getContainer()->get(UserPasswordHasherInterface::class);
 
-        $user = new User('test@example.com', 'password', $hasher);
+        $user = new User('test@example.com');
         $em->persist($user);
         $em->flush();
 
@@ -57,9 +54,8 @@ class UserRepositoryTest extends KernelTestCase
     public function testLoadUserByIdentifierReturnsUser(): void
     {
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $hasher = self::getContainer()->get(UserPasswordHasherInterface::class);
 
-        $user = new User('loader@example.com', 'password', $hasher);
+        $user = new User('loader@example.com');
         $em->persist($user);
         $em->flush();
 
@@ -79,9 +75,8 @@ class UserRepositoryTest extends KernelTestCase
     public function testAddPersistsUser(): void
     {
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $hasher = self::getContainer()->get(UserPasswordHasherInterface::class);
 
-        $user = new User('new@example.com', 'password', $hasher);
+        $user = new User('new@example.com');
         $this->repository->add($user);
         $em->flush();
 
@@ -93,11 +88,10 @@ class UserRepositoryTest extends KernelTestCase
     public function testMultipleUsersCanBeFound(): void
     {
         $em = self::getContainer()->get('doctrine.orm.entity_manager');
-        $hasher = self::getContainer()->get(UserPasswordHasherInterface::class);
 
-        $user1 = new User('alice@example.com', 'password', $hasher);
-        $user2 = new User('bob@example.com', 'password', $hasher);
-        $user3 = new User('charlie@example.com', 'password', $hasher);
+        $user1 = new User('alice@example.com');
+        $user2 = new User('bob@example.com');
+        $user3 = new User('charlie@example.com');
 
         $em->persist($user1);
         $em->persist($user2);

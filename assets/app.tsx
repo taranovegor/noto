@@ -4,10 +4,15 @@ import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { useAppDispatch } from './shared/store/hooks';
-import { setUser, setIsInitialized, setTokens } from './shared/store/authSlice';
+import {
+  setUser,
+  setIsInitialized,
+  setIsLoading,
+  setError,
+  setCentrifugoConfig,
+} from './shared/store/authSlice';
 import { useAuth } from './features/auth/hooks/useAuth';
 import { App } from './layout/App';
-import { LoginPage } from './features/auth/components/LoginPage';
 import { ProtectedRoute } from './shared/components/ProtectedRoute';
 import { RouteErrorBoundary } from './shared/components/RouteErrorBoundary';
 import { CentrifugoProvider } from './shared/websocket';
@@ -21,8 +26,7 @@ import { MemoPageSkeleton } from './features/memos/components/MemoPageSkeleton';
 import { NotebookPageSkeleton } from './features/notebooks/components/NotebookPageSkeleton';
 import { NotePageSkeleton } from './features/notebooks/components/NotePageSkeleton';
 import { ExtractNotePageSkeleton } from './features/notebooks/components/ExtractNotePageSkeleton';
-import { LOGIN_ROUTE, TASKS_ROUTE } from './features/auth';
-import { tokenStorage } from './shared/utils/tokenStorage';
+import { TASKS_ROUTE } from './features/auth';
 import { authApi } from './features/auth/store/api';
 import { store } from './shared/store';
 
@@ -59,22 +63,27 @@ function AuthInitializer() {
 
   useEffect(() => {
     const initAuth = async () => {
-      const accessToken = tokenStorage.getAccessToken();
-      const refreshToken = tokenStorage.getRefreshToken();
-      const rememberMe = tokenStorage.getRememberMe();
+      dispatch(setIsLoading(true));
 
-      if (accessToken && refreshToken) {
-        dispatch(setTokens({ accessToken, refreshToken, rememberMe }));
+      try {
+        const user = await dispatch(authApi.endpoints.getCurrentUser.initiate()).unwrap();
+        dispatch(setUser(user));
 
         try {
-          const user = await dispatch(authApi.endpoints.getCurrentUser.initiate()).unwrap();
-          dispatch(setUser(user));
+          const centrifugo = await dispatch(
+            authApi.endpoints.getCentrifugoConnection.initiate(),
+          ).unwrap();
+          dispatch(setCentrifugoConfig(centrifugo));
         } catch (error) {
-          console.error('Failed to fetch user:', error);
+          console.error('Failed to fetch Centrifugo connection:', error);
         }
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+        dispatch(setError('Failed to fetch user'));
+      } finally {
+        dispatch(setIsLoading(false));
+        dispatch(setIsInitialized(true));
       }
-
-      dispatch(setIsInitialized(true));
     };
 
     if (!isInitialized) {
@@ -86,10 +95,6 @@ function AuthInitializer() {
 }
 
 const router = createBrowserRouter([
-  {
-    path: LOGIN_ROUTE,
-    element: <LoginPage />,
-  },
   {
     element: (
       <>

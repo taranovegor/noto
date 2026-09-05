@@ -6,20 +6,18 @@ use App\Entity\User;
 use App\Exception\EntityNotFoundException;
 use App\Repository\UserRepository;
 use App\Service\Flusher;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class UserManager
 {
     public function __construct(
         private readonly UserRepository $userRepository,
-        private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly Flusher $flusher,
     ) {
     }
 
-    public function create(string $email, string $password): User
+    public function create(string $email): User
     {
-        $user = new User($email, $password, $this->passwordHasher);
+        $user = new User($email);
         $this->userRepository->add($user);
         $this->flusher->flush();
 

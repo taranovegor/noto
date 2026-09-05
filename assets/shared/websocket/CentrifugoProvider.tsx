@@ -13,10 +13,8 @@ interface CentrifugoProviderProps {
   children: ReactNode;
 }
 
-async function fetchNewToken(accessToken: string): Promise<string> {
-  const response = await fetch('/api/centrifugo/connect', {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+async function fetchNewToken(): Promise<string> {
+  const response = await fetch('/api/centrifugo/connect');
 
   if (!response.ok) {
     throw new Error(`Centrifugo token refresh failed: ${response.status}`);
@@ -30,18 +28,16 @@ async function fetchNewToken(accessToken: string): Promise<string> {
 export function CentrifugoProvider({ children }: CentrifugoProviderProps) {
   const dispatch = useAppDispatch();
   const centrifugoConfig = useAppSelector((state) => state.auth.centrifugoConfig);
-  const accessToken = useAppSelector((state) => state.auth.accessToken);
+  const user = useAppSelector((state) => state.auth.user);
   const clientRef = useRef<Centrifuge | null>(null);
-  const accessTokenRef = useRef(accessToken);
-  accessTokenRef.current = accessToken;
   const [client, setClient] = useState<Centrifuge | null>(null);
 
   // Clear centrifugo config when logged out
   useEffect(() => {
-    if (!accessToken && centrifugoConfig) {
+    if (!user && centrifugoConfig) {
       dispatch(setCentrifugoConfig(null));
     }
-  }, [accessToken, centrifugoConfig, dispatch]);
+  }, [user, centrifugoConfig, dispatch]);
 
   // Create/swap centrifuge client when centrifugo config changes
   useEffect(() => {
@@ -62,14 +58,7 @@ export function CentrifugoProvider({ children }: CentrifugoProviderProps) {
 
     const instance = new Centrifuge(wsUrl, {
       token: centrifugoConfig.token,
-      getToken: () => {
-        const token = accessTokenRef.current;
-        if (!token) {
-          throw new Error('No access token for Centrifugo reconnection');
-        }
-
-        return fetchNewToken(token);
-      },
+      getToken: () => fetchNewToken(),
     });
 
     clientRef.current = instance;

@@ -7,6 +7,7 @@ use App\Component\Centrifugo\Dto\ConnectionTokenDto;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -18,6 +19,7 @@ final class TokenController extends AbstractController
 {
     public function __construct(
         private readonly CentrifugoInterface $centrifugo,
+        #[Autowire('%env(CENTRIFUGO_WS_URL)%')] private readonly string $centrifugoUrl,
     ) {
     }
 
@@ -38,6 +40,10 @@ final class TokenController extends AbstractController
         $user = $this->getUser();
         $connectionToken = $this->centrifugo->generateConnectionToken($user);
 
-        return $this->json($connectionToken);
+        return $this->json([
+            'userId' => $connectionToken->userId,
+            'token' => $connectionToken->token,
+            'url' => $this->centrifugoUrl,
+        ]);
     }
 }

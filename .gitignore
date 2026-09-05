@@ -37,7 +37,3 @@ phpstan.neon
 /public/build/
 /node_modules/
 ###< assets ###
-
-###> lexik/jwt-authentication-bundle ###
-/config/jwt/*.pem
-###< lexik/jwt-authentication-bundle ###
