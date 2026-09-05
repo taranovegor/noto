@@ -32,6 +32,10 @@ mcp:
         stdio: true
         http: true
 
+    discovery:
+        exclude_dirs:
+            - DataFixtures
+
     http:
         path: /_mcp
         session:
